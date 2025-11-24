@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ledtemplate/widgets/preview_widget.dart';
 import 'scrolling_text_renderer.dart';
 import 'settings_panel.dart';
 import 'models/template.dart';
@@ -6,8 +7,9 @@ import 'saving_page.dart';
 
 class EditorPage extends StatefulWidget {
   final Template? template;
+  final int? templateIndex; // Index in UserData.savedTemplates if editing
 
-  const EditorPage({super.key, this.template});
+  const EditorPage({super.key, this.template, this.templateIndex});
 
   @override
   State<EditorPage> createState() => _EditorPageState();
@@ -77,19 +79,218 @@ class _EditorPageState extends State<EditorPage> {
     _backgroundImage = t?.backgroundImage;
 
     _enableFrame = t?.enableFrame ?? false;
-    _frameImage = t?.frameImage ?? 'assets/frame/frame_1.png';
+    _frameImage = t?.frameImage ?? 'assets/frames/frame_1.png';
+  }
+
+  void _showConfirmBackBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder:
+          (context) => Container(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Discard template?',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context); // Close bottom sheet
+                      _saveTemplate();
+                    },
+                    icon: const Icon(Icons.save),
+                    label: const Text('Save Template'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context); // Close bottom sheet
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                    },
+                    icon: const Icon(Icons.delete_outline),
+                    label: const Text('Discard Template'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+    );
+  }
+
+  void _showOverwriteBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder:
+          (context) => Container(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Overwrite?',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context); // Close bottom sheet
+                      _saveAsNewTemplate();
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Create New'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context); // Close bottom sheet
+                      _overwriteTemplate();
+                    },
+                    icon: const Icon(Icons.save),
+                    label: const Text('Overwrite'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.orange,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+    );
+  }
+
+  void _saveTemplate() {
+    // Check if we're editing an existing template from My Templates
+    if (widget.templateIndex != null) {
+      _showOverwriteBottomSheet();
+    } else {
+      _saveAsNewTemplate();
+    }
+  }
+
+  void _saveAsNewTemplate() {
+    final currentTemplate = Template(
+      text: _text,
+      fontFamily: _fontFamily,
+      fontSize: _fontSize,
+      enableStroke: _enableStroke,
+      strokeWidth: _strokeWidth,
+      strokeColor: _strokeColor,
+      enableOutline: _enableOutline,
+      outlineWidth: _outlineWidth,
+      outlineBlur: _outlineBlur,
+      outlineColor: _outlineColor,
+      enableShadow: _enableShadow,
+      shadowOffsetX: _shadowOffsetX,
+      shadowOffsetY: _shadowOffsetY,
+      shadowBlur: _shadowBlur,
+      shadowColor: _shadowColor,
+      scrollDirection: _scrollDirection,
+      scrollSpeed: _scrollSpeed,
+      backgroundColor: _backgroundColor,
+      backgroundImage: _backgroundImage,
+      enableFrame: _enableFrame,
+      frameImage: _frameImage,
+    );
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => SavingPage(template: currentTemplate),
+      ),
+    );
+  }
+
+  void _overwriteTemplate() async {
+    if (widget.templateIndex != null) {
+      final currentTemplate = Template(
+        text: _text,
+        fontFamily: _fontFamily,
+        fontSize: _fontSize,
+        enableStroke: _enableStroke,
+        strokeWidth: _strokeWidth,
+        strokeColor: _strokeColor,
+        enableOutline: _enableOutline,
+        outlineWidth: _outlineWidth,
+        outlineBlur: _outlineBlur,
+        outlineColor: _outlineColor,
+        enableShadow: _enableShadow,
+        shadowOffsetX: _shadowOffsetX,
+        shadowOffsetY: _shadowOffsetY,
+        shadowBlur: _shadowBlur,
+        shadowColor: _shadowColor,
+        scrollDirection: _scrollDirection,
+        scrollSpeed: _scrollSpeed,
+        backgroundColor: _backgroundColor,
+        frameImage: _frameImage,
+      );
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder:
+              (context) => SavingPage(
+                template: currentTemplate,
+                templateIndex: widget.templateIndex,
+              ),
+        ),
+      );
+    } else {
+      _saveAsNewTemplate();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('LED Editor'),
-        actions: [
-          TextButton.icon(
-            onPressed: () {
-              // Create a Template object from current state
-              final currentTemplate = Template(
+    return WillPopScope(
+      onWillPop: () async {
+        _showConfirmBackBottomSheet();
+        return false; // Prevent default back behavior
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('LED Editor'),
+          actions: [
+            TextButton.icon(
+              onPressed: _saveTemplate,
+              icon: const Icon(Icons.save),
+              label: const Text('Save'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.deepPurple, // Or appropriate color
+              ),
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            // Preview Area
+            PreviewWidget(
+              template: Template(
                 text: _text,
                 fontFamily: _fontFamily,
                 fontSize: _fontSize,
@@ -111,132 +312,73 @@ class _EditorPageState extends State<EditorPage> {
                 backgroundImage: _backgroundImage,
                 enableFrame: _enableFrame,
                 frameImage: _frameImage,
-              );
+              ),
+              text: _text,
+            ),
 
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => SavingPage(template: currentTemplate),
+            // Settings Area
+            Expanded(
+              flex: 6,
+              child: Container(
+                color: Colors.grey[100],
+                child: SettingsPanel(
+                  text: _text,
+                  onTextChanged: (v) => setState(() => _text = v),
+                  fontFamily: _fontFamily,
+                  onFontFamilyChanged: (v) => setState(() => _fontFamily = v),
+                  fontSize: _fontSize,
+                  onFontSizeChanged: (v) => setState(() => _fontSize = v),
+                  enableStroke: _enableStroke,
+                  onEnableStrokeChanged:
+                      (v) => setState(() => _enableStroke = v),
+                  strokeWidth: _strokeWidth,
+                  onStrokeWidthChanged: (v) => setState(() => _strokeWidth = v),
+                  strokeColor: _strokeColor,
+                  onStrokeColorChanged: (v) => setState(() => _strokeColor = v),
+                  enableOutline: _enableOutline,
+                  onEnableOutlineChanged:
+                      (v) => setState(() => _enableOutline = v),
+                  outlineWidth: _outlineWidth,
+                  onOutlineWidthChanged:
+                      (v) => setState(() => _outlineWidth = v),
+                  outlineBlur: _outlineBlur,
+                  onOutlineBlurChanged: (v) => setState(() => _outlineBlur = v),
+                  outlineColor: _outlineColor,
+                  onOutlineColorChanged:
+                      (v) => setState(() => _outlineColor = v),
+                  enableShadow: _enableShadow,
+                  onEnableShadowChanged:
+                      (v) => setState(() => _enableShadow = v),
+                  shadowOffsetX: _shadowOffsetX,
+                  onShadowOffsetXChanged:
+                      (v) => setState(() => _shadowOffsetX = v),
+                  shadowOffsetY: _shadowOffsetY,
+                  onShadowOffsetYChanged:
+                      (v) => setState(() => _shadowOffsetY = v),
+                  shadowBlur: _shadowBlur,
+                  onShadowBlurChanged: (v) => setState(() => _shadowBlur = v),
+                  shadowColor: _shadowColor,
+                  onShadowColorChanged: (v) => setState(() => _shadowColor = v),
+                  scrollDirection: _scrollDirection,
+                  onScrollDirectionChanged:
+                      (v) => setState(() => _scrollDirection = v),
+                  scrollSpeed: _scrollSpeed,
+                  onScrollSpeedChanged: (v) => setState(() => _scrollSpeed = v),
+                  backgroundColor: _backgroundColor,
+                  onBackgroundColorChanged:
+                      (v) => setState(() => _backgroundColor = v),
+                  backgroundImage: _backgroundImage,
+                  onBackgroundImageChanged:
+                      (v) => setState(() => _backgroundImage = v),
+                  enableFrame: _enableFrame,
+                  onEnableFrameChanged: (v) => setState(() => _enableFrame = v),
+                  frameImage: _frameImage,
+                  onFrameImageChanged: (v) => setState(() => _frameImage = v),
                 ),
-              );
-            },
-            icon: const Icon(Icons.save),
-            label: const Text('Save'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.deepPurple, // Or appropriate color
-            ),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Preview Area
-          Expanded(
-            flex: 4,
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: _backgroundImage == null ? _backgroundColor : null,
-                image:
-                    _backgroundImage != null
-                        ? DecorationImage(
-                          image: AssetImage(_backgroundImage!),
-                          fit: BoxFit.cover,
-                        )
-                        : null,
-              ),
-              child: Stack(
-                children: [
-                  // Scrolling Text
-                  ScrollingTextRenderer(
-                    text: _text,
-                    fontFamily: _fontFamily,
-                    fontSize: _fontSize,
-                    enableStroke: _enableStroke,
-                    strokeWidth: _strokeWidth,
-                    strokeColor: _strokeColor,
-                    enableOutline: _enableOutline,
-                    outlineWidth: _outlineWidth,
-                    outlineBlur: _outlineBlur,
-                    outlineColor: _outlineColor,
-                    enableShadow: _enableShadow,
-                    shadowOffsetX: _shadowOffsetX,
-                    shadowOffsetY: _shadowOffsetY,
-                    shadowBlur: _shadowBlur,
-                    shadowColor: _shadowColor,
-                    scrollDirection: _scrollDirection,
-                    scrollSpeed: _scrollSpeed,
-                  ),
-
-                  // Frame Overlay
-                  if (_enableFrame && _frameImage != null)
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: Image.asset(_frameImage!, fit: BoxFit.fill),
-                      ),
-                    ),
-                ],
               ),
             ),
-          ),
-
-          // Settings Area
-          Expanded(
-            flex: 6,
-            child: Container(
-              color: Colors.grey[100],
-              child: SettingsPanel(
-                text: _text,
-                onTextChanged: (v) => setState(() => _text = v),
-                fontFamily: _fontFamily,
-                onFontFamilyChanged: (v) => setState(() => _fontFamily = v),
-                fontSize: _fontSize,
-                onFontSizeChanged: (v) => setState(() => _fontSize = v),
-                enableStroke: _enableStroke,
-                onEnableStrokeChanged: (v) => setState(() => _enableStroke = v),
-                strokeWidth: _strokeWidth,
-                onStrokeWidthChanged: (v) => setState(() => _strokeWidth = v),
-                strokeColor: _strokeColor,
-                onStrokeColorChanged: (v) => setState(() => _strokeColor = v),
-                enableOutline: _enableOutline,
-                onEnableOutlineChanged:
-                    (v) => setState(() => _enableOutline = v),
-                outlineWidth: _outlineWidth,
-                onOutlineWidthChanged: (v) => setState(() => _outlineWidth = v),
-                outlineBlur: _outlineBlur,
-                onOutlineBlurChanged: (v) => setState(() => _outlineBlur = v),
-                outlineColor: _outlineColor,
-                onOutlineColorChanged: (v) => setState(() => _outlineColor = v),
-                enableShadow: _enableShadow,
-                onEnableShadowChanged: (v) => setState(() => _enableShadow = v),
-                shadowOffsetX: _shadowOffsetX,
-                onShadowOffsetXChanged:
-                    (v) => setState(() => _shadowOffsetX = v),
-                shadowOffsetY: _shadowOffsetY,
-                onShadowOffsetYChanged:
-                    (v) => setState(() => _shadowOffsetY = v),
-                shadowBlur: _shadowBlur,
-                onShadowBlurChanged: (v) => setState(() => _shadowBlur = v),
-                shadowColor: _shadowColor,
-                onShadowColorChanged: (v) => setState(() => _shadowColor = v),
-                scrollDirection: _scrollDirection,
-                onScrollDirectionChanged:
-                    (v) => setState(() => _scrollDirection = v),
-                scrollSpeed: _scrollSpeed,
-                onScrollSpeedChanged: (v) => setState(() => _scrollSpeed = v),
-                backgroundColor: _backgroundColor,
-                onBackgroundColorChanged:
-                    (v) => setState(() => _backgroundColor = v),
-                backgroundImage: _backgroundImage,
-                onBackgroundImageChanged:
-                    (v) => setState(() => _backgroundImage = v),
-                enableFrame: _enableFrame,
-                onEnableFrameChanged: (v) => setState(() => _enableFrame = v),
-                frameImage: _frameImage,
-                onFrameImageChanged: (v) => setState(() => _frameImage = v),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -236,12 +236,8 @@ class SettingsPanel extends StatelessWidget {
               child: Text('Left to Right'),
             ),
             DropdownMenuItem(
-              value: ScrollDirection.topToBottom,
-              child: Text('Top to Bottom'),
-            ),
-            DropdownMenuItem(
-              value: ScrollDirection.bottomToTop,
-              child: Text('Bottom to Top'),
+              value: ScrollDirection.none,
+              child: Text('None (Static)'),
             ),
           ],
           onChanged: (v) => onScrollDirectionChanged(v!),
@@ -274,7 +270,7 @@ class SettingsPanel extends StatelessWidget {
                 groupValue: backgroundImage != null,
                 onChanged:
                     (v) => onBackgroundImageChanged(
-                      'assets/background/background_1.jpg',
+                      'assets/backgrounds/background_1.jpg',
                     ),
               ),
             ),
@@ -290,21 +286,21 @@ class SettingsPanel extends StatelessWidget {
             spacing: 8,
             children: [
               _ImageOption(
-                assetPath: 'assets/background/background_1.jpg',
+                assetPath: 'assets/backgrounds/background_1.jpg',
                 isSelected:
-                    backgroundImage == 'assets/background/background_1.jpg',
+                    backgroundImage == 'assets/backgrounds/background_1.jpg',
                 onTap:
                     () => onBackgroundImageChanged(
-                      'assets/background/background_1.jpg',
+                      'assets/backgrounds/background_1.jpg',
                     ),
               ),
               _ImageOption(
-                assetPath: 'assets/background/background_2.jpg',
+                assetPath: 'assets/backgrounds/background_2.jpg',
                 isSelected:
-                    backgroundImage == 'assets/background/background_2.jpg',
+                    backgroundImage == 'assets/backgrounds/background_2.jpg',
                 onTap:
                     () => onBackgroundImageChanged(
-                      'assets/background/background_2.jpg',
+                      'assets/backgrounds/background_2.jpg',
                     ),
               ),
             ],
@@ -321,14 +317,14 @@ class SettingsPanel extends StatelessWidget {
             spacing: 8,
             children: [
               _ImageOption(
-                assetPath: 'assets/frame/frame_1.png',
-                isSelected: frameImage == 'assets/frame/frame_1.png',
-                onTap: () => onFrameImageChanged('assets/frame/frame_1.png'),
+                assetPath: 'assets/frames/frame_1.png',
+                isSelected: frameImage == 'assets/frames/frame_1.png',
+                onTap: () => onFrameImageChanged('assets/frames/frame_1.png'),
               ),
               _ImageOption(
-                assetPath: 'assets/frame/frame_2.png',
-                isSelected: frameImage == 'assets/frame/frame_2.png',
-                onTap: () => onFrameImageChanged('assets/frame/frame_2.png'),
+                assetPath: 'assets/frames/frame_2.png',
+                isSelected: frameImage == 'assets/frames/frame_2.png',
+                onTap: () => onFrameImageChanged('assets/frames/frame_2.png'),
               ),
             ],
           ),

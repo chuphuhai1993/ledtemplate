@@ -5,13 +5,20 @@ import 'play_page.dart';
 import 'editor_page.dart';
 
 class MessageInputPage extends StatefulWidget {
-  final Template template;
+  final List<Template> templates; // List of templates in category
+  final int initialIndex; // Starting template index
+  final String categoryName; // Category name for title
   final bool showEditButton;
+  final int?
+  templateIndex; // Index in UserData.savedTemplates if from My Templates
 
   const MessageInputPage({
     super.key,
-    required this.template,
+    required this.templates,
+    required this.initialIndex,
+    required this.categoryName,
     this.showEditButton = false,
+    this.templateIndex,
   });
 
   @override
@@ -19,46 +26,73 @@ class MessageInputPage extends StatefulWidget {
 }
 
 class _MessageInputPageState extends State<MessageInputPage> {
+  late PageController _pageController;
+  late int _currentIndex;
   late TextEditingController _textController;
 
   @override
   void initState() {
     super.initState();
-    _textController = TextEditingController(text: widget.template.text);
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+    _textController = TextEditingController(
+      text: widget.templates[widget.initialIndex].text,
+    );
   }
 
   @override
   void dispose() {
+    _pageController.dispose();
     _textController.dispose();
     super.dispose();
   }
 
+  void _onPageChanged(int index) {
+    setState(() {
+      _currentIndex = index;
+      _textController.text = widget.templates[index].text;
+    });
+  }
+
   void _navigateToPlay() {
+    final template = widget.templates[_currentIndex];
     Navigator.of(context).push(
       MaterialPageRoute(
         builder:
             (context) => PlayPage(
               text: _textController.text,
-              fontFamily: widget.template.fontFamily,
-              fontSize: widget.template.fontSize,
-              enableStroke: widget.template.enableStroke,
-              strokeWidth: widget.template.strokeWidth,
-              strokeColor: widget.template.strokeColor,
-              enableOutline: widget.template.enableOutline,
-              outlineWidth: widget.template.outlineWidth,
-              outlineBlur: widget.template.outlineBlur,
-              outlineColor: widget.template.outlineColor,
-              enableShadow: widget.template.enableShadow,
-              shadowOffsetX: widget.template.shadowOffsetX,
-              shadowOffsetY: widget.template.shadowOffsetY,
-              shadowBlur: widget.template.shadowBlur,
-              shadowColor: widget.template.shadowColor,
-              scrollDirection: widget.template.scrollDirection,
-              scrollSpeed: widget.template.scrollSpeed,
-              backgroundColor: widget.template.backgroundColor,
-              backgroundImage: widget.template.backgroundImage,
-              enableFrame: widget.template.enableFrame,
-              frameImage: widget.template.frameImage,
+              fontFamily: template.fontFamily,
+              fontSize: template.fontSize,
+              enableStroke: template.enableStroke,
+              strokeWidth: template.strokeWidth,
+              strokeColor: template.strokeColor,
+              enableOutline: template.enableOutline,
+              outlineWidth: template.outlineWidth,
+              outlineBlur: template.outlineBlur,
+              outlineColor: template.outlineColor,
+              enableShadow: template.enableShadow,
+              shadowOffsetX: template.shadowOffsetX,
+              shadowOffsetY: template.shadowOffsetY,
+              shadowBlur: template.shadowBlur,
+              shadowColor: template.shadowColor,
+              scrollDirection: template.scrollDirection,
+              scrollSpeed: template.scrollSpeed,
+              backgroundColor: template.backgroundColor,
+              backgroundImage: template.backgroundImage,
+              enableFrame: template.enableFrame,
+              frameImage: template.frameImage,
+            ),
+      ),
+    );
+  }
+
+  void _navigateToEdit() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder:
+            (context) => EditorPage(
+              template: widget.templates[_currentIndex],
+              templateIndex: widget.templateIndex,
             ),
       ),
     );
@@ -67,79 +101,88 @@ class _MessageInputPageState extends State<MessageInputPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Enter Message'),
-        actions: [
-          if (widget.showEditButton)
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => EditorPage(template: widget.template),
+      appBar: AppBar(title: Text(widget.categoryName)),
+      body: Column(
+        children: [
+          // Swipe hint
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.swipe_vertical, size: 16, color: Colors.grey[600]),
+                const SizedBox(width: 8),
+                Text(
+                  'Swipe to explore templates',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+
+          // Preview Area with PageView
+          Expanded(
+            flex: 2,
+            child: PageView.builder(
+              controller: _pageController,
+              scrollDirection: Axis.vertical,
+              onPageChanged: _onPageChanged,
+              itemCount: widget.templates.length,
+              itemBuilder: (context, index) {
+                final template = widget.templates[index];
+                return Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color:
+                        template.backgroundImage == null
+                            ? template.backgroundColor
+                            : null,
+                    image:
+                        template.backgroundImage != null
+                            ? DecorationImage(
+                              image: AssetImage(template.backgroundImage!),
+                              fit: BoxFit.cover,
+                            )
+                            : null,
+                  ),
+                  child: Stack(
+                    children: [
+                      ScrollingTextRenderer(
+                        text: _textController.text,
+                        fontFamily: template.fontFamily,
+                        fontSize: template.fontSize,
+                        enableStroke: template.enableStroke,
+                        strokeWidth: template.strokeWidth,
+                        strokeColor: template.strokeColor,
+                        enableOutline: template.enableOutline,
+                        outlineWidth: template.outlineWidth,
+                        outlineBlur: template.outlineBlur,
+                        outlineColor: template.outlineColor,
+                        enableShadow: template.enableShadow,
+                        shadowOffsetX: template.shadowOffsetX,
+                        shadowOffsetY: template.shadowOffsetY,
+                        shadowBlur: template.shadowBlur,
+                        shadowColor: template.shadowColor,
+                        scrollDirection: template.scrollDirection,
+                        scrollSpeed: template.scrollSpeed,
+                      ),
+                      if (template.enableFrame && template.frameImage != null)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: Image.asset(
+                              template.frameImage!,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 );
               },
             ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Preview Area (Top Half)
-          Expanded(
-            flex: 1,
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color:
-                    widget.template.backgroundImage == null
-                        ? widget.template.backgroundColor
-                        : null,
-                image:
-                    widget.template.backgroundImage != null
-                        ? DecorationImage(
-                          image: AssetImage(widget.template.backgroundImage!),
-                          fit: BoxFit.cover,
-                        )
-                        : null,
-              ),
-              child: Stack(
-                children: [
-                  ScrollingTextRenderer(
-                    text: _textController.text,
-                    fontFamily: widget.template.fontFamily,
-                    fontSize: widget.template.fontSize,
-                    enableStroke: widget.template.enableStroke,
-                    strokeWidth: widget.template.strokeWidth,
-                    strokeColor: widget.template.strokeColor,
-                    enableOutline: widget.template.enableOutline,
-                    outlineWidth: widget.template.outlineWidth,
-                    outlineBlur: widget.template.outlineBlur,
-                    outlineColor: widget.template.outlineColor,
-                    enableShadow: widget.template.enableShadow,
-                    shadowOffsetX: widget.template.shadowOffsetX,
-                    shadowOffsetY: widget.template.shadowOffsetY,
-                    shadowBlur: widget.template.shadowBlur,
-                    shadowColor: widget.template.shadowColor,
-                    scrollDirection: widget.template.scrollDirection,
-                    scrollSpeed: widget.template.scrollSpeed,
-                  ),
-                  if (widget.template.enableFrame &&
-                      widget.template.frameImage != null)
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: Image.asset(
-                          widget.template.frameImage!,
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
           ),
 
-          // Input Area (Bottom Half)
+          // Input Area
           Expanded(
             flex: 1,
             child: Container(
@@ -168,21 +211,42 @@ class _MessageInputPageState extends State<MessageInputPage> {
                       setState(() {});
                     },
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 16),
+                  // Buttons row
+                  Row(
+                    children: [
+                      if (widget.showEditButton)
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: _navigateToEdit,
+                            icon: const Icon(Icons.edit),
+                            label: const Text('Edit'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                          ),
+                        ),
+                      if (widget.showEditButton) const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _navigateToPlay,
+                          icon: const Icon(Icons.play_arrow),
+                          label: const Text('Play'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepPurple,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _navigateToPlay,
-        icon: const Icon(Icons.play_arrow),
-        label: const Text('Play'),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

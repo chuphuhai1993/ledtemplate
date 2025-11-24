@@ -19,6 +19,9 @@ class TemplateData {
           shadowColor: Colors.purple,
           shadowBlur: 10.0,
           backgroundColor: Colors.black,
+          backgroundImage: 'assets/backgrounds/background_1.png',
+          enableFrame: true,
+          frameImage: 'assets/frames/frame_1.png',
           scrollSpeed: 150,
         ),
         Template(
@@ -32,6 +35,7 @@ class TemplateData {
           outlineWidth: 1.0,
           outlineColor: Colors.blue,
           outlineBlur: 5.0,
+          backgroundImage: 'assets/backgrounds/background_2.png',
           scrollDirection: ScrollDirection.leftToRight,
         ),
         Template(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ScrollDirection { leftToRight, rightToLeft, topToBottom, bottomToTop }
+enum ScrollDirection { rightToLeft, leftToRight, none }
 
 class ScrollingTextRenderer extends StatefulWidget {
   final String text;
@@ -115,17 +115,21 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
   }
 
   void _updateDuration() {
-    if (widget.scrollSpeed <= 0) {
+    // Stop animation if speed is 0 or direction is none
+    if (widget.scrollSpeed <= 0 ||
+        widget.scrollDirection == ScrollDirection.none) {
       _controller.stop();
       return;
     }
 
+    // Container width = message width + 200px gap
+    const double containerGap = 200.0;
     double totalDistance = 0;
+
     if (widget.scrollDirection == ScrollDirection.leftToRight ||
         widget.scrollDirection == ScrollDirection.rightToLeft) {
-      totalDistance = _containerWidth + _textWidth;
-    } else {
-      totalDistance = _containerHeight + _textHeight;
+      // Animation cycle = one container width (textWidth + gap)
+      totalDistance = _textWidth + containerGap;
     }
 
     if (totalDistance == 0) return;
@@ -135,8 +139,11 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
       milliseconds: (durationSeconds * 1000).toInt(),
     );
 
-    if (!widget.isPaused && !_controller.isAnimating) {
-      _controller.repeat();
+    // Restart animation to apply new duration immediately
+    if (!widget.isPaused) {
+      _controller
+        ..reset()
+        ..repeat();
     }
   }
 
@@ -153,34 +160,64 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
         _containerWidth = constraints.maxWidth;
         _containerHeight = constraints.maxHeight;
 
-        // Calculate offset based on animation value
-        double offsetX = 0;
-        double offsetY = 0;
+        // Container approach: each container = textWidth + 200
+        // Message is centered in container
+        const double containerGap = 200.0;
+        final double containerWidth = _textWidth + containerGap;
 
         final double value = _controller.value;
+        final double startX = _containerWidth * 0.75;
 
-        switch (widget.scrollDirection) {
-          case ScrollDirection.rightToLeft:
-            // Start at containerWidth, end at -textWidth
-            offsetX = _containerWidth - value * (_containerWidth + _textWidth);
-            offsetY = (_containerHeight - _textHeight) / 2;
-            break;
-          case ScrollDirection.leftToRight:
-            // Start at -textWidth, end at containerWidth
-            offsetX = -_textWidth + value * (_containerWidth + _textWidth);
-            offsetY = (_containerHeight - _textHeight) / 2;
-            break;
-          case ScrollDirection.topToBottom:
-            // Start at -textHeight, end at containerHeight
-            offsetY = -_textHeight + value * (_containerHeight + _textHeight);
-            offsetX = (_containerWidth - _textWidth) / 2;
-            break;
-          case ScrollDirection.bottomToTop:
-            // Start at containerHeight, end at -textHeight
-            offsetY =
-                _containerHeight - value * (_containerHeight + _textHeight);
-            offsetX = (_containerWidth - _textWidth) / 2;
-            break;
+        // Message is centered in container, so offset by gap/2
+        final double messageOffsetInContainer = containerGap / 2;
+        final double offsetY = (_containerHeight - _textHeight) / 2;
+
+        List<Widget> visibleWidgets = [];
+
+        // Helper to add widget if visible
+        void addIfVisible(double xPos) {
+          // Check if message is visible
+          // Message starts at xPos + messageOffsetInContainer
+          final double msgLeft = xPos + messageOffsetInContainer;
+          final double msgRight = msgLeft + _textWidth;
+
+          if (msgRight > 0 && msgLeft < _containerWidth) {
+            visibleWidgets.add(
+              Positioned(
+                left: msgLeft,
+                top: offsetY,
+                child: _buildTextWidget(),
+              ),
+            );
+          }
+        }
+
+        if (widget.scrollDirection == ScrollDirection.none) {
+          visibleWidgets.add(
+            Positioned(
+              left: (_containerWidth - _textWidth) / 2,
+              top: offsetY,
+              child: _buildTextWidget(),
+            ),
+          );
+        } else {
+          // Render enough containers to cover the screen
+          // We check a range of indices. -10 to 10 is plenty for most screens.
+          for (int k = -10; k <= 10; k++) {
+            double containerX = 0;
+            if (widget.scrollDirection == ScrollDirection.rightToLeft) {
+              // pos = startX - value*W + k*W
+              containerX =
+                  startX - (value * containerWidth) + (k * containerWidth);
+            } else {
+              // pos = startX + value*W - k*W
+              // Note: k represents previous/next containers.
+              // If moving Right, "next" container (k=1) should be to the LEFT.
+              containerX =
+                  startX + (value * containerWidth) - (k * containerWidth);
+            }
+            addIfVisible(containerX);
+          }
         }
 
         return ClipRect(
@@ -191,12 +228,8 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
                 left: -10000,
                 child: Container(key: _textKey, child: _buildTextWidget()),
               ),
-              // Visible scrolling text
-              Positioned(
-                left: offsetX,
-                top: offsetY,
-                child: _buildTextWidget(),
-              ),
+
+              ...visibleWidgets,
             ],
           ),
         );

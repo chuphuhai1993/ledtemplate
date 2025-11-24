@@ -65,6 +65,7 @@ class ResultPage extends StatelessWidget {
                               backgroundImage: template.backgroundImage,
                               enableFrame: template.enableFrame,
                               frameImage: template.frameImage,
+                              fromResultPage: true,
                             ),
                       ),
                     );

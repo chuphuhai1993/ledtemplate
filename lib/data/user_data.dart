@@ -25,6 +25,24 @@ class UserData {
     await _save();
   }
 
+  static Future<void> updateTemplate(int index, Template template) async {
+    final currentList = List<Template>.from(savedTemplates.value);
+    if (index >= 0 && index < currentList.length) {
+      currentList[index] = template;
+      savedTemplates.value = currentList;
+      await _save();
+    }
+  }
+
+  static Future<void> deleteTemplate(int index) async {
+    final currentList = List<Template>.from(savedTemplates.value);
+    if (index >= 0 && index < currentList.length) {
+      currentList.removeAt(index);
+      savedTemplates.value = currentList;
+      await _save();
+    }
+  }
+
   static Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     final String jsonString = jsonEncode(
