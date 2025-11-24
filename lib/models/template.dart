@@ -4,6 +4,9 @@ import '../scrolling_text_renderer.dart';
 class Template {
   final String text;
   final String fontFamily;
+
+  /// Font size as a percentage of widget height (0-100)
+  /// The actual pixel size is calculated dynamically based on container height
   final double fontSize;
   final bool enableStroke;
   final double strokeWidth;
@@ -27,7 +30,7 @@ class Template {
   const Template({
     required this.text,
     this.fontFamily = 'Roboto',
-    this.fontSize = 80.0,
+    this.fontSize = 30.0, // 30% of widget height
     this.enableStroke = false,
     this.strokeWidth = 2.0,
     this.strokeColor = Colors.red,
@@ -78,7 +81,10 @@ class Template {
     return Template(
       text: json['text'] ?? '',
       fontFamily: json['fontFamily'] ?? 'Roboto',
-      fontSize: (json['fontSize'] as num?)?.toDouble() ?? 80.0,
+      fontSize: ((json['fontSize'] as num?)?.toDouble() ?? 30.0).clamp(
+        15.0,
+        90.0,
+      ),
       enableStroke: json['enableStroke'] ?? false,
       strokeWidth: (json['strokeWidth'] as num?)?.toDouble() ?? 2.0,
       strokeColor: Color(json['strokeColor'] ?? 0xFFFF0000),

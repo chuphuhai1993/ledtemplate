@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'widgets/template_card.dart';
+import 'widgets/preview_widget.dart';
 import 'data/user_data.dart';
 import 'preview_page.dart';
 import 'editor_page.dart';
@@ -13,10 +13,50 @@ class MyTemplatesTab extends StatefulWidget {
 }
 
 class _MyTemplatesTabState extends State<MyTemplatesTab> {
+  bool _enableTextScroll = true;
+
+  void _showMoreOptions(BuildContext context, {
+    required VoidCallback onEdit,
+    required VoidCallback onDelete,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Edit'),
+              onTap: () {
+                Navigator.pop(context);
+                onEdit();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.red),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                onDelete();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Templates')),
+      appBar: AppBar(
+        title: const Text('My Templates'),
+      ),
       body: ValueListenableBuilder<List<Template>>(
         valueListenable: UserData.savedTemplates,
         builder: (context, templates, child) {
@@ -109,67 +149,96 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 16 / 9,
+                    childAspectRatio: 16 / 7.5,
                   ),
                   itemCount: templates.length,
                   itemBuilder: (context, index) {
                     final template = templates[index];
-                    return TemplateCard(
-                      template: template,
-                      showMoreButton: true,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder:
-                                (context) => PreviewPage(
-                                  templates: templates, // Pass all templates
-                                  initialIndex: index, // Current template index
+                    return Stack(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => PreviewPage(
+                                  templates: templates,
+                                  initialIndex: index,
                                   categoryName: 'My Templates',
                                   showEditButton: true,
                                   templateIndex: index,
                                 ),
-                          ),
-                        );
-                      },
-                      onEdit: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder:
-                                (context) => EditorPage(
-                                  template: template,
-                                  templateIndex: index,
-                                ),
-                          ),
-                        );
-                      },
-                      onDelete: () {
-                        showDialog(
-                          context: context,
-                          builder:
-                              (context) => AlertDialog(
-                                title: const Text('Delete Template'),
-                                content: const Text(
-                                  'Are you sure you want to delete this template?',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      UserData.deleteTemplate(index);
-                                      Navigator.pop(context);
-                                    },
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: Colors.red,
-                                    ),
-                                    child: const Text('Delete'),
-                                  ),
-                                ],
                               ),
-                        );
-                      },
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12.0),
+                            child: PreviewWidget(
+                              template: template,
+                              text: template.text,
+                              enableTextScroll: false,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: Material(
+                            color: Colors.black54,
+                            borderRadius: BorderRadius.circular(20),
+                            child: InkWell(
+                              onTap: () => _showMoreOptions(
+                                context,
+                                onEdit: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => EditorPage(
+                                        template: template,
+                                        templateIndex: index,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                onDelete: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Delete Template'),
+                                      content: const Text(
+                                          'Are you sure you want to delete this template?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: const Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            UserData.deleteTemplate(index);
+                                            Navigator.pop(context);
+                                          },
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: Colors.red,
+                                          ),
+                                          child: const Text('Delete'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                              child: const Padding(
+                                padding: EdgeInsets.all(4.0),
+                                child: Icon(
+                                  Icons.more_vert,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),

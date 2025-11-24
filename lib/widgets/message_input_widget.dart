@@ -17,7 +17,7 @@ class MessageInputWidget extends StatelessWidget {
     return Column(
       children: [
         // Preview Area
-        PreviewWidget(template: template, text: textController.text),
+        PreviewWidget(template: template, text: textController.text, showPhoneFrame: true),
 
         // Input Area
         Expanded(

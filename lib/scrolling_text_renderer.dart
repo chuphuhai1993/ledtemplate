@@ -193,6 +193,7 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
         }
 
         if (widget.scrollDirection == ScrollDirection.none) {
+          // Center the text horizontally on the screen
           visibleWidgets.add(
             Positioned(
               left: (_containerWidth - _textWidth) / 2,

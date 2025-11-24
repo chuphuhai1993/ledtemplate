@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'preview_page.dart';
 import 'data/template_data.dart';
 
-import 'widgets/template_card.dart';
+import 'widgets/preview_widget.dart';
 
 class TemplateTab extends StatefulWidget {
   const TemplateTab({super.key});
@@ -12,6 +12,8 @@ class TemplateTab extends StatefulWidget {
 }
 
 class _TemplateTabState extends State<TemplateTab> {
+  bool _enableTextScroll = true;
+
   @override
   Widget build(BuildContext context) {
     final categories = TemplateData.categories;
@@ -36,38 +38,43 @@ class _TemplateTabState extends State<TemplateTab> {
             // TabBarView for Categories
             Expanded(
               child: TabBarView(
-                children:
-                    categories.map((category) {
-                      return GridView.builder(
-                        padding: const EdgeInsets.all(16.0),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 1,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: 16 / 7.5,
+                children: categories.map((category) {
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 1,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 16 / 7.5,
+                    ),
+                    itemCount: category.templates.length,
+                    itemBuilder: (context, index) {
+                      final template = category.templates[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => PreviewPage(
+                                templates: category.templates,
+                                initialIndex: index,
+                                categoryName: category.name,
+                              ),
                             ),
-                        itemCount: category.templates.length,
-                        itemBuilder: (context, index) {
-                          final template = category.templates[index];
-                          return TemplateCard(
-                            template: template,
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => PreviewPage(
-                                        templates: category.templates,
-                                        initialIndex: index,
-                                        categoryName: category.name,
-                                      ),
-                                ),
-                              );
-                            },
                           );
                         },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12.0),
+                          child: PreviewWidget(
+                            template: template,
+                            text: template.text,
+                            enableTextScroll: false,
+                          ),
+                        ),
                       );
-                    }).toList(),
+                    },
+                  );
+                }).toList(),
               ),
             ),
           ],

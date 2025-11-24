@@ -10,7 +10,7 @@ class TemplateData {
         Template(
           text: 'LIVE CONCERT TONIGHT!',
           fontFamily: 'NeonClub',
-          fontSize: 100,
+          fontSize: 35,
           enableOutline: true,
           outlineWidth: 2.0,
           outlineColor: Colors.purpleAccent,
@@ -19,7 +19,7 @@ class TemplateData {
           shadowColor: Colors.purple,
           shadowBlur: 10.0,
           backgroundColor: Colors.black,
-          backgroundImage: 'assets/backgrounds/background_1.png',
+          backgroundImage: 'assets/backgrounds/background_1.jpg',
           enableFrame: true,
           frameImage: 'assets/frames/frame_1.png',
           scrollSpeed: 150,
@@ -27,7 +27,7 @@ class TemplateData {
         Template(
           text: 'DJ PARTY - MAKE SOME NOISE',
           fontFamily: 'Beon',
-          fontSize: 90,
+          fontSize: 32,
           enableStroke: true,
           strokeWidth: 3.0,
           strokeColor: Colors.cyanAccent,
@@ -35,13 +35,13 @@ class TemplateData {
           outlineWidth: 1.0,
           outlineColor: Colors.blue,
           outlineBlur: 5.0,
-          backgroundImage: 'assets/backgrounds/background_2.png',
+          backgroundImage: 'assets/backgrounds/background_2.jpg',
           scrollDirection: ScrollDirection.leftToRight,
         ),
         Template(
           text: 'ROCK N ROLL',
           fontFamily: 'Roboto', // Or a custom rock font if available
-          fontSize: 120,
+          fontSize: 40,
           enableStroke: true,
           strokeWidth: 4.0,
           strokeColor: Colors.red,
@@ -59,7 +59,7 @@ class TemplateData {
         Template(
           text: 'MERRY CHRISTMAS!',
           fontFamily: 'NeonClub',
-          fontSize: 90,
+          fontSize: 32,
           enableOutline: true,
           outlineWidth: 2.0,
           outlineColor: Colors.green,
@@ -72,7 +72,7 @@ class TemplateData {
         Template(
           text: 'HAPPY HOLIDAYS',
           fontFamily: 'Beon',
-          fontSize: 80,
+          fontSize: 28,
           enableShadow: true,
           shadowColor: Colors.amber,
           shadowBlur: 8.0,
@@ -84,7 +84,7 @@ class TemplateData {
         Template(
           text: 'LET IT SNOW',
           fontFamily: 'Roboto',
-          fontSize: 100,
+          fontSize: 35,
           enableOutline: true,
           outlineColor: Colors.white,
           outlineBlur: 20.0,
@@ -99,7 +99,7 @@ class TemplateData {
         Template(
           text: 'I LOVE YOU ❤️',
           fontFamily: 'NeonClub',
-          fontSize: 90,
+          fontSize: 32,
           enableOutline: true,
           outlineColor: Colors.pinkAccent,
           outlineBlur: 15.0,
@@ -108,7 +108,7 @@ class TemplateData {
         Template(
           text: 'BE MINE?',
           fontFamily: 'Beon',
-          fontSize: 100,
+          fontSize: 35,
           enableStroke: true,
           strokeColor: Colors.pink,
           strokeWidth: 3.0,
@@ -119,7 +119,7 @@ class TemplateData {
         Template(
           text: 'FOREVER & ALWAYS',
           fontFamily: 'Roboto',
-          fontSize: 80,
+          fontSize: 28,
           enableOutline: true,
           outlineColor: Colors.purpleAccent,
           outlineBlur: 8.0,

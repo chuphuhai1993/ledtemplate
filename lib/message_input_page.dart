@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'models/template.dart';
-import 'scrolling_text_renderer.dart';
+import 'widgets/preview_widget.dart';
 import 'play_page.dart';
 import 'editor_page.dart';
 
@@ -130,53 +130,9 @@ class _MessageInputPageState extends State<MessageInputPage> {
               itemCount: widget.templates.length,
               itemBuilder: (context, index) {
                 final template = widget.templates[index];
-                return Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color:
-                        template.backgroundImage == null
-                            ? template.backgroundColor
-                            : null,
-                    image:
-                        template.backgroundImage != null
-                            ? DecorationImage(
-                              image: AssetImage(template.backgroundImage!),
-                              fit: BoxFit.cover,
-                            )
-                            : null,
-                  ),
-                  child: Stack(
-                    children: [
-                      ScrollingTextRenderer(
-                        text: _textController.text,
-                        fontFamily: template.fontFamily,
-                        fontSize: template.fontSize,
-                        enableStroke: template.enableStroke,
-                        strokeWidth: template.strokeWidth,
-                        strokeColor: template.strokeColor,
-                        enableOutline: template.enableOutline,
-                        outlineWidth: template.outlineWidth,
-                        outlineBlur: template.outlineBlur,
-                        outlineColor: template.outlineColor,
-                        enableShadow: template.enableShadow,
-                        shadowOffsetX: template.shadowOffsetX,
-                        shadowOffsetY: template.shadowOffsetY,
-                        shadowBlur: template.shadowBlur,
-                        shadowColor: template.shadowColor,
-                        scrollDirection: template.scrollDirection,
-                        scrollSpeed: template.scrollSpeed,
-                      ),
-                      if (template.enableFrame && template.frameImage != null)
-                        Positioned.fill(
-                          child: IgnorePointer(
-                            child: Image.asset(
-                              template.frameImage!,
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                return PreviewWidget(
+                  template: template,
+                  text: _textController.text,
                 );
               },
             ),

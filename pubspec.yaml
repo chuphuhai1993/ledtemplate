@@ -64,6 +64,7 @@ flutter:
     - assets/backgrounds/
     - assets/frames/
     - assets/fonts/
+    - assets/phones/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -80,7 +81,54 @@ flutter:
     - family: Beon
       fonts:
         - asset: assets/fonts/beon.ttf
-    - family: NeonClub
+    - family: Amaline
       fonts:
-        - asset: assets/fonts/neon_club.otf
-
+        - asset: assets/fonts/amaline.ttf
+    - family: BetterOutline
+      fonts:
+        - asset: assets/fonts/betteroutline.ttf
+    - family: Crosseline
+      fonts:
+        - asset: assets/fonts/crosseline.ttf
+    - family: Glowtone
+      fonts:
+        - asset: assets/fonts/glowtone.otf
+    - family: Honeyline
+      fonts:
+        - asset: assets/fonts/honeyline.ttf
+    - family: Klaxons
+      fonts:
+        - asset: assets/fonts/klaxons.otf
+    - family: Mohaw
+      fonts:
+        - asset: assets/fonts/mohaw.otf
+    - family: NeonBines
+      fonts:
+        - asset: assets/fonts/neonbines.ttf
+    - family: NeonBlitz
+      fonts:
+        - asset: assets/fonts/neonblitz.ttf
+    - family: NeonDerthaw
+      fonts:
+        - asset: assets/fonts/neonderthaw.ttf
+    - family: NeonLight
+      fonts:
+        - asset: assets/fonts/neonlight.ttf
+    - family: NeonSans
+      fonts:
+        - asset: assets/fonts/neonsans.ttf
+    - family: Rookworst
+      fonts:
+        - asset: assets/fonts/rookworst.ttf
+    - family: Ryga
+      fonts:
+        - asset: assets/fonts/ryga.ttf
+    - family: SunsetClub
+      fonts:
+        - asset: assets/fonts/sunsetclub.ttf
+    - family: Wednesline
+      fonts:
+        - asset: assets/fonts/wednesline.ttf
+    - family: WonderfulAustralia
+      fonts:
+        - asset: assets/fonts/wonderfulaustralia.otf

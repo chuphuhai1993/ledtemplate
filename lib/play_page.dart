@@ -276,153 +276,165 @@ class _PlayPageState extends State<PlayPage> {
       },
       child: Scaffold(
         backgroundColor: Colors.black,
-        body: GestureDetector(
-          onTap: _toggleControls,
-          onLongPressStart: (_) => setState(() => _isPaused = true),
-          onLongPressEnd: (_) => setState(() => _isPaused = false),
-          behavior: HitTestBehavior.opaque,
-          child: Stack(
-            children: [
-              // Background
-              Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  color:
-                      widget.backgroundImage == null
-                          ? widget.backgroundColor
-                          : null,
-                  image:
-                      widget.backgroundImage != null
-                          ? DecorationImage(
-                            image: AssetImage(widget.backgroundImage!),
-                            fit: BoxFit.cover,
-                          )
-                          : null,
-                ),
-              ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            // Calculate actual font size as a percentage of screen height
+            // widget.fontSize is stored as 0-100 (percentage)
+            final double actualFontSize =
+                constraints.maxHeight * (widget.fontSize / 100);
 
-              // Scrolling Text
-              ScrollingTextRenderer(
-                text: widget.text,
-                fontFamily: widget.fontFamily,
-                fontSize: widget.fontSize,
-                enableStroke: widget.enableStroke,
-                strokeWidth: widget.strokeWidth,
-                strokeColor: widget.strokeColor,
-                enableOutline: widget.enableOutline,
-                outlineWidth: widget.outlineWidth,
-                outlineBlur: widget.outlineBlur,
-                outlineColor: widget.outlineColor,
-                enableShadow: widget.enableShadow,
-                shadowOffsetX: widget.shadowOffsetX,
-                shadowOffsetY: widget.shadowOffsetY,
-                shadowBlur: widget.shadowBlur,
-                shadowColor: widget.shadowColor,
-                scrollDirection: widget.scrollDirection,
-                scrollSpeed: widget.scrollSpeed,
-                isPaused: _isPaused,
-              ),
-
-              // Frame Overlay
-              if (widget.enableFrame && widget.frameImage != null)
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: Image.asset(widget.frameImage!, fit: BoxFit.fill),
+            return GestureDetector(
+              onTap: _toggleControls,
+              onLongPressStart: (_) => setState(() => _isPaused = true),
+              onLongPressEnd: (_) => setState(() => _isPaused = false),
+              behavior: HitTestBehavior.opaque,
+              child: Stack(
+                children: [
+                  // Background
+                  Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    decoration: BoxDecoration(
+                      color:
+                          widget.backgroundImage == null
+                              ? widget.backgroundColor
+                              : null,
+                      image:
+                          widget.backgroundImage != null
+                              ? DecorationImage(
+                                image: AssetImage(widget.backgroundImage!),
+                                fit: BoxFit.cover,
+                              )
+                              : null,
+                    ),
                   ),
-                ),
 
-              // Controls Overlay
-              AnimatedOpacity(
-                opacity: _controlsVisible ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 300),
-                child: Stack(
-                  children: [
-                    // Close Button (Top LEFT) - Only if NOT locked
-                    if (!_isLocked)
-                      Positioned(
-                        top: 20,
-                        left: 20,
-                        child: SafeArea(
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.close,
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                            onPressed: _showCloseExploreBottomSheet,
-                            style: IconButton.styleFrom(
-                              backgroundColor: Colors.black54,
-                            ),
-                          ),
-                        ),
-                      ),
+                  // Scrolling Text
+                  ScrollingTextRenderer(
+                    text: widget.text,
+                    fontFamily: widget.fontFamily,
+                    fontSize: actualFontSize,
+                    enableStroke: widget.enableStroke,
+                    strokeWidth: widget.strokeWidth,
+                    strokeColor: widget.strokeColor,
+                    enableOutline: widget.enableOutline,
+                    outlineWidth: widget.outlineWidth,
+                    outlineBlur: widget.outlineBlur,
+                    outlineColor: widget.outlineColor,
+                    enableShadow: widget.enableShadow,
+                    shadowOffsetX: widget.shadowOffsetX,
+                    shadowOffsetY: widget.shadowOffsetY,
+                    shadowBlur: widget.shadowBlur,
+                    shadowColor: widget.shadowColor,
+                    scrollDirection: widget.scrollDirection,
+                    scrollSpeed: widget.scrollSpeed,
+                    isPaused: _isPaused,
+                  ),
 
-                    // Lock/Unlock Button (Top RIGHT)
-                    Positioned(
-                      top: 20,
-                      right: 20,
-                      child: SafeArea(
-                        child: IconButton(
-                          icon: Icon(
-                            _isLocked ? Icons.lock : Icons.lock_open,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                          onPressed: _toggleLock,
-                          style: IconButton.styleFrom(
-                            backgroundColor: Colors.black54,
-                          ),
+                  // Frame Overlay
+                  if (widget.enableFrame && widget.frameImage != null)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: Image.asset(
+                          widget.frameImage!,
+                          fit: BoxFit.fill,
                         ),
                       ),
                     ),
 
-                    // Brightness Slider (Bottom) - Only if NOT locked
-                    if (!_isLocked)
-                      Positioned(
-                        bottom: 20,
-                        left: 20,
-                        right: 20,
-                        child: SafeArea(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black54,
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.brightness_low,
+                  // Controls Overlay
+                  AnimatedOpacity(
+                    opacity: _controlsVisible ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 300),
+                    child: Stack(
+                      children: [
+                        // Close Button (Top LEFT) - Only if NOT locked
+                        if (!_isLocked)
+                          Positioned(
+                            top: 20,
+                            left: 20,
+                            child: SafeArea(
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.close,
                                   color: Colors.white,
-                                  size: 24,
+                                  size: 30,
                                 ),
-                                Expanded(
-                                  child: Slider(
-                                    value: _brightness,
-                                    onChanged: _setBrightness,
-                                    activeColor: Colors.white,
-                                    inactiveColor: Colors.white38,
-                                  ),
+                                onPressed: _showCloseExploreBottomSheet,
+                                style: IconButton.styleFrom(
+                                  backgroundColor: Colors.black54,
                                 ),
-                                const Icon(
-                                  Icons.brightness_high,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ],
+                              ),
+                            ),
+                          ),
+
+                        // Lock/Unlock Button (Top RIGHT)
+                        Positioned(
+                          top: 20,
+                          right: 20,
+                          child: SafeArea(
+                            child: IconButton(
+                              icon: Icon(
+                                _isLocked ? Icons.lock : Icons.lock_open,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                              onPressed: _toggleLock,
+                              style: IconButton.styleFrom(
+                                backgroundColor: Colors.black54,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
-                ),
+
+                        // Brightness Slider (Bottom) - Only if NOT locked
+                        if (!_isLocked)
+                          Positioned(
+                            bottom: 20,
+                            left: 20,
+                            right: 20,
+                            child: SafeArea(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black54,
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.brightness_low,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                    Expanded(
+                                      child: Slider(
+                                        value: _brightness,
+                                        onChanged: _setBrightness,
+                                        activeColor: Colors.white,
+                                        inactiveColor: Colors.white38,
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.brightness_high,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

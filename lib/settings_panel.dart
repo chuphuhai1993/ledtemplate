@@ -121,18 +121,38 @@ class SettingsPanel extends StatelessWidget {
           items: const [
             DropdownMenuItem(value: 'Roboto', child: Text('Default (Roboto)')),
             DropdownMenuItem(value: 'Beon', child: Text('Beon')),
-            DropdownMenuItem(value: 'NeonClub', child: Text('NeonClub')),
+            DropdownMenuItem(value: 'Amaline', child: Text('Amaline')),
+            DropdownMenuItem(
+              value: 'BetterOutline',
+              child: Text('Better Outline'),
+            ),
+            DropdownMenuItem(value: 'Crosseline', child: Text('Crosseline')),
+            DropdownMenuItem(value: 'Glowtone', child: Text('Glowtone')),
+            DropdownMenuItem(value: 'Honeyline', child: Text('Honeyline')),
+            DropdownMenuItem(value: 'Klaxons', child: Text('Klaxons')),
+            DropdownMenuItem(value: 'Mohaw', child: Text('Mohaw')),
+            DropdownMenuItem(value: 'NeonBines', child: Text('Neon Bines')),
+            DropdownMenuItem(value: 'NeonBlitz', child: Text('Neon Blitz')),
+            DropdownMenuItem(value: 'NeonDerthaw', child: Text('Neon Derthaw')),
+            DropdownMenuItem(value: 'NeonLight', child: Text('Neon Light')),
+            DropdownMenuItem(value: 'NeonSans', child: Text('Neon Sans')),
+            DropdownMenuItem(value: 'Rookworst', child: Text('Rookworst')),
+            DropdownMenuItem(value: 'Ryga', child: Text('Ryga')),
+            DropdownMenuItem(value: 'SunsetClub', child: Text('Sunset Club')),
+            DropdownMenuItem(value: 'Wednesline', child: Text('Wednesline')),
+            DropdownMenuItem(
+              value: 'WonderfulAustralia',
+              child: Text('Wonderful Australia'),
+            ),
           ],
           onChanged: (v) => onFontFamilyChanged(v!),
         ),
 
-        const Text('Font Size', style: TextStyle(fontWeight: FontWeight.bold)),
-        Slider(
-          value: fontSize,
-          min: 10,
-          max: 200,
-          onChanged: onFontSizeChanged,
+        Text(
+          'Font Size: ${fontSize.toStringAsFixed(0)}%',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
+        Slider(value: fontSize, min: 15, max: 90, onChanged: onFontSizeChanged),
 
         const Divider(),
         SwitchListTile(

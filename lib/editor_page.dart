@@ -55,7 +55,7 @@ class _EditorPageState extends State<EditorPage> {
     final t = widget.template;
     _text = t?.text ?? 'HELLO WORLD';
     _fontFamily = t?.fontFamily ?? 'Beon';
-    _fontSize = t?.fontSize ?? 80.0;
+    _fontSize = (t?.fontSize ?? 30.0).clamp(15.0, 90.0);
 
     _enableStroke = t?.enableStroke ?? false;
     _strokeWidth = t?.strokeWidth ?? 2.0;
@@ -248,6 +248,8 @@ class _EditorPageState extends State<EditorPage> {
         scrollDirection: _scrollDirection,
         scrollSpeed: _scrollSpeed,
         backgroundColor: _backgroundColor,
+        backgroundImage: _backgroundImage,
+        enableFrame: _enableFrame,
         frameImage: _frameImage,
       );
 
@@ -290,6 +292,7 @@ class _EditorPageState extends State<EditorPage> {
           children: [
             // Preview Area
             PreviewWidget(
+              showPhoneFrame: true,
               template: Template(
                 text: _text,
                 fontFamily: _fontFamily,
