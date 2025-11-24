@@ -1,0 +1,128 @@
+import 'package:flutter/material.dart';
+import '../scrolling_text_renderer.dart';
+import '../models/template.dart';
+
+class TemplateData {
+  static const List<TemplateCategory> categories = [
+    TemplateCategory(
+      name: 'Music',
+      templates: [
+        Template(
+          text: 'LIVE CONCERT TONIGHT!',
+          fontFamily: 'NeonClub',
+          fontSize: 100,
+          enableOutline: true,
+          outlineWidth: 2.0,
+          outlineColor: Colors.purpleAccent,
+          outlineBlur: 15.0,
+          enableShadow: true,
+          shadowColor: Colors.purple,
+          shadowBlur: 10.0,
+          backgroundColor: Colors.black,
+          scrollSpeed: 150,
+        ),
+        Template(
+          text: 'DJ PARTY - MAKE SOME NOISE',
+          fontFamily: 'Beon',
+          fontSize: 90,
+          enableStroke: true,
+          strokeWidth: 3.0,
+          strokeColor: Colors.cyanAccent,
+          enableOutline: true,
+          outlineWidth: 1.0,
+          outlineColor: Colors.blue,
+          outlineBlur: 5.0,
+          scrollDirection: ScrollDirection.leftToRight,
+        ),
+        Template(
+          text: 'ROCK N ROLL',
+          fontFamily: 'Roboto', // Or a custom rock font if available
+          fontSize: 120,
+          enableStroke: true,
+          strokeWidth: 4.0,
+          strokeColor: Colors.red,
+          enableShadow: true,
+          shadowColor: Colors.orange,
+          shadowBlur: 5.0,
+          shadowOffsetX: 5.0,
+          shadowOffsetY: 5.0,
+        ),
+      ],
+    ),
+    TemplateCategory(
+      name: 'Christmas',
+      templates: [
+        Template(
+          text: 'MERRY CHRISTMAS!',
+          fontFamily: 'NeonClub',
+          fontSize: 90,
+          enableOutline: true,
+          outlineWidth: 2.0,
+          outlineColor: Colors.green,
+          outlineBlur: 10.0,
+          enableStroke: true,
+          strokeWidth: 2.0,
+          strokeColor: Colors.red,
+          backgroundColor: Colors.white10, // Slight tint
+        ),
+        Template(
+          text: 'HAPPY HOLIDAYS',
+          fontFamily: 'Beon',
+          fontSize: 80,
+          enableShadow: true,
+          shadowColor: Colors.amber,
+          shadowBlur: 8.0,
+          enableOutline: true,
+          outlineColor: Colors.redAccent,
+          outlineBlur: 5.0,
+          outlineWidth: 1.0,
+        ),
+        Template(
+          text: 'LET IT SNOW',
+          fontFamily: 'Roboto',
+          fontSize: 100,
+          enableOutline: true,
+          outlineColor: Colors.white,
+          outlineBlur: 20.0,
+          outlineWidth: 3.0,
+          backgroundColor: Colors.blueGrey,
+        ),
+      ],
+    ),
+    TemplateCategory(
+      name: 'Love',
+      templates: [
+        Template(
+          text: 'I LOVE YOU ❤️',
+          fontFamily: 'NeonClub',
+          fontSize: 90,
+          enableOutline: true,
+          outlineColor: Colors.pinkAccent,
+          outlineBlur: 15.0,
+          outlineWidth: 2.0,
+        ),
+        Template(
+          text: 'BE MINE?',
+          fontFamily: 'Beon',
+          fontSize: 100,
+          enableStroke: true,
+          strokeColor: Colors.pink,
+          strokeWidth: 3.0,
+          enableShadow: true,
+          shadowColor: Colors.red,
+          shadowBlur: 10.0,
+        ),
+        Template(
+          text: 'FOREVER & ALWAYS',
+          fontFamily: 'Roboto',
+          fontSize: 80,
+          enableOutline: true,
+          outlineColor: Colors.purpleAccent,
+          outlineBlur: 8.0,
+          outlineWidth: 1.0,
+          backgroundColor: Colors.deepPurple,
+        ),
+      ],
+    ),
+  ];
+}
