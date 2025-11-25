@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'scrolling_text_renderer.dart';
+import 'widgets/color_picker_bottom_sheet.dart';
 
 class SettingsPanel extends StatelessWidget {
   final String text;
@@ -9,13 +10,25 @@ class SettingsPanel extends StatelessWidget {
   final double fontSize;
   final ValueChanged<double> onFontSizeChanged;
 
+  // Text Color
+  final Color textColor;
+  final ValueChanged<Color> onTextColorChanged;
+  final List<Color>? textGradientColors;
+  final double textGradientRotation;
+  final Function(List<Color>?, double) onTextGradientChanged;
+
+  // Stroke
   final bool enableStroke;
   final ValueChanged<bool> onEnableStrokeChanged;
   final double strokeWidth;
   final ValueChanged<double> onStrokeWidthChanged;
   final Color strokeColor;
   final ValueChanged<Color> onStrokeColorChanged;
+  final List<Color>? strokeGradientColors;
+  final double strokeGradientRotation;
+  final Function(List<Color>?, double) onStrokeGradientChanged;
 
+  // Outline
   final bool enableOutline;
   final ValueChanged<bool> onEnableOutlineChanged;
   final double outlineWidth;
@@ -24,7 +37,11 @@ class SettingsPanel extends StatelessWidget {
   final ValueChanged<double> onOutlineBlurChanged;
   final Color outlineColor;
   final ValueChanged<Color> onOutlineColorChanged;
+  final List<Color>? outlineGradientColors;
+  final double outlineGradientRotation;
+  final Function(List<Color>?, double) onOutlineGradientChanged;
 
+  // Shadow (Solid only for simplicity)
   final bool enableShadow;
   final ValueChanged<bool> onEnableShadowChanged;
   final double shadowOffsetX;
@@ -36,13 +53,19 @@ class SettingsPanel extends StatelessWidget {
   final Color shadowColor;
   final ValueChanged<Color> onShadowColorChanged;
 
+  // Scroll
   final ScrollDirection scrollDirection;
   final ValueChanged<ScrollDirection> onScrollDirectionChanged;
   final double scrollSpeed;
   final ValueChanged<double> onScrollSpeedChanged;
 
+  // Background
   final Color backgroundColor;
   final ValueChanged<Color> onBackgroundColorChanged;
+  final List<Color>? backgroundGradientColors;
+  final double backgroundGradientRotation;
+  final Function(List<Color>?, double) onBackgroundGradientChanged;
+
   final String? backgroundImage;
   final ValueChanged<String?> onBackgroundImageChanged;
 
@@ -59,12 +82,23 @@ class SettingsPanel extends StatelessWidget {
     required this.onFontFamilyChanged,
     required this.fontSize,
     required this.onFontSizeChanged,
+
+    required this.textColor,
+    required this.onTextColorChanged,
+    this.textGradientColors,
+    this.textGradientRotation = 0,
+    required this.onTextGradientChanged,
+
     required this.enableStroke,
     required this.onEnableStrokeChanged,
     required this.strokeWidth,
     required this.onStrokeWidthChanged,
     required this.strokeColor,
     required this.onStrokeColorChanged,
+    this.strokeGradientColors,
+    this.strokeGradientRotation = 0,
+    required this.onStrokeGradientChanged,
+
     required this.enableOutline,
     required this.onEnableOutlineChanged,
     required this.outlineWidth,
@@ -73,6 +107,10 @@ class SettingsPanel extends StatelessWidget {
     required this.onOutlineBlurChanged,
     required this.outlineColor,
     required this.onOutlineColorChanged,
+    this.outlineGradientColors,
+    this.outlineGradientRotation = 0,
+    required this.onOutlineGradientChanged,
+
     required this.enableShadow,
     required this.onEnableShadowChanged,
     required this.shadowOffsetX,
@@ -83,12 +121,18 @@ class SettingsPanel extends StatelessWidget {
     required this.onShadowBlurChanged,
     required this.shadowColor,
     required this.onShadowColorChanged,
+
     required this.scrollDirection,
     required this.onScrollDirectionChanged,
     required this.scrollSpeed,
     required this.onScrollSpeedChanged,
+
     required this.backgroundColor,
     required this.onBackgroundColorChanged,
+    this.backgroundGradientColors,
+    this.backgroundGradientRotation = 0,
+    required this.onBackgroundGradientChanged,
+
     required this.backgroundImage,
     required this.onBackgroundImageChanged,
     required this.enableFrame,
@@ -154,6 +198,16 @@ class SettingsPanel extends StatelessWidget {
         ),
         Slider(value: fontSize, min: 15, max: 90, onChanged: onFontSizeChanged),
 
+        const Text('Text Color', style: TextStyle(fontWeight: FontWeight.bold)),
+        _ColorPicker(
+          selectedColor: textColor,
+          onColorChanged: onTextColorChanged,
+          gradientColors: textGradientColors,
+          gradientRotation: textGradientRotation,
+          onGradientChanged: onTextGradientChanged,
+          label: 'Text Color',
+        ),
+
         const Divider(),
         SwitchListTile(
           title: const Text('Enable Stroke'),
@@ -172,6 +226,10 @@ class SettingsPanel extends StatelessWidget {
           _ColorPicker(
             selectedColor: strokeColor,
             onColorChanged: onStrokeColorChanged,
+            gradientColors: strokeGradientColors,
+            gradientRotation: strokeGradientRotation,
+            onGradientChanged: onStrokeGradientChanged,
+            label: 'Stroke Color',
           ),
         ],
 
@@ -200,6 +258,10 @@ class SettingsPanel extends StatelessWidget {
           _ColorPicker(
             selectedColor: outlineColor,
             onColorChanged: onOutlineColorChanged,
+            gradientColors: outlineGradientColors,
+            gradientRotation: outlineGradientRotation,
+            onGradientChanged: onOutlineGradientChanged,
+            label: 'Outline Color',
           ),
         ],
 
@@ -235,6 +297,7 @@ class SettingsPanel extends StatelessWidget {
           _ColorPicker(
             selectedColor: shadowColor,
             onColorChanged: onShadowColorChanged,
+            label: 'Shadow Color',
           ),
         ],
 
@@ -300,6 +363,10 @@ class SettingsPanel extends StatelessWidget {
           _ColorPicker(
             selectedColor: backgroundColor,
             onColorChanged: onBackgroundColorChanged,
+            gradientColors: backgroundGradientColors,
+            gradientRotation: backgroundGradientRotation,
+            onGradientChanged: onBackgroundGradientChanged,
+            label: 'Background Color',
           )
         else
           Wrap(
@@ -358,59 +425,97 @@ class SettingsPanel extends StatelessWidget {
 class _ColorPicker extends StatelessWidget {
   final Color selectedColor;
   final ValueChanged<Color> onColorChanged;
+  final List<Color>? gradientColors;
+  final double gradientRotation;
+  final Function(List<Color>?, double)? onGradientChanged;
+  final String label;
 
   const _ColorPicker({
     required this.selectedColor,
     required this.onColorChanged,
+    this.gradientColors,
+    this.gradientRotation = 0,
+    this.onGradientChanged,
+    this.label = 'Pick Color',
   });
-
-  final List<Color> colors = const [
-    Colors.black,
-    Colors.white,
-    Colors.red,
-    Colors.green,
-    Colors.blue,
-    Colors.yellow,
-    Colors.orange,
-    Colors.purple,
-    Colors.cyan,
-    Colors.pink,
-    Colors.teal,
-    Colors.lime,
-  ];
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children:
-          colors.map((color) {
-            return GestureDetector(
-              onTap: () => onColorChanged(color),
-              child: Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color:
-                        selectedColor == color
-                            ? Colors.grey
-                            : Colors.transparent,
-                    width: 3,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      blurRadius: 2,
+    final isGradient = gradientColors != null && gradientColors!.isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        OutlinedButton(
+          onPressed: () async {
+            final result = await showModalBottomSheet<ColorPickerResult>(
+              context: context,
+              isScrollControlled: true,
+              builder:
+                  (context) => ColorPickerBottomSheet(
+                    initialValue: ColorPickerResult(
+                      isGradient: isGradient,
+                      solidColor: selectedColor,
+                      gradientColors: gradientColors,
+                      gradientRotation: gradientRotation,
                     ),
-                  ],
+                    title: label,
+                  ),
+            );
+
+            if (result != null) {
+              if (result.isGradient) {
+                // Update gradient
+                if (onGradientChanged != null) {
+                  onGradientChanged!(
+                    result.gradientColors,
+                    result.gradientRotation,
+                  );
+                }
+                // Also update solid color to first gradient color for compatibility/preview
+                if (result.gradientColors != null &&
+                    result.gradientColors!.isNotEmpty) {
+                  onColorChanged(result.gradientColors!.first);
+                }
+              } else {
+                // Update solid color
+                if (result.solidColor != null) {
+                  onColorChanged(result.solidColor!);
+                }
+                // Clear gradient
+                if (onGradientChanged != null) {
+                  onGradientChanged!(null, 0);
+                }
+              }
+            }
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: isGradient ? null : selectedColor,
+                  gradient:
+                      isGradient
+                          ? LinearGradient(
+                            colors: gradientColors!,
+                            transform: GradientRotation(
+                              gradientRotation * 3.14159 / 180,
+                            ),
+                          )
+                          : null,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.grey),
                 ),
               ),
-            );
-          }).toList(),
+              const SizedBox(width: 8),
+              Text(label),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

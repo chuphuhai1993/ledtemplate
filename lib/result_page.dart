@@ -47,13 +47,25 @@ class ResultPage extends StatelessWidget {
                               text: template.text,
                               fontFamily: template.fontFamily,
                               fontSize: template.fontSize,
+                              textColor: template.textColor,
+                              textGradientColors: template.textGradientColors,
+                              textGradientRotation:
+                                  template.textGradientRotation,
                               enableStroke: template.enableStroke,
                               strokeWidth: template.strokeWidth,
                               strokeColor: template.strokeColor,
+                              strokeGradientColors:
+                                  template.strokeGradientColors,
+                              strokeGradientRotation:
+                                  template.strokeGradientRotation,
                               enableOutline: template.enableOutline,
                               outlineWidth: template.outlineWidth,
                               outlineBlur: template.outlineBlur,
                               outlineColor: template.outlineColor,
+                              outlineGradientColors:
+                                  template.outlineGradientColors,
+                              outlineGradientRotation:
+                                  template.outlineGradientRotation,
                               enableShadow: template.enableShadow,
                               shadowOffsetX: template.shadowOffsetX,
                               shadowOffsetY: template.shadowOffsetY,
@@ -62,6 +74,10 @@ class ResultPage extends StatelessWidget {
                               scrollDirection: template.scrollDirection,
                               scrollSpeed: template.scrollSpeed,
                               backgroundColor: template.backgroundColor,
+                              backgroundGradientColors:
+                                  template.backgroundGradientColors,
+                              backgroundGradientRotation:
+                                  template.backgroundGradientRotation,
                               backgroundImage: template.backgroundImage,
                               enableFrame: template.enableFrame,
                               frameImage: template.frameImage,

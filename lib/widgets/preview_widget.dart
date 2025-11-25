@@ -34,8 +34,19 @@ class PreviewWidget extends StatelessWidget {
           return Container(
             width: double.infinity,
             decoration: BoxDecoration(
+              gradient:
+                  template.backgroundGradientColors != null &&
+                          template.backgroundImage == null
+                      ? LinearGradient(
+                        colors: template.backgroundGradientColors!,
+                        transform: GradientRotation(
+                          template.backgroundGradientRotation * 3.14159 / 180,
+                        ),
+                      )
+                      : null,
               color:
-                  template.backgroundImage == null
+                  template.backgroundGradientColors == null &&
+                          template.backgroundImage == null
                       ? template.backgroundColor
                       : null,
               image:
@@ -53,13 +64,20 @@ class PreviewWidget extends StatelessWidget {
                   text: text,
                   fontFamily: template.fontFamily,
                   fontSize: actualFontSize,
+                  textColor: template.textColor,
+                  textGradientColors: template.textGradientColors,
+                  textGradientRotation: template.textGradientRotation,
                   enableStroke: template.enableStroke,
                   strokeWidth: template.strokeWidth,
                   strokeColor: template.strokeColor,
+                  strokeGradientColors: template.strokeGradientColors,
+                  strokeGradientRotation: template.strokeGradientRotation,
                   enableOutline: template.enableOutline,
                   outlineWidth: template.outlineWidth,
                   outlineBlur: template.outlineBlur,
                   outlineColor: template.outlineColor,
+                  outlineGradientColors: template.outlineGradientColors,
+                  outlineGradientRotation: template.outlineGradientRotation,
                   enableShadow: template.enableShadow,
                   shadowOffsetX: template.shadowOffsetX,
                   shadowOffsetY: template.shadowOffsetY,

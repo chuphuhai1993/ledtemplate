@@ -3,20 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'scrolling_text_renderer.dart';
-import 'models/template.dart';
-import 'editor_page.dart';
 
 class PlayPage extends StatefulWidget {
   final String text;
   final String fontFamily;
   final double fontSize;
+  final Color textColor;
+  final List<Color>? textGradientColors;
+  final double textGradientRotation;
   final bool enableStroke;
   final double strokeWidth;
   final Color strokeColor;
+  final List<Color>? strokeGradientColors;
+  final double strokeGradientRotation;
   final bool enableOutline;
   final double outlineWidth;
   final double outlineBlur;
   final Color outlineColor;
+  final List<Color>? outlineGradientColors;
+  final double outlineGradientRotation;
   final bool enableShadow;
   final double shadowOffsetX;
   final double shadowOffsetY;
@@ -25,6 +30,8 @@ class PlayPage extends StatefulWidget {
   final ScrollDirection scrollDirection;
   final double scrollSpeed;
   final Color backgroundColor;
+  final List<Color>? backgroundGradientColors;
+  final double backgroundGradientRotation;
   final String? backgroundImage;
   final bool enableFrame;
   final String? frameImage;
@@ -36,13 +43,20 @@ class PlayPage extends StatefulWidget {
     required this.text,
     required this.fontFamily,
     required this.fontSize,
+    required this.textColor,
+    this.textGradientColors,
+    this.textGradientRotation = 0,
     required this.enableStroke,
     required this.strokeWidth,
     required this.strokeColor,
+    this.strokeGradientColors,
+    this.strokeGradientRotation = 0,
     required this.enableOutline,
     required this.outlineWidth,
     required this.outlineBlur,
     required this.outlineColor,
+    this.outlineGradientColors,
+    this.outlineGradientRotation = 0,
     required this.enableShadow,
     required this.shadowOffsetX,
     required this.shadowOffsetY,
@@ -51,6 +65,8 @@ class PlayPage extends StatefulWidget {
     required this.scrollDirection,
     required this.scrollSpeed,
     required this.backgroundColor,
+    this.backgroundGradientColors,
+    this.backgroundGradientRotation = 0,
     required this.backgroundImage,
     required this.enableFrame,
     required this.frameImage,
@@ -148,8 +164,15 @@ class _PlayPageState extends State<PlayPage> {
   }
 
   void _showCloseExploreBottomSheet() {
+    // Pause the text
+    setState(() {
+      _isPaused = true;
+    });
+
     showModalBottomSheet(
       context: context,
+      isDismissible: false, // Force user to choose an action
+      enableDrag: false,
       builder:
           (context) => Container(
             padding: const EdgeInsets.all(24.0),
@@ -157,114 +180,59 @@ class _PlayPageState extends State<PlayPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
-                  'Close & Explore?',
+                  'Are you sure to stop?',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 24),
-                if (widget.templateIndex != null) ...[
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: OutlinedButton.icon(
-                      onPressed: () async {
-                        Navigator.pop(context); // Close bottom sheet
-
-                        // Reset orientation to portrait for Editor
-                        await SystemChrome.setPreferredOrientations([
-                          DeviceOrientation.portraitUp,
-                          DeviceOrientation.portraitDown,
-                        ]);
-
-                        if (!context.mounted) return;
-
-                        // Navigate to EditorPage
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => EditorPage(
-                                  templateIndex: widget.templateIndex,
-                                  template: Template(
-                                    text: widget.text,
-                                    fontFamily: widget.fontFamily,
-                                    fontSize: widget.fontSize,
-                                    enableStroke: widget.enableStroke,
-                                    strokeWidth: widget.strokeWidth,
-                                    strokeColor: widget.strokeColor,
-                                    enableOutline: widget.enableOutline,
-                                    outlineWidth: widget.outlineWidth,
-                                    outlineBlur: widget.outlineBlur,
-                                    outlineColor: widget.outlineColor,
-                                    enableShadow: widget.enableShadow,
-                                    shadowOffsetX: widget.shadowOffsetX,
-                                    shadowOffsetY: widget.shadowOffsetY,
-                                    shadowBlur: widget.shadowBlur,
-                                    shadowColor: widget.shadowColor,
-                                    scrollDirection: widget.scrollDirection,
-                                    scrollSpeed: widget.scrollSpeed,
-                                    backgroundColor: widget.backgroundColor,
-                                    backgroundImage: widget.backgroundImage,
-                                    enableFrame: widget.enableFrame,
-                                    frameImage: widget.frameImage,
-                                  ),
-                                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 50,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(context); // Close bottom sheet
+                          },
+                          child: const Text('Resume'),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: SizedBox(
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context); // Close bottom sheet
+                            if (widget.fromResultPage) {
+                              Navigator.of(
+                                context,
+                              ).popUntil((route) => route.isFirst);
+                            } else {
+                              Navigator.pop(context); // Close PlayPage
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
                           ),
-                        );
-
-                        if (!context.mounted) return;
-
-                        // Restore landscape orientation when returning to PlayPage
-                        SystemChrome.setPreferredOrientations([
-                          DeviceOrientation.landscapeLeft,
-                          DeviceOrientation.landscapeRight,
-                        ]);
-                        // Also restore full screen
-                        SystemChrome.setEnabledSystemUIMode(
-                          SystemUiMode.immersiveSticky,
-                        );
-                      },
-                      icon: const Icon(Icons.edit),
-                      label: const Text('Edit Template'),
+                          child: const Text('Stop'),
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: OutlinedButton.icon(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.cancel),
-                    label: const Text('Cancel'),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context); // Close bottom sheet
-                      if (widget.fromResultPage) {
-                        Navigator.of(
-                          context,
-                        ).popUntil((route) => route.isFirst);
-                      } else {
-                        Navigator.pop(context); // Close PlayPage
-                      }
-                    },
-                    icon: const Icon(Icons.explore),
-                    label: const Text('Explore'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
+                  ],
                 ),
               ],
             ),
           ),
-    );
+    ).then((_) {
+      // Resume the text when bottom sheet is closed
+      if (mounted) {
+        setState(() {
+          _isPaused = false;
+        });
+      }
+    });
   }
 
   @override
@@ -295,8 +263,21 @@ class _PlayPageState extends State<PlayPage> {
                     width: double.infinity,
                     height: double.infinity,
                     decoration: BoxDecoration(
+                      gradient:
+                          widget.backgroundGradientColors != null &&
+                                  widget.backgroundImage == null
+                              ? LinearGradient(
+                                colors: widget.backgroundGradientColors!,
+                                transform: GradientRotation(
+                                  widget.backgroundGradientRotation *
+                                      3.14159 /
+                                      180,
+                                ),
+                              )
+                              : null,
                       color:
-                          widget.backgroundImage == null
+                          widget.backgroundGradientColors == null &&
+                                  widget.backgroundImage == null
                               ? widget.backgroundColor
                               : null,
                       image:
@@ -314,13 +295,20 @@ class _PlayPageState extends State<PlayPage> {
                     text: widget.text,
                     fontFamily: widget.fontFamily,
                     fontSize: actualFontSize,
+                    textColor: widget.textColor,
+                    textGradientColors: widget.textGradientColors,
+                    textGradientRotation: widget.textGradientRotation,
                     enableStroke: widget.enableStroke,
                     strokeWidth: widget.strokeWidth,
                     strokeColor: widget.strokeColor,
+                    strokeGradientColors: widget.strokeGradientColors,
+                    strokeGradientRotation: widget.strokeGradientRotation,
                     enableOutline: widget.enableOutline,
                     outlineWidth: widget.outlineWidth,
                     outlineBlur: widget.outlineBlur,
                     outlineColor: widget.outlineColor,
+                    outlineGradientColors: widget.outlineGradientColors,
+                    outlineGradientRotation: widget.outlineGradientRotation,
                     enableShadow: widget.enableShadow,
                     shadowOffsetX: widget.shadowOffsetX,
                     shadowOffsetY: widget.shadowOffsetY,

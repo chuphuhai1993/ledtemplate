@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'widgets/preview_widget.dart';
+import 'widgets/neon_button.dart';
 import 'data/user_data.dart';
 import 'preview_page.dart';
 import 'editor_page.dart';
@@ -15,48 +16,48 @@ class MyTemplatesTab extends StatefulWidget {
 class _MyTemplatesTabState extends State<MyTemplatesTab> {
   bool _enableTextScroll = true;
 
-  void _showMoreOptions(BuildContext context, {
+  void _showMoreOptions(
+    BuildContext context, {
     required VoidCallback onEdit,
     required VoidCallback onDelete,
   }) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.edit),
-              title: const Text('Edit'),
-              onTap: () {
-                Navigator.pop(context);
-                onEdit();
-              },
+      builder:
+          (context) => Container(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.edit),
+                  title: const Text('Edit'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    onEdit();
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.delete, color: Colors.red),
+                  title: const Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    onDelete();
+                  },
+                ),
+              ],
             ),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text(
-                'Delete',
-                style: TextStyle(color: Colors.red),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                onDelete();
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Templates'),
-      ),
+      appBar: AppBar(title: const Text('My Templates')),
       body: ValueListenableBuilder<List<Template>>(
         valueListenable: UserData.savedTemplates,
         builder: (context, templates, child) {
@@ -74,9 +75,8 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
-                    width: 200,
-                    height: 50,
-                    child: ElevatedButton.icon(
+                    child: NeonButton(
+                      size: NeonButtonSize.medium,
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -84,20 +84,19 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                           ),
                         );
                       },
-                      icon: const Icon(Icons.add_circle_outline),
-                      label: const Text(
-                        'Create New',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.add_circle_outline),
+                          SizedBox(width: 8),
+                          Text(
+                            'Create New',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -112,9 +111,8 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton.icon(
+                  child: NeonButton(
+                    size: NeonButtonSize.medium,
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -122,20 +120,19 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                         ),
                       );
                     },
-                    icon: const Icon(Icons.add_circle_outline),
-                    label: const Text(
-                      'Create New',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.add_circle_outline),
+                        SizedBox(width: 8),
+                        Text(
+                          'Create New',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -160,13 +157,14 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => PreviewPage(
-                                  templates: templates,
-                                  initialIndex: index,
-                                  categoryName: 'My Templates',
-                                  showEditButton: true,
-                                  templateIndex: index,
-                                ),
+                                builder:
+                                    (context) => PreviewPage(
+                                      templates: templates,
+                                      initialIndex: index,
+                                      categoryName: 'My Templates',
+                                      showEditButton: true,
+                                      templateIndex: index,
+                                    ),
                               ),
                             );
                           },
@@ -186,46 +184,56 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                             color: Colors.black54,
                             borderRadius: BorderRadius.circular(20),
                             child: InkWell(
-                              onTap: () => _showMoreOptions(
-                                context,
-                                onEdit: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => EditorPage(
-                                        template: template,
-                                        templateIndex: index,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                onDelete: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: const Text('Delete Template'),
-                                      content: const Text(
-                                          'Are you sure you want to delete this template?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                          child: const Text('Cancel'),
+                              onTap:
+                                  () => _showMoreOptions(
+                                    context,
+                                    onEdit: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => EditorPage(
+                                                template: template,
+                                                templateIndex: index,
+                                              ),
                                         ),
-                                        TextButton(
-                                          onPressed: () {
-                                            UserData.deleteTemplate(index);
-                                            Navigator.pop(context);
-                                          },
-                                          style: TextButton.styleFrom(
-                                            foregroundColor: Colors.red,
-                                          ),
-                                          child: const Text('Delete'),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
+                                      );
+                                    },
+                                    onDelete: () {
+                                      showDialog(
+                                        context: context,
+                                        builder:
+                                            (context) => AlertDialog(
+                                              title: const Text(
+                                                'Delete Template',
+                                              ),
+                                              content: const Text(
+                                                'Are you sure you want to delete this template?',
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed:
+                                                      () => Navigator.pop(
+                                                        context,
+                                                      ),
+                                                  child: const Text('Cancel'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    UserData.deleteTemplate(
+                                                      index,
+                                                    );
+                                                    Navigator.pop(context);
+                                                  },
+                                                  style: TextButton.styleFrom(
+                                                    foregroundColor: Colors.red,
+                                                  ),
+                                                  child: const Text('Delete'),
+                                                ),
+                                              ],
+                                            ),
+                                      );
+                                    },
+                                  ),
                               borderRadius: BorderRadius.circular(20),
                               child: const Padding(
                                 padding: EdgeInsets.all(4.0),

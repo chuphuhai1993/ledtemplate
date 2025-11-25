@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'widgets/neon_button.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
@@ -58,6 +59,41 @@ class SettingsTab extends StatelessWidget {
             onTap: () {
               // TODO: Implement Terms of Service
             },
+          ),
+          ListTile(
+            leading: const Icon(Icons.description),
+            title: const Text('Terms of Service'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              // TODO: Implement Terms of Service
+            },
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                const Text('Neon Button Preview'),
+                const SizedBox(height: 10),
+                NeonButton(
+                  size: NeonButtonSize.small,
+                  onPressed: () {},
+                  child: const Text('Small Button'),
+                ),
+                const SizedBox(height: 10),
+                NeonButton(
+                  size: NeonButtonSize.medium,
+                  onPressed: () {},
+                  child: const Text('Medium Button'),
+                ),
+                const SizedBox(height: 10),
+                NeonButton(
+                  size: NeonButtonSize.large,
+                  onPressed: () {},
+                  child: const Text('Large Button'),
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -6,18 +6,35 @@ class ScrollingTextRenderer extends StatefulWidget {
   final String text;
   final String fontFamily;
   final double fontSize;
+
+  // Text color
+  final Color textColor;
+  final List<Color>? textGradientColors;
+  final double textGradientRotation;
+
+  // Stroke
   final bool enableStroke;
   final double strokeWidth;
   final Color strokeColor;
+  final List<Color>? strokeGradientColors;
+  final double strokeGradientRotation;
+
+  // Outline
   final bool enableOutline;
   final double outlineWidth;
   final double outlineBlur;
   final Color outlineColor;
+  final List<Color>? outlineGradientColors;
+  final double outlineGradientRotation;
+
+  // Shadow
   final bool enableShadow;
   final double shadowOffsetX;
   final double shadowOffsetY;
   final double shadowBlur;
   final Color shadowColor;
+
+  // Scroll
   final ScrollDirection scrollDirection;
   final double scrollSpeed; // Pixels per second
   final bool isPaused;
@@ -27,13 +44,20 @@ class ScrollingTextRenderer extends StatefulWidget {
     required this.text,
     required this.fontFamily,
     required this.fontSize,
+    this.textColor = Colors.white,
+    this.textGradientColors,
+    this.textGradientRotation = 0,
     required this.enableStroke,
     required this.strokeWidth,
     required this.strokeColor,
+    this.strokeGradientColors,
+    this.strokeGradientRotation = 0,
     required this.enableOutline,
     required this.outlineWidth,
     required this.outlineBlur,
     required this.outlineColor,
+    this.outlineGradientColors,
+    this.outlineGradientRotation = 0,
     required this.enableShadow,
     required this.shadowOffsetX,
     required this.shadowOffsetY,
@@ -239,13 +263,32 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
   }
 
   Widget _buildTextWidget() {
+    // Helper to create gradient shader
+    Shader? _createGradientShader(
+      List<Color>? colors,
+      double rotation,
+      Rect bounds,
+    ) {
+      if (colors == null || colors.isEmpty) return null;
+
+      final gradient = LinearGradient(
+        colors: colors,
+        transform: GradientRotation(rotation * 3.14159 / 180),
+      );
+
+      return gradient.createShader(bounds);
+    }
+
     TextStyle baseStyle = TextStyle(
       fontFamily: widget.fontFamily,
       fontSize: widget.fontSize,
-      color: Colors.white,
+      color: widget.textColor,
     );
 
     List<Widget> layers = [];
+
+    // Calculate text bounds for gradient shader
+    final textBounds = Rect.fromLTWH(0, 0, _textWidth, _textHeight);
 
     // 1. Shadow Layer (Bottom-most)
     if (widget.enableShadow) {
@@ -253,18 +296,6 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
         Text(
           widget.text,
           style: baseStyle.copyWith(
-            color:
-                Colors
-                    .transparent, // Use transparent text so only shadow is visible?
-            // Note: If text is transparent, shadow might not render in some Flutter versions/configs.
-            // However, usually shadow alpha is multiplied by text alpha.
-            // To be safe and since it's covered anyway, let's use the shadow color for the text too,
-            // or just keep baseStyle but we rely on it being covered.
-            // Actually, to ensure the shadow is "below" everything, we just render it first.
-            // If we render the text opaque here, it might show artifacts if top layers don't cover it perfectly (e.g. anti-aliasing).
-            // But standard practice is fine.
-            // Let's try using the shadow color for the text itself to blend better if visible?
-            // No, let's just use baseStyle but with the shadow.
             shadows: [
               Shadow(
                 offset: Offset(widget.shadowOffsetX, widget.shadowOffsetY),
@@ -279,6 +310,12 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
 
     // 2. Outline Layer (Glow)
     if (widget.enableOutline) {
+      final outlineShader = _createGradientShader(
+        widget.outlineGradientColors,
+        widget.outlineGradientRotation,
+        textBounds,
+      );
+
       layers.add(
         Text(
           widget.text,
@@ -287,13 +324,17 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
                 Paint()
                   ..style = PaintingStyle.stroke
                   ..strokeWidth = widget.outlineWidth
-                  ..color = widget.outlineColor
                   ..strokeCap = StrokeCap.round
                   ..strokeJoin = StrokeJoin.round
                   ..maskFilter = MaskFilter.blur(
                     BlurStyle.normal,
                     widget.outlineBlur,
-                  ),
+                  )
+                  ..shader = outlineShader
+                  ..color =
+                      outlineShader == null
+                          ? widget.outlineColor
+                          : Colors.white,
           ),
         ),
       );
@@ -301,6 +342,12 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
 
     // 3. Stroke Layer (Optional)
     if (widget.enableStroke) {
+      final strokeShader = _createGradientShader(
+        widget.strokeGradientColors,
+        widget.strokeGradientRotation,
+        textBounds,
+      );
+
       layers.add(
         Text(
           widget.text,
@@ -309,16 +356,33 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
                 Paint()
                   ..style = PaintingStyle.stroke
                   ..strokeWidth = widget.strokeWidth
-                  ..color = widget.strokeColor
                   ..strokeCap = StrokeCap.round
-                  ..strokeJoin = StrokeJoin.round,
+                  ..strokeJoin = StrokeJoin.round
+                  ..shader = strokeShader
+                  ..color =
+                      strokeShader == null ? widget.strokeColor : Colors.white,
           ),
         ),
       );
     }
 
     // 4. Fill Layer (Main Text)
-    layers.add(Text(widget.text, style: baseStyle));
+    final textShader = _createGradientShader(
+      widget.textGradientColors,
+      widget.textGradientRotation,
+      textBounds,
+    );
+
+    if (textShader != null) {
+      layers.add(
+        Text(
+          widget.text,
+          style: baseStyle.copyWith(foreground: Paint()..shader = textShader),
+        ),
+      );
+    } else {
+      layers.add(Text(widget.text, style: baseStyle));
+    }
 
     return Stack(children: layers);
   }
