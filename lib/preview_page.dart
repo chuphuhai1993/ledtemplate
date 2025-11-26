@@ -1,7 +1,10 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:ledtemplate/widgets/app_appbar_widget.dart';
 import 'package:ledtemplate/widgets/blur_container_widget.dart';
 import 'package:ledtemplate/widgets/preview_widget.dart';
+import 'package:ledtemplate/widgets/app_textfield_widget.dart';
 import 'models/template.dart';
 import 'play_page.dart';
 import 'editor_page.dart';
@@ -72,27 +75,24 @@ class _PreviewPageState extends State<PreviewPage> {
               text: text,
               fontFamily: template.fontFamily,
               fontSize: template.fontSize,
-              textColor: template.textColor,
-              textGradientColors: template.textGradientColors,
-              textGradientRotation: template.textGradientRotation,
               enableStroke: template.enableStroke,
               strokeWidth: template.strokeWidth,
               strokeColor: template.strokeColor,
-              strokeGradientColors: template.strokeGradientColors,
-              strokeGradientRotation: template.strokeGradientRotation,
               enableOutline: template.enableOutline,
               outlineWidth: template.outlineWidth,
               outlineBlur: template.outlineBlur,
               outlineColor: template.outlineColor,
-              outlineGradientColors: template.outlineGradientColors,
-              outlineGradientRotation: template.outlineGradientRotation,
               enableShadow: template.enableShadow,
               shadowOffsetX: template.shadowOffsetX,
               shadowOffsetY: template.shadowOffsetY,
               shadowBlur: template.shadowBlur,
               shadowColor: template.shadowColor,
+              shadowGradientColors: template.shadowGradientColors,
+              shadowGradientRotation: template.shadowGradientRotation,
               scrollDirection: template.scrollDirection,
               scrollSpeed: template.scrollSpeed,
+              enableBlink: template.enableBlink,
+              blinkDuration: template.blinkDuration,
               backgroundColor: template.backgroundColor,
               backgroundGradientColors: template.backgroundGradientColors,
               backgroundGradientRotation: template.backgroundGradientRotation,
@@ -100,6 +100,7 @@ class _PreviewPageState extends State<PreviewPage> {
               enableFrame: template.enableFrame,
               frameImage: template.frameImage,
               templateIndex: widget.showEditButton ? _currentIndex : null,
+              textColor: template.textColor,
             ),
       ),
     );
@@ -123,113 +124,143 @@ class _PreviewPageState extends State<PreviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final currentTemplate = widget.templates[_currentIndex];
+    final backgroundImage = currentTemplate.backgroundImage;
+
     return Scaffold(
       body: Stack(
+        fit: StackFit.expand,
         children: [
-          // PageView with MessageInputWidget
-          Column(
-            children: [
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  scrollDirection: Axis.vertical,
-                  onPageChanged: _onPageChanged,
-                  itemCount: widget.templates.length,
-                  itemBuilder: (context, index) {
-                    final template = widget.templates[index];
-                    final textController = _textControllers[index];
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Preview Area
-                        PreviewWidget(
-                          template: template,
-                          text: textController.text,
-                          showPhoneFrame: true,
+          // Base layer: Image, gradient, or solid color
+          Container(
+            decoration: BoxDecoration(
+              // Gradient
+              gradient:
+                  backgroundImage == null &&
+                          currentTemplate.backgroundGradientColors != null
+                      ? LinearGradient(
+                        colors: currentTemplate.backgroundGradientColors!,
+                        transform: GradientRotation(
+                          currentTemplate.backgroundGradientRotation *
+                              3.14159 /
+                              180,
                         ),
-
-                        const SizedBox(height: 24),
-
-                        Text(
-                          'Enter message to playing or swipe to explore more',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withOpacity(0.6),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-
-                        // Input Area
-                        Container(
-                          padding: const EdgeInsets.all(32.0),
-                          child: TextField(
-                            textAlign: TextAlign.center,
-                            controller: textController,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              hintText: 'Type something...',
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ],
+                      )
+                      : null,
+              // Image
+              image:
+                  backgroundImage != null
+                      ? DecorationImage(
+                        image: AssetImage(backgroundImage),
+                        fit: BoxFit.cover,
+                      )
+                      : null,
+              // Solid color
+              color:
+                  backgroundImage == null &&
+                          currentTemplate.backgroundGradientColors == null
+                      ? currentTemplate.backgroundColor
+                      : null,
+            ),
           ),
 
-          // Appbar
-          Positioned(top: 0, left: 0, right: 0, child: AppAppBarWidget()),
+          // Overlay: Blur for image, or just darken for color/gradient
+          if (backgroundImage != null)
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
+              child: Container(color: Colors.black.withOpacity(0.4)),
+            )
+          else
+            Container(color: Colors.black.withOpacity(0.4)),
 
-          // Buttons
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: BlurContainerWidget(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
+          // Original content
+          Stack(
+            children: [
+              // PageView with MessageInputWidget
+              Column(
                 children: [
-                  if (widget.showEditButton)
-                    Expanded(
-                      child: NeonButton(
-                        type: NeonButtonType.secondary,
-                        onPressed: _navigateToEdit,
-                        size: NeonButtonSize.large,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.edit, size: 18),
-                            SizedBox(width: 8),
-                            Text('Edit'),
-                          ],
-                        ),
-                      ),
-                    ),
-                  if (widget.showEditButton) const SizedBox(width: 16),
                   Expanded(
-                    child: NeonButton(
-                      onPressed: _navigateToPlay,
-                      size: NeonButtonSize.large,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.play_arrow, size: 18),
-                          SizedBox(width: 8),
-                          Text('Play'),
-                        ],
-                      ),
+                    child: PageView.builder(
+                      controller: _pageController,
+                      scrollDirection: Axis.vertical,
+                      onPageChanged: _onPageChanged,
+                      itemCount: widget.templates.length,
+                      itemBuilder: (context, index) {
+                        final template = widget.templates[index];
+                        final textController = _textControllers[index];
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Preview Area
+                            PreviewWidget(
+                              template: template,
+                              text: textController.text,
+                              showPhoneFrame: true,
+                            ),
+
+                            const SizedBox(height: 24),
+
+                            Text(
+                              'Enter message to playing or swipe to explore more',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white.withOpacity(0.8),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+
+                            // Input Area
+                            Container(
+                              padding: const EdgeInsets.all(32.0),
+                              child: AppTextFieldWidget(
+                                controller: textController,
+                                onChanged: (value) => setState(() {}),
+                                hintText: 'Type something...',
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ],
               ),
-            ),
+
+              // Appbar
+              Positioned(top: 0, left: 0, right: 0, child: AppAppBarWidget()),
+
+              // Buttons
+              Positioned(
+                bottom: 24,
+                left: 0,
+                right: 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Row(
+                    children: [
+                      if (widget.showEditButton)
+                        Expanded(
+                          child: NeonButton(
+                            type: NeonButtonType.tonal,
+                            onPressed: _navigateToEdit,
+                            size: NeonButtonSize.large,
+                            child: Text('Edit'),
+                          ),
+                        ),
+                      if (widget.showEditButton) const SizedBox(width: 16),
+                      Expanded(
+                        child: NeonButton(
+                          onPressed: _navigateToPlay,
+                          size: NeonButtonSize.large,
+                          child: Text('Play'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

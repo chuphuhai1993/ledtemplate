@@ -35,10 +35,16 @@ class Template {
   final double shadowOffsetY;
   final double shadowBlur;
   final Color shadowColor;
+  final List<Color>? shadowGradientColors;
+  final double shadowGradientRotation;
 
   // Scroll
   final ScrollDirection scrollDirection;
   final double scrollSpeed;
+
+  // Blink effect
+  final bool enableBlink;
+  final double blinkDuration; // Duration in milliseconds
 
   // Background
   final Color backgroundColor;
@@ -73,8 +79,12 @@ class Template {
     this.shadowOffsetY = 2.0,
     this.shadowBlur = 3.0,
     this.shadowColor = Colors.black,
+    this.shadowGradientColors,
+    this.shadowGradientRotation = 0,
     this.scrollDirection = ScrollDirection.rightToLeft,
     this.scrollSpeed = 100.0,
+    this.enableBlink = false,
+    this.blinkDuration = 500.0,
     this.backgroundColor = Colors.black,
     this.backgroundGradientColors,
     this.backgroundGradientRotation = 0,
@@ -109,8 +119,13 @@ class Template {
       'shadowOffsetY': shadowOffsetY,
       'shadowBlur': shadowBlur,
       'shadowColor': shadowColor.value,
+      'shadowGradientColors':
+          shadowGradientColors?.map((c) => c.value).toList(),
+      'shadowGradientRotation': shadowGradientRotation,
       'scrollDirection': scrollDirection.index,
       'scrollSpeed': scrollSpeed,
+      'enableBlink': enableBlink,
+      'blinkDuration': blinkDuration,
       'backgroundColor': backgroundColor.value,
       'backgroundGradientColors':
           backgroundGradientColors?.map((c) => c.value).toList(),
@@ -160,8 +175,13 @@ class Template {
       shadowOffsetY: (json['shadowOffsetY'] as num?)?.toDouble() ?? 2.0,
       shadowBlur: (json['shadowBlur'] as num?)?.toDouble() ?? 3.0,
       shadowColor: Color(json['shadowColor'] ?? 0xFF000000),
+      shadowGradientColors: parseGradientColors(json['shadowGradientColors']),
+      shadowGradientRotation:
+          (json['shadowGradientRotation'] as num?)?.toDouble() ?? 0,
       scrollDirection: ScrollDirection.values[json['scrollDirection'] ?? 0],
       scrollSpeed: (json['scrollSpeed'] as num?)?.toDouble() ?? 100.0,
+      enableBlink: json['enableBlink'] ?? false,
+      blinkDuration: (json['blinkDuration'] as num?)?.toDouble() ?? 500.0,
       backgroundColor: Color(json['backgroundColor'] ?? 0xFF000000),
       backgroundGradientColors: parseGradientColors(
         json['backgroundGradientColors'],

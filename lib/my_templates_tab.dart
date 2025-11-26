@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'widgets/preview_widget.dart';
 import 'widgets/neon_button.dart';
+import 'widgets/bottom_sheet_container_widget.dart';
 import 'data/user_data.dart';
 import 'preview_page.dart';
 import 'editor_page.dart';
@@ -24,8 +25,7 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
     showModalBottomSheet(
       context: context,
       builder:
-          (context) => Container(
-            padding: const EdgeInsets.all(16.0),
+          (context) => BottomSheetContainerWidget(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -38,16 +38,14 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.delete, color: Colors.red),
-                  title: const Text(
-                    'Delete',
-                    style: TextStyle(color: Colors.red),
-                  ),
+                  leading: const Icon(Icons.delete_outline),
+                  title: const Text('Delete'),
                   onTap: () {
                     Navigator.pop(context);
                     onDelete();
                   },
                 ),
+                const SizedBox(height: 32),
               ],
             ),
           ),
@@ -76,7 +74,7 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                   const SizedBox(height: 24),
                   SizedBox(
                     child: NeonButton(
-                      size: NeonButtonSize.medium,
+                      size: NeonButtonSize.large,
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -84,10 +82,14 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                           ),
                         );
                       },
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.add_circle_outline),
+                          Icon(
+                            Icons.add_circle,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 20,
+                          ),
                           SizedBox(width: 8),
                           Text(
                             'Create New',
@@ -112,7 +114,7 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                 padding: const EdgeInsets.all(16.0),
                 child: SizedBox(
                   child: NeonButton(
-                    size: NeonButtonSize.medium,
+                    size: NeonButtonSize.large,
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -120,18 +122,16 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                         ),
                       );
                     },
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.add_circle_outline),
-                        SizedBox(width: 8),
-                        Text(
-                          'Create New',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Icon(
+                          Icons.add_circle,
+                          size: 20,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
+                        SizedBox(width: 8),
+                        Text('Create New'),
                       ],
                     ),
                   ),
@@ -141,11 +141,11 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
               // Grid of Templates
               Expanded(
                 child: GridView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
                     childAspectRatio: 16 / 7.5,
                   ),
                   itemCount: templates.length,
@@ -168,12 +168,23 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                               ),
                             );
                           },
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12.0),
-                            child: PreviewWidget(
-                              template: template,
-                              text: template.text,
-                              enableTextScroll: false,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12.0),
+                              border: Border.all(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.2),
+                                width: 0.5,
+                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12.0),
+                              child: PreviewWidget(
+                                template: template,
+                                text: template.text,
+                                enableTextScroll: false,
+                              ),
                             ),
                           ),
                         ),

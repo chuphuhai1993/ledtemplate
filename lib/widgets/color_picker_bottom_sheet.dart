@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ledtemplate/widgets/neon_button.dart';
+import 'app_switch_widget.dart';
 
 /// Result from color picker
 class ColorPickerResult {
@@ -36,111 +38,66 @@ class ColorPickerBottomSheet extends StatefulWidget {
 
 class _ColorPickerBottomSheetState extends State<ColorPickerBottomSheet> {
   late bool _isGradient;
-  late Color _solidColor;
+  late HSVColor _currentHSV;
   late List<Color> _gradientColors;
   late double _gradientRotation;
-  late TextEditingController _hexController;
-
-  // Predefined color palette
-  final List<Color> _paletteColors = [
-    Colors.black,
-    Colors.white,
-    Colors.red,
-    Colors.pink,
-    Colors.purple,
-    Colors.deepPurple,
-    Colors.indigo,
-    Colors.blue,
-    Colors.lightBlue,
-    Colors.cyan,
-    Colors.teal,
-    Colors.green,
-    Colors.lightGreen,
-    Colors.lime,
-    Colors.yellow,
-    Colors.amber,
-    Colors.orange,
-    Colors.deepOrange,
-    Colors.brown,
-    Colors.grey,
-    // Neon colors
-    Color(0xFFFF006E), // Hot pink
-    Color(0xFF8338EC), // Purple
-    Color(0xFF3A86FF), // Blue
-    Color(0xFFFB5607), // Orange
-    Color(0xFFFFBE0B), // Yellow
-    Color(0xFF06FFA5), // Mint
-  ];
+  int _activeChipIndex = 0; // Track which chip is being edited
 
   @override
   void initState() {
     super.initState();
     _isGradient = widget.initialValue.isGradient;
-    _solidColor = widget.initialValue.solidColor ?? Colors.white;
+
     _gradientColors = List.from(
-      widget.initialValue.gradientColors ?? [Colors.white, Colors.black],
+      widget.initialValue.gradientColors ??
+          [Colors.yellow, Colors.green, Colors.purple],
     );
     _gradientRotation = widget.initialValue.gradientRotation;
-    _hexController = TextEditingController(
-      text: _colorToHex(_isGradient ? _gradientColors[0] : _solidColor),
-    );
-  }
 
-  @override
-  void dispose() {
-    _hexController.dispose();
-    super.dispose();
+    // Initialize color from first gradient chip if in gradient mode, otherwise use solid color
+    final initialColor =
+        _isGradient
+            ? _gradientColors.first
+            : (widget.initialValue.solidColor ?? Colors.red);
+
+    // Convert to HSV and ensure saturation and value are not 0
+    // (otherwise hue slider won't have any visible effect)
+    final hsv = HSVColor.fromColor(initialColor);
+    _currentHSV = HSVColor.fromAHSV(
+      1.0,
+      hsv.hue,
+      hsv.saturation == 0 ? 1.0 : hsv.saturation, // Ensure saturation > 0
+      hsv.value == 0 ? 1.0 : hsv.value, // Ensure value > 0
+    );
   }
 
   String _colorToHex(Color color) {
     return '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
   }
 
-  Color? _hexToColor(String hex) {
-    hex = hex.replaceAll('#', '');
-    if (hex.length == 6) {
-      try {
-        return Color(int.parse('FF$hex', radix: 16));
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
-  }
+  void _updateColorFromPosition(Offset position) {
+    const boxSize = 320.0;
 
-  void _updateHexFromColor(Color color) {
-    _hexController.text = _colorToHex(color);
-  }
+    // Calculate saturation (0 to 1 from left to right)
+    final saturation = (position.dx / boxSize).clamp(0.0, 1.0);
 
-  void _onPaletteColorTap(Color color) {
+    // Calculate value (1 to 0 from top to bottom)
+    final value = (1.0 - (position.dy / boxSize)).clamp(0.0, 1.0);
+
     setState(() {
-      if (_isGradient) {
-        // Update first gradient color
-        _gradientColors[0] = color;
-      } else {
-        _solidColor = color;
+      _currentHSV = HSVColor.fromAHSV(1.0, _currentHSV.hue, saturation, value);
+
+      // Update the active gradient chip color
+      if (_isGradient && _activeChipIndex < _gradientColors.length) {
+        _gradientColors[_activeChipIndex] = _currentHSV.toColor();
       }
-      _updateHexFromColor(color);
     });
   }
 
-  void _onHexChanged(String hex) {
-    final color = _hexToColor(hex);
-    if (color != null) {
-      setState(() {
-        if (_isGradient) {
-          _gradientColors[0] = color;
-        } else {
-          _solidColor = color;
-        }
-      });
-    }
-  }
-
   void _addGradientColor() {
-    if (_gradientColors.length < 3) {
+    if (_gradientColors.length < 4) {
       setState(() {
-        _gradientColors.add(Colors.white);
+        _gradientColors.add(_currentHSV.toColor());
       });
     }
   }
@@ -153,287 +110,341 @@ class _ColorPickerBottomSheetState extends State<ColorPickerBottomSheet> {
     }
   }
 
-  void _updateGradientColor(int index, Color color) {
-    setState(() {
-      _gradientColors[index] = color;
-      if (index == 0) {
-        _updateHexFromColor(color);
-      }
-    });
-  }
-
-  Widget _buildPreview() {
-    return Container(
-      height: 60,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[300]!),
-        gradient:
-            _isGradient
-                ? LinearGradient(
-                  colors: _gradientColors,
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  transform: GradientRotation(
-                    _gradientRotation * 3.14159 / 180,
-                  ),
-                )
-                : null,
-        color: _isGradient ? null : _solidColor,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24.0),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      height: MediaQuery.of(context).size.height * 0.95,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title
-            Row(
+      child: Column(
+        children: [
+          // Header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(Icons.close, color: Colors.white),
                   onPressed: () => Navigator.pop(context),
                 ),
+                Text(
+                  widget.title,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                NeonButton(
+                  onPressed: () {
+                    final result = ColorPickerResult(
+                      isGradient: _isGradient,
+                      solidColor: _isGradient ? null : _currentHSV.toColor(),
+                      gradientColors: _isGradient ? _gradientColors : null,
+                      gradientRotation: _gradientRotation,
+                    );
+                    Navigator.pop(context, result);
+                  },
+                  type: NeonButtonType.tertiary,
+                  child: const Text('Save'),
+                ),
               ],
             ),
-            const SizedBox(height: 16),
+          ),
 
-            // Preview
-            _buildPreview(),
-            const SizedBox(height: 16),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 12),
 
-            // Gradient Toggle
-            SwitchListTile(
-              title: const Text('Gradient Mode'),
-              value: _isGradient,
-              onChanged: (value) {
-                setState(() {
-                  _isGradient = value;
-                  if (value && _gradientColors.length < 2) {
-                    _gradientColors = [_solidColor, Colors.black];
-                  }
-                });
-              },
-            ),
-            const SizedBox(height: 16),
+                  // Color Picker Box with Preview Overlay
+                  Center(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Color Picker Box
+                        GestureDetector(
+                          onPanDown:
+                              (details) => _updateColorFromPosition(
+                                details.localPosition,
+                              ),
+                          onPanUpdate:
+                              (details) => _updateColorFromPosition(
+                                details.localPosition,
+                              ),
+                          child: Container(
+                            width: 360,
+                            height: 360,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.white,
+                                  HSVColor.fromAHSV(
+                                    1.0,
+                                    _currentHSV.hue,
+                                    1.0,
+                                    1.0,
+                                  ).toColor(),
+                                ],
+                              ),
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                gradient: const LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [Colors.transparent, Colors.black],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
 
-            // Gradient Controls
-            if (_isGradient) ...[
-              const Text(
-                'Gradient Colors',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              ..._gradientColors.asMap().entries.map((entry) {
-                final index = entry.key;
-                final color = entry.value;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          // Show palette for this gradient color
-                          showDialog(
-                            context: context,
-                            builder:
-                                (context) => AlertDialog(
-                                  title: Text('Color ${index + 1}'),
-                                  content: Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children:
-                                        _paletteColors.map((c) {
-                                          return GestureDetector(
-                                            onTap: () {
-                                              _updateGradientColor(index, c);
-                                              Navigator.pop(context);
-                                            },
-                                            child: Container(
-                                              width: 40,
-                                              height: 40,
-                                              decoration: BoxDecoration(
-                                                color: c,
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        }).toList(),
+                        // Preview Box Overlay (Full Coverage)
+                        IgnorePointer(
+                          child: Container(
+                            width: 360,
+                            height: 360,
+                            decoration: BoxDecoration(
+                              color: _currentHSV.toColor(),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Hue Slider (Rainbow Gradient)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFFFF0000), // Red
+                            Color(0xFFFFFF00), // Yellow
+                            Color(0xFF00FF00), // Green
+                            Color(0xFF00FFFF), // Cyan
+                            Color(0xFF0000FF), // Blue
+                            Color(0xFFFF00FF), // Magenta
+                            Color(0xFFFF0000), // Red (loop)
+                          ],
+                        ),
+                      ),
+                      child: SliderTheme(
+                        data: SliderThemeData(
+                          trackHeight: 40,
+                          thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: 16,
+                          ),
+                          overlayShape: const RoundSliderOverlayShape(
+                            overlayRadius: 24,
+                          ),
+                          thumbColor: Colors.white,
+                          overlayColor: Colors.white.withOpacity(0.3),
+                          activeTrackColor: Colors.transparent,
+                          inactiveTrackColor: Colors.transparent,
+                        ),
+                        child: Slider(
+                          value: _currentHSV.hue,
+                          min: 0,
+                          max: 360,
+                          onChanged: (value) {
+                            setState(() {
+                              _currentHSV = _currentHSV.withHue(value);
+
+                              // Update the active gradient chip color
+                              if (_isGradient &&
+                                  _activeChipIndex < _gradientColors.length) {
+                                _gradientColors[_activeChipIndex] =
+                                    _currentHSV.toColor();
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Gradient Toggle
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    height: 56,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Gradient',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 18,
+                                child:
+                                    _isGradient
+                                        ? Text(
+                                          'Long press to remove',
+                                          style: TextStyle(
+                                            color: Colors.grey[500],
+                                            fontSize: 12,
+                                          ),
+                                        )
+                                        : const SizedBox.shrink(),
+                              ),
+                            ],
+                          ),
+                        ),
+                        AppSwitchWidget(
+                          value: _isGradient,
+                          onChanged: (value) {
+                            setState(() {
+                              _isGradient = value;
+                              if (value && _gradientColors.isEmpty) {
+                                _gradientColors = [
+                                  Colors.yellow,
+                                  Colors.green,
+                                  Colors.purple,
+                                ];
+                              }
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Gradient Color Chips (Always show, but limit based on gradient mode)
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 8,
+                      children: [
+                        const SizedBox(width: 16),
+                        // Show first chip always, rest only if gradient is enabled
+                        ...(_isGradient
+                                ? _gradientColors
+                                : [_currentHSV.toColor()])
+                            .asMap()
+                            .entries
+                            .map((entry) {
+                              final index = entry.key;
+                              final color =
+                                  _isGradient
+                                      ? entry.value
+                                      : _currentHSV.toColor();
+                              final isActive = index == _activeChipIndex;
+
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _activeChipIndex = index;
+                                    _currentHSV = HSVColor.fromColor(color);
+                                  });
+                                },
+                                onLongPress: () {
+                                  if (_isGradient &&
+                                      _gradientColors.length > 2) {
+                                    _removeGradientColor(index);
+                                    if (_activeChipIndex >=
+                                        _gradientColors.length) {
+                                      _activeChipIndex =
+                                          _gradientColors.length - 1;
+                                    }
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF2C2C2E),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color:
+                                          isActive
+                                              ? Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface
+                                              : Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface
+                                                  .withOpacity(0.2),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 20,
+                                        height: 20,
+                                        decoration: BoxDecoration(
+                                          color: color,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        _colorToHex(color),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontFamily: 'monospace',
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                          );
-                        },
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.grey),
+                              );
+                            })
+                            .toList(),
+                        if (_isGradient && _gradientColors.length < 4)
+                          IconButton(
+                            icon: const Icon(
+                              Icons.add_circle_outline,
+                              color: Colors.white,
+                            ),
+                            onPressed: _addGradientColor,
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(child: Text('Color ${index + 1}')),
-                      if (_gradientColors.length > 2)
-                        IconButton(
-                          icon: const Icon(
-                            Icons.remove_circle,
-                            color: Colors.red,
-                          ),
-                          onPressed: () => _removeGradientColor(index),
-                        ),
-                    ],
-                  ),
-                );
-              }).toList(),
-              if (_gradientColors.length < 3)
-                OutlinedButton.icon(
-                  onPressed: _addGradientColor,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add Color'),
-                ),
-              const SizedBox(height: 16),
-
-              // Rotation Slider
-              const Text(
-                'Gradient Rotation',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Slider(
-                      value: _gradientRotation,
-                      min: 0,
-                      max: 360,
-                      divisions: 72,
-                      label: '${_gradientRotation.toInt()}°',
-                      onChanged: (value) {
-                        setState(() {
-                          _gradientRotation = value;
-                        });
-                      },
+                        const SizedBox(width: 16),
+                      ],
                     ),
                   ),
-                  SizedBox(
-                    width: 50,
-                    child: Text('${_gradientRotation.toInt()}°'),
-                  ),
+
+                  const SizedBox(height: 32),
                 ],
               ),
-              const SizedBox(height: 16),
-            ],
-
-            // Color Palette
-            const Text(
-              'Color Palette',
-              style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children:
-                  _paletteColors.map((color) {
-                    final isSelected = !_isGradient && _solidColor == color;
-                    return GestureDetector(
-                      onTap: () => _onPaletteColorTap(color),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isSelected ? Colors.blue : Colors.grey,
-                            width: isSelected ? 3 : 1,
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-            ),
-            const SizedBox(height: 16),
-
-            // Hex Input
-            const Text(
-              'Hex Color',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _hexController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: '#FFFFFF',
-                prefixText: '#',
-              ),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9A-Fa-f]')),
-                LengthLimitingTextInputFormatter(6),
-              ],
-              onChanged: (value) {
-                if (value.length == 6) {
-                  _onHexChanged('#$value');
-                }
-              },
-            ),
-            const SizedBox(height: 24),
-
-            // Action Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      final result = ColorPickerResult(
-                        isGradient: _isGradient,
-                        solidColor: _isGradient ? null : _solidColor,
-                        gradientColors: _isGradient ? _gradientColors : null,
-                        gradientRotation: _gradientRotation,
-                      );
-                      Navigator.pop(context, result);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text('Apply'),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

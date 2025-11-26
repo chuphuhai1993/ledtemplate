@@ -33,11 +33,17 @@ class ScrollingTextRenderer extends StatefulWidget {
   final double shadowOffsetY;
   final double shadowBlur;
   final Color shadowColor;
+  final List<Color>? shadowGradientColors;
+  final double shadowGradientRotation;
 
   // Scroll
   final ScrollDirection scrollDirection;
   final double scrollSpeed; // Pixels per second
   final bool isPaused;
+
+  // Blink effect
+  final bool enableBlink;
+  final double blinkDuration; // Duration in milliseconds
 
   const ScrollingTextRenderer({
     super.key,
@@ -63,9 +69,13 @@ class ScrollingTextRenderer extends StatefulWidget {
     required this.shadowOffsetY,
     required this.shadowBlur,
     required this.shadowColor,
+    this.shadowGradientColors,
+    this.shadowGradientRotation = 0,
     required this.scrollDirection,
     required this.scrollSpeed,
     this.isPaused = false,
+    this.enableBlink = false,
+    this.blinkDuration = 500.0,
   });
 
   @override
@@ -73,8 +83,9 @@ class ScrollingTextRenderer extends StatefulWidget {
 }
 
 class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
+  late AnimationController _blinkController;
   double _textWidth = 0;
   double _textHeight = 0;
   double _containerWidth = 0;
@@ -92,6 +103,16 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
       setState(() {});
     });
     _controller.repeat();
+
+    // Initialize blink controller
+    _blinkController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: widget.blinkDuration.toInt()),
+    );
+    if (widget.enableBlink) {
+      _blinkController.repeat(reverse: true);
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) => _measureText());
   }
 
@@ -108,7 +129,9 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
         oldWidget.enableShadow != widget.enableShadow ||
         oldWidget.shadowOffsetX != widget.shadowOffsetX ||
         oldWidget.shadowOffsetY != widget.shadowOffsetY ||
-        oldWidget.shadowBlur != widget.shadowBlur) {
+        oldWidget.shadowBlur != widget.shadowBlur ||
+        oldWidget.shadowGradientColors != widget.shadowGradientColors ||
+        oldWidget.shadowGradientRotation != widget.shadowGradientRotation) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _measureText());
     }
     if (oldWidget.scrollSpeed != widget.scrollSpeed) {
@@ -122,6 +145,20 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
         if (!_controller.isAnimating && widget.scrollSpeed > 0) {
           _controller.repeat();
         }
+      }
+    }
+
+    // Handle blink effect changes
+    if (oldWidget.enableBlink != widget.enableBlink ||
+        oldWidget.blinkDuration != widget.blinkDuration) {
+      _blinkController.duration = Duration(
+        milliseconds: widget.blinkDuration.toInt(),
+      );
+      if (widget.enableBlink) {
+        _blinkController.repeat(reverse: true);
+      } else {
+        _blinkController.stop();
+        _blinkController.value = 1.0; // Ensure full opacity when disabled
       }
     }
   }
@@ -174,6 +211,7 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
   @override
   void dispose() {
     _controller.dispose();
+    _blinkController.dispose();
     super.dispose();
   }
 
@@ -246,16 +284,25 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
         }
 
         return ClipRect(
-          child: Stack(
-            children: [
-              // Hidden text for measurement
-              Positioned(
-                left: -10000,
-                child: Container(key: _textKey, child: _buildTextWidget()),
-              ),
+          child: AnimatedBuilder(
+            animation: _blinkController,
+            builder: (context, child) {
+              return Opacity(
+                opacity: widget.enableBlink ? _blinkController.value : 1.0,
+                child: child,
+              );
+            },
+            child: Stack(
+              children: [
+                // Hidden text for measurement
+                Positioned(
+                  left: -10000,
+                  child: Container(key: _textKey, child: _buildTextWidget()),
+                ),
 
-              ...visibleWidgets,
-            ],
+                ...visibleWidgets,
+              ],
+            ),
           ),
         );
       },
@@ -270,9 +317,14 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
       Rect bounds,
     ) {
       if (colors == null || colors.isEmpty) return null;
+      if (bounds.isEmpty) return null;
+
+      // Ensure at least 2 colors for LinearGradient
+      final effectiveColors =
+          colors.length == 1 ? [colors.first, colors.first] : colors;
 
       final gradient = LinearGradient(
-        colors: colors,
+        colors: effectiveColors,
         transform: GradientRotation(rotation * 3.14159 / 180),
       );
 
@@ -291,21 +343,52 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
     final textBounds = Rect.fromLTWH(0, 0, _textWidth, _textHeight);
 
     // 1. Shadow Layer (Bottom-most)
+    // 1. Shadow Layer (Bottom-most)
     if (widget.enableShadow) {
-      layers.add(
-        Text(
-          widget.text,
-          style: baseStyle.copyWith(
-            shadows: [
-              Shadow(
-                offset: Offset(widget.shadowOffsetX, widget.shadowOffsetY),
-                blurRadius: widget.shadowBlur,
-                color: widget.shadowColor,
-              ),
-            ],
-          ),
-        ),
+      // Create shader for shadow if gradient is enabled
+      final shadowShader = _createGradientShader(
+        widget.shadowGradientColors,
+        widget.shadowGradientRotation,
+        textBounds,
       );
+
+      if (shadowShader != null) {
+        // Gradient Shadow: Render as a separate blurred text layer
+        layers.add(
+          Transform.translate(
+            offset: Offset(widget.shadowOffsetX, widget.shadowOffsetY),
+            child: Text(
+              widget.text,
+              style: baseStyle.copyWith(
+                foreground:
+                    Paint()
+                      ..style = PaintingStyle.fill
+                      ..maskFilter = MaskFilter.blur(
+                        BlurStyle.normal,
+                        widget.shadowBlur,
+                      )
+                      ..shader = shadowShader,
+              ),
+            ),
+          ),
+        );
+      } else {
+        // Solid Color Shadow: Use standard TextStyle shadows
+        layers.add(
+          Text(
+            widget.text,
+            style: baseStyle.copyWith(
+              shadows: [
+                Shadow(
+                  offset: Offset(widget.shadowOffsetX, widget.shadowOffsetY),
+                  blurRadius: widget.shadowBlur,
+                  color: widget.shadowColor,
+                ),
+              ],
+            ),
+          ),
+        );
+      }
     }
 
     // 2. Outline Layer (Glow)

@@ -26,9 +26,17 @@ class _TemplateTabState extends State<TemplateTab> {
           bottom: TabBar(
             isScrollable: true,
             tabAlignment: TabAlignment.start,
-            labelColor: Colors.deepPurple,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Colors.deepPurple,
+            dividerHeight: 0.5,
+            dividerColor: Theme.of(
+              context,
+            ).colorScheme.onSurface.withOpacity(0.2),
+            indicatorSize: TabBarIndicatorSize.tab,
+            indicatorWeight: 1,
+            labelColor: Theme.of(context).colorScheme.onSurface,
+            indicatorColor: Theme.of(context).colorScheme.onSurface,
+            unselectedLabelColor: Theme.of(
+              context,
+            ).colorScheme.onSurface.withOpacity(0.5),
             tabs:
                 categories.map((category) => Tab(text: category.name)).toList(),
           ),
@@ -38,43 +46,56 @@ class _TemplateTabState extends State<TemplateTab> {
             // TabBarView for Categories
             Expanded(
               child: TabBarView(
-                children: categories.map((category) {
-                  return GridView.builder(
-                    padding: const EdgeInsets.all(16.0),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 1,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 16 / 7.5,
-                    ),
-                    itemCount: category.templates.length,
-                    itemBuilder: (context, index) {
-                      final template = category.templates[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => PreviewPage(
-                                templates: category.templates,
-                                initialIndex: index,
-                                categoryName: category.name,
+                children:
+                    categories.map((category) {
+                      return GridView.builder(
+                        padding: const EdgeInsets.all(12.0),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 1,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                              childAspectRatio: 16 / 7.5,
+                            ),
+                        itemCount: category.templates.length,
+                        itemBuilder: (context, index) {
+                          final template = category.templates[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => PreviewPage(
+                                        templates: category.templates,
+                                        initialIndex: index,
+                                        categoryName: category.name,
+                                      ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12.0),
+                                border: Border.all(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.2),
+                                  width: 0.5,
+                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12.0),
+                                child: PreviewWidget(
+                                  template: template,
+                                  text: template.text,
+                                  enableTextScroll: false,
+                                ),
                               ),
                             ),
                           );
                         },
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12.0),
-                          child: PreviewWidget(
-                            template: template,
-                            text: template.text,
-                            enableTextScroll: false,
-                          ),
-                        ),
                       );
-                    },
-                  );
-                }).toList(),
+                    }).toList(),
               ),
             ),
           ],

@@ -12,7 +12,7 @@ class NeonButton extends StatelessWidget {
   final double? borderSize;
   final double? borderRadius;
   final double? fontSize;
-  final double? minHeight;
+  final double? height;
 
   const NeonButton({
     super.key,
@@ -23,7 +23,7 @@ class NeonButton extends StatelessWidget {
     this.borderSize,
     this.borderRadius,
     this.fontSize,
-    this.minHeight,
+    this.height,
   });
 
   @override
@@ -31,37 +31,33 @@ class NeonButton extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     // Size configuration
-    double verticalPadding;
     double horizontalPadding;
     double defaultBorderRadius;
     double defaultBorderSize;
     double defaultFontSize;
-    double defaultMinHeight;
+    double defaultHeight;
 
     switch (size) {
       case NeonButtonSize.small:
-        verticalPadding = 8;
-        horizontalPadding = 16;
+        horizontalPadding = 12;
         defaultBorderRadius = 999;
         defaultBorderSize = 1;
         defaultFontSize = 14;
-        defaultMinHeight = 32;
+        defaultHeight = 32;
         break;
       case NeonButtonSize.medium:
-        verticalPadding = 12;
-        horizontalPadding = 24;
+        horizontalPadding = 20;
         defaultBorderRadius = 999;
         defaultBorderSize = 1;
         defaultFontSize = 14;
-        defaultMinHeight = 40;
+        defaultHeight = 40;
         break;
       case NeonButtonSize.large:
-        verticalPadding = 16;
         horizontalPadding = 32;
         defaultBorderRadius = 999;
         defaultBorderSize = 1;
         defaultFontSize = 16;
-        defaultMinHeight = 64;
+        defaultHeight = 64;
         break;
     }
 
@@ -74,17 +70,17 @@ class NeonButton extends StatelessWidget {
       case NeonButtonType.primary:
         borderColor = colorScheme.primary;
         backgroundColor = colorScheme.primaryContainer;
-        textColor = colorScheme.onPrimaryContainer;
+        textColor = colorScheme.primary;
         break;
       case NeonButtonType.secondary:
         borderColor = colorScheme.secondary;
         backgroundColor = colorScheme.secondaryContainer;
-        textColor = colorScheme.onSecondaryContainer;
+        textColor = colorScheme.secondary;
         break;
       case NeonButtonType.tertiary:
-        borderColor = colorScheme.tertiary;
-        backgroundColor = colorScheme.tertiaryContainer;
-        textColor = colorScheme.onTertiaryContainer;
+        borderColor = Colors.transparent;
+        backgroundColor = colorScheme.tertiary;
+        textColor = colorScheme.onTertiary;
         break;
       case NeonButtonType.tonal:
         borderColor = Colors.transparent;
@@ -101,10 +97,10 @@ class NeonButton extends StatelessWidget {
     final effectiveBorderRadius = borderRadius ?? defaultBorderRadius;
     final effectiveBorderSize = borderSize ?? defaultBorderSize;
     final effectiveFontSize = fontSize ?? defaultFontSize;
-    final effectiveMinHeight = minHeight ?? defaultMinHeight;
+    final effectiveHeight = height ?? defaultHeight;
 
     return Container(
-      constraints: BoxConstraints(minHeight: effectiveMinHeight),
+      height: effectiveHeight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
       ),
@@ -122,9 +118,7 @@ class NeonButton extends StatelessWidget {
           ),
           clipBehavior: Clip.antiAlias,
           child: Ink(
-            decoration: BoxDecoration(
-              color: backgroundColor,
-            ),
+            decoration: BoxDecoration(color: backgroundColor),
             child: InkWell(
               onTap: type == NeonButtonType.disabled ? null : onPressed,
               borderRadius: BorderRadius.circular(
@@ -132,7 +126,7 @@ class NeonButton extends StatelessWidget {
               ),
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  vertical: verticalPadding,
+                  vertical: 0,
                   horizontal: horizontalPadding,
                 ),
                 child: DefaultTextStyle(

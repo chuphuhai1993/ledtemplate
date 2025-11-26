@@ -19,7 +19,7 @@ class AppAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     this.actions,
     this.elevation,
     this.backgroundColor,
-    this.blur = 16.0,
+    this.blur = 0,
     this.bottom,
   });
 
@@ -27,7 +27,7 @@ class AppAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final effectiveBackgroundColor =
-        backgroundColor ?? theme.colorScheme.background.withOpacity(0.9);
+        backgroundColor ?? theme.colorScheme.background.withOpacity(0);
 
     return ClipRect(
       child: BackdropFilter(

@@ -30,6 +30,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
+        iconSize: 20,
+        backgroundColor: Theme.of(context).colorScheme.background,
+        selectedFontSize: 12,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),

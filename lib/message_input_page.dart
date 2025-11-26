@@ -84,6 +84,8 @@ class _MessageInputPageState extends State<MessageInputPage> {
               shadowColor: template.shadowColor,
               scrollDirection: template.scrollDirection,
               scrollSpeed: template.scrollSpeed,
+              enableBlink: template.enableBlink,
+              blinkDuration: template.blinkDuration,
               backgroundColor: template.backgroundColor,
               backgroundGradientColors: template.backgroundGradientColors,
               backgroundGradientRotation: template.backgroundGradientRotation,

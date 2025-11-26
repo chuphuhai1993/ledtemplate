@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'scrolling_text_renderer.dart';
+import 'widgets/bottom_sheet_container_widget.dart';
+import 'widgets/neon_button.dart';
 
 class PlayPage extends StatefulWidget {
   final String text;
@@ -27,8 +29,12 @@ class PlayPage extends StatefulWidget {
   final double shadowOffsetY;
   final double shadowBlur;
   final Color shadowColor;
+  final List<Color>? shadowGradientColors;
+  final double shadowGradientRotation;
   final ScrollDirection scrollDirection;
   final double scrollSpeed;
+  final bool enableBlink;
+  final double blinkDuration;
   final Color backgroundColor;
   final List<Color>? backgroundGradientColors;
   final double backgroundGradientRotation;
@@ -62,8 +68,12 @@ class PlayPage extends StatefulWidget {
     required this.shadowOffsetY,
     required this.shadowBlur,
     required this.shadowColor,
+    this.shadowGradientColors,
+    this.shadowGradientRotation = 0,
     required this.scrollDirection,
     required this.scrollSpeed,
+    this.enableBlink = false,
+    this.blinkDuration = 500.0,
     required this.backgroundColor,
     this.backgroundGradientColors,
     this.backgroundGradientRotation = 0,
@@ -169,39 +179,41 @@ class _PlayPageState extends State<PlayPage> {
       _isPaused = true;
     });
 
+    // Rotate screen back to portrait when showing bottom sheet
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     showModalBottomSheet(
       context: context,
       isDismissible: false, // Force user to choose an action
       enableDrag: false,
       builder:
-          (context) => Container(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Are you sure to stop?',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 50,
-                        child: OutlinedButton(
-                          onPressed: () {
-                            Navigator.pop(context); // Close bottom sheet
-                          },
-                          child: const Text('Resume'),
-                        ),
-                      ),
+          (context) => BottomSheetContainerWidget(
+            showHandleBar: false,
+            title: 'Are you sure to stop?',
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Stop progress and come back later.',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: SizedBox(
-                        height: 50,
-                        child: ElevatedButton(
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    spacing: 12,
+                    children: [
+                      Expanded(
+                        child: NeonButton(
                           onPressed: () {
                             Navigator.pop(context); // Close bottom sheet
                             if (widget.fromResultPage) {
@@ -212,20 +224,35 @@ class _PlayPageState extends State<PlayPage> {
                               Navigator.pop(context); // Close PlayPage
                             }
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                          ),
+                          type: NeonButtonType.tonal,
+                          size: NeonButtonSize.large,
                           child: const Text('Stop'),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      Expanded(
+                        child: NeonButton(
+                          onPressed: () {
+                            Navigator.pop(context); // Close bottom sheet
+                          },
+                          type: NeonButtonType.tertiary,
+                          size: NeonButtonSize.large,
+                          child: const Text('Resume'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
           ),
     ).then((_) {
+      // Restore landscape orientation when bottom sheet is closed
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+
       // Resume the text when bottom sheet is closed
       if (mounted) {
         setState(() {
@@ -314,9 +341,13 @@ class _PlayPageState extends State<PlayPage> {
                     shadowOffsetY: widget.shadowOffsetY,
                     shadowBlur: widget.shadowBlur,
                     shadowColor: widget.shadowColor,
+                    shadowGradientColors: widget.shadowGradientColors,
+                    shadowGradientRotation: widget.shadowGradientRotation,
                     scrollDirection: widget.scrollDirection,
                     scrollSpeed: widget.scrollSpeed,
                     isPaused: _isPaused,
+                    enableBlink: widget.enableBlink,
+                    blinkDuration: widget.blinkDuration,
                   ),
 
                   // Frame Overlay
@@ -339,14 +370,15 @@ class _PlayPageState extends State<PlayPage> {
                         // Close Button (Top LEFT) - Only if NOT locked
                         if (!_isLocked)
                           Positioned(
-                            top: 20,
-                            left: 20,
+                            top: 24,
+                            left: 16,
                             child: SafeArea(
                               child: IconButton(
+                                padding: const EdgeInsets.all(16),
                                 icon: const Icon(
                                   Icons.close,
                                   color: Colors.white,
-                                  size: 30,
+                                  size: 24,
                                 ),
                                 onPressed: _showCloseExploreBottomSheet,
                                 style: IconButton.styleFrom(
@@ -358,14 +390,15 @@ class _PlayPageState extends State<PlayPage> {
 
                         // Lock/Unlock Button (Top RIGHT)
                         Positioned(
-                          top: 20,
-                          right: 20,
+                          top: 24,
+                          right: 16,
                           child: SafeArea(
                             child: IconButton(
+                              padding: const EdgeInsets.all(16),
                               icon: Icon(
                                 _isLocked ? Icons.lock : Icons.lock_open,
                                 color: Colors.white,
-                                size: 30,
+                                size: 24,
                               ),
                               onPressed: _toggleLock,
                               style: IconButton.styleFrom(
@@ -378,18 +411,20 @@ class _PlayPageState extends State<PlayPage> {
                         // Brightness Slider (Bottom) - Only if NOT locked
                         if (!_isLocked)
                           Positioned(
-                            bottom: 20,
-                            left: 20,
-                            right: 20,
+                            bottom: 16,
+                            left: 16,
+                            right: 16,
                             child: SafeArea(
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
+                                padding: const EdgeInsets.fromLTRB(
+                                  24,
+                                  8,
+                                  32,
+                                  8,
                                 ),
                                 decoration: BoxDecoration(
                                   color: Colors.black54,
-                                  borderRadius: BorderRadius.circular(30),
+                                  borderRadius: BorderRadius.circular(999),
                                 ),
                                 child: Row(
                                   children: [
@@ -406,10 +441,12 @@ class _PlayPageState extends State<PlayPage> {
                                         inactiveColor: Colors.white38,
                                       ),
                                     ),
-                                    const Icon(
-                                      Icons.brightness_high,
-                                      color: Colors.white,
-                                      size: 24,
+                                    Text(
+                                      '${(_brightness * 100).toInt()}%',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
                                     ),
                                   ],
                                 ),

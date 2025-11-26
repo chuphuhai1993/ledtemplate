@@ -83,11 +83,15 @@ class PreviewWidget extends StatelessWidget {
                   shadowOffsetY: template.shadowOffsetY,
                   shadowBlur: template.shadowBlur,
                   shadowColor: template.shadowColor,
+                  shadowGradientColors: template.shadowGradientColors,
+                  shadowGradientRotation: template.shadowGradientRotation,
                   scrollDirection:
                       enableTextScroll
                           ? template.scrollDirection
                           : ScrollDirection.none,
                   scrollSpeed: template.scrollSpeed,
+                  enableBlink: template.enableBlink,
+                  blinkDuration: template.blinkDuration,
                 ),
                 if (template.enableFrame && template.frameImage != null)
                   Positioned.fill(
