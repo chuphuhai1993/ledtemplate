@@ -105,6 +105,12 @@ class ResultPage extends StatelessWidget {
                                 backgroundImage: template.backgroundImage,
                                 enableFrame: template.enableFrame,
                                 frameImage: template.frameImage,
+                                enableFrameGlow: template.enableFrameGlow,
+                                frameGlowSize: template.frameGlowSize,
+                                frameGlowBlur: template.frameGlowBlur,
+                                frameGlowBorderRadius:
+                                    template.frameGlowBorderRadius,
+                                frameGlowColor: template.frameGlowColor,
                                 fromResultPage: true,
                                 enableScroll: template.enableScroll,
                                 enableBounceZoom: template.enableBounceZoom,

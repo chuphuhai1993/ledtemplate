@@ -160,7 +160,7 @@ class _TemplateTabState extends State<TemplateTab>
                             child: PreviewWidget(
                               template: template,
                               text: template.text,
-                              enableTextScroll: false,
+                              enableEffect: false,
                             ),
                           ),
                         ),

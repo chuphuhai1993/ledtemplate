@@ -78,6 +78,13 @@ class Template {
   final bool enableFrame;
   final String? frameImage;
 
+  // Frame Glow
+  final bool enableFrameGlow;
+  final double frameGlowSize;
+  final double frameGlowBlur;
+  final double frameGlowBorderRadius;
+  final Color frameGlowColor;
+
   const Template({
     required this.text,
     this.fontFamily = 'Roboto',
@@ -125,6 +132,11 @@ class Template {
     this.backgroundImage,
     this.enableFrame = false,
     this.frameImage,
+    this.enableFrameGlow = false,
+    this.frameGlowSize = 5.0,
+    this.frameGlowBlur = 10.0,
+    this.frameGlowBorderRadius = 20.0,
+    this.frameGlowColor = Colors.blue,
   });
 
   Map<String, dynamic> toJson() {
@@ -179,6 +191,11 @@ class Template {
       'backgroundImage': backgroundImage,
       'enableFrame': enableFrame,
       'frameImage': frameImage,
+      'enableFrameGlow': enableFrameGlow,
+      'frameGlowSize': frameGlowSize,
+      'frameGlowBlur': frameGlowBlur,
+      'frameGlowBorderRadius': frameGlowBorderRadius,
+      'frameGlowColor': frameGlowColor.value,
     };
   }
 
@@ -301,6 +318,12 @@ class Template {
       backgroundImage: json['backgroundImage'],
       enableFrame: json['enableFrame'] ?? false,
       frameImage: json['frameImage'],
+      enableFrameGlow: json['enableFrameGlow'] ?? false,
+      frameGlowSize: (json['frameGlowSize'] as num?)?.toDouble() ?? 5.0,
+      frameGlowBlur: (json['frameGlowBlur'] as num?)?.toDouble() ?? 10.0,
+      frameGlowBorderRadius:
+          (json['frameGlowBorderRadius'] as num?)?.toDouble() ?? 20.0,
+      frameGlowColor: Color(json['frameGlowColor'] ?? 0xFF2196F3),
     );
   }
 }

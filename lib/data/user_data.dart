@@ -5,7 +5,11 @@ import '../models/template.dart';
 
 class UserData {
   static final ValueNotifier<List<Template>> savedTemplates = ValueNotifier([]);
+  static final ValueNotifier<String> defaultPhoneAsset = ValueNotifier(
+    'assets/phones/iphone_16.png',
+  );
   static const String _key = 'saved_templates';
+  static const String _phoneKey = 'default_phone_asset';
 
   static Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -15,6 +19,11 @@ class UserData {
       final List<Template> loadedTemplates =
           jsonList.map((e) => Template.fromJson(e)).toList();
       savedTemplates.value = loadedTemplates;
+    }
+
+    final String? savedPhone = prefs.getString(_phoneKey);
+    if (savedPhone != null) {
+      defaultPhoneAsset.value = savedPhone;
     }
   }
 
@@ -49,5 +58,11 @@ class UserData {
       savedTemplates.value.map((e) => e.toJson()).toList(),
     );
     await prefs.setString(_key, jsonString);
+  }
+
+  static Future<void> setPhoneAsset(String asset) async {
+    defaultPhoneAsset.value = asset;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_phoneKey, asset);
   }
 }

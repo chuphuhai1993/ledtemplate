@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import '../models/template.dart';
 import '../scrolling_text_renderer.dart';
 
@@ -10,14 +11,16 @@ class PreviewWidget extends StatelessWidget {
   final Template template;
   final String text;
   final bool showPhoneFrame;
-  final bool enableTextScroll;
+  final bool enableEffect;
+  final String? phoneAsset;
 
   const PreviewWidget({
     super.key,
     required this.template,
     required this.text,
     this.showPhoneFrame = false,
-    this.enableTextScroll = true,
+    this.enableEffect = true,
+    this.phoneAsset,
   });
 
   @override
@@ -31,100 +34,142 @@ class PreviewWidget extends StatelessWidget {
           final double actualFontSize =
               constraints.maxHeight * (template.fontSize / 100);
 
-          return Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient:
-                  template.backgroundGradientColors != null &&
-                          template.backgroundImage == null
-                      ? LinearGradient(
-                        colors: template.backgroundGradientColors!,
-                        transform: GradientRotation(
-                          template.backgroundGradientRotation * 3.14159 / 180,
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              Transform.scale(
+                scale: showPhoneFrame ? 0.97 : 1,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                    showPhoneFrame ? constraints.maxWidth * 0.05 : 0,
+                  ),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient:
+                              template.backgroundGradientColors != null &&
+                                      template.backgroundImage == null
+                                  ? LinearGradient(
+                                    colors: template.backgroundGradientColors!,
+                                    transform: GradientRotation(
+                                      template.backgroundGradientRotation *
+                                          3.14159 /
+                                          180,
+                                    ),
+                                  )
+                                  : null,
+                          color:
+                              template.backgroundGradientColors == null &&
+                                      template.backgroundImage == null
+                                  ? template.backgroundColor
+                                  : null,
+                          image:
+                              template.backgroundImage != null
+                                  ? DecorationImage(
+                                    image: AssetImage(
+                                      template.backgroundImage!,
+                                    ),
+                                    fit: BoxFit.cover,
+                                  )
+                                  : null,
                         ),
-                      )
-                      : null,
-              color:
-                  template.backgroundGradientColors == null &&
-                          template.backgroundImage == null
-                      ? template.backgroundColor
-                      : null,
-              image:
-                  template.backgroundImage != null
-                      ? DecorationImage(
-                        image: AssetImage(template.backgroundImage!),
-                        fit: BoxFit.cover,
-                      )
-                      : null,
-            ),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                ScrollingTextRenderer(
-                  text: text,
-                  fontFamily: template.fontFamily,
-                  fontSize: actualFontSize,
-                  textColor: template.textColor,
-                  textGradientColors: template.textGradientColors,
-                  textGradientRotation: template.textGradientRotation,
-                  enableStroke: template.enableStroke,
-                  strokeWidth: template.strokeWidth,
-                  strokeColor: template.strokeColor,
-                  strokeGradientColors: template.strokeGradientColors,
-                  strokeGradientRotation: template.strokeGradientRotation,
-                  enableOutline: template.enableOutline,
-                  outlineWidth: template.outlineWidth,
-                  outlineBlur: template.outlineBlur,
-                  outlineColor: template.outlineColor,
-                  outlineGradientColors: template.outlineGradientColors,
-                  outlineGradientRotation: template.outlineGradientRotation,
-                  enableShadow: template.enableShadow,
-                  shadowOffsetX: template.shadowOffsetX,
-                  shadowOffsetY: template.shadowOffsetY,
-                  shadowBlur: template.shadowBlur,
-                  shadowColor: template.shadowColor,
-                  shadowGradientColors: template.shadowGradientColors,
-                  shadowGradientRotation: template.shadowGradientRotation,
-                  enableScroll: enableTextScroll && template.enableScroll,
-                  enableBounceZoom: template.enableBounceZoom,
-                  enableBounce: template.enableBounce,
-                  bounceDirection: template.bounceDirection,
-                  scrollDirection:
-                      enableTextScroll
-                          ? template.scrollDirection
-                          : ScrollDirection.none,
-                  scrollSpeed: template.scrollSpeed,
-                  enableBlink: template.enableBlink,
-                  blinkDuration: template.blinkDuration,
-                  zoomLevel: template.zoomLevel,
-                  zoomSpeed: template.zoomSpeed,
-                  bounceLevel: template.bounceLevel,
-                  bounceSpeed: template.bounceSpeed,
-                  enableRotationBounce: template.enableRotationBounce,
-                  rotationStart: template.rotationStart,
-                  rotationEnd: template.rotationEnd,
-                  rotationSpeed: template.rotationSpeed,
+                      ),
+                      ScrollingTextRenderer(
+                        text: text,
+                        fontFamily: template.fontFamily,
+                        fontSize: actualFontSize,
+                        textColor: template.textColor,
+                        textGradientColors: template.textGradientColors,
+                        textGradientRotation: template.textGradientRotation,
+                        enableStroke: template.enableStroke,
+                        strokeWidth: template.strokeWidth,
+                        strokeColor: template.strokeColor,
+                        strokeGradientColors: template.strokeGradientColors,
+                        strokeGradientRotation: template.strokeGradientRotation,
+                        enableOutline: template.enableOutline,
+                        outlineWidth: template.outlineWidth,
+                        outlineBlur: template.outlineBlur,
+                        outlineColor: template.outlineColor,
+                        outlineGradientColors: template.outlineGradientColors,
+                        outlineGradientRotation:
+                            template.outlineGradientRotation,
+                        enableShadow: template.enableShadow,
+                        shadowOffsetX: template.shadowOffsetX,
+                        shadowOffsetY: template.shadowOffsetY,
+                        shadowBlur: template.shadowBlur,
+                        shadowColor: template.shadowColor,
+                        shadowGradientColors: template.shadowGradientColors,
+                        shadowGradientRotation: template.shadowGradientRotation,
+                        enableScroll: enableEffect && template.enableScroll,
+                        enableBounceZoom:
+                            enableEffect && template.enableBounceZoom,
+                        enableBounce: enableEffect && template.enableBounce,
+                        bounceDirection: template.bounceDirection,
+                        scrollDirection:
+                            enableEffect
+                                ? template.scrollDirection
+                                : ScrollDirection.none,
+                        scrollSpeed: template.scrollSpeed,
+                        enableBlink: enableEffect && template.enableBlink,
+                        blinkDuration: template.blinkDuration,
+                        zoomLevel: template.zoomLevel,
+                        zoomSpeed: template.zoomSpeed,
+                        bounceLevel: template.bounceLevel,
+                        bounceSpeed: template.bounceSpeed,
+                        enableRotationBounce:
+                            enableEffect && template.enableRotationBounce,
+                        rotationStart: template.rotationStart,
+                        rotationEnd: template.rotationEnd,
+                        rotationSpeed: template.rotationSpeed,
+                      ),
+                      if (template.enableFrame && template.frameImage != null)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: Image.asset(
+                              template.frameImage!,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                        ),
+                      if (template.enableFrameGlow)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: ImageFiltered(
+                              imageFilter: ImageFilter.blur(
+                                sigmaX: template.frameGlowBlur,
+                                sigmaY: template.frameGlowBlur,
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                    template.frameGlowBorderRadius,
+                                  ),
+                                  border: Border.all(
+                                    color: template.frameGlowColor,
+                                    width: template.frameGlowSize,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-                if (template.enableFrame && template.frameImage != null)
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: Image.asset(
-                        template.frameImage!,
-                        fit: BoxFit.fill,
-                      ),
+              ),
+
+              if (showPhoneFrame)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Image.asset(
+                      phoneAsset ?? 'assets/phones/iphone_16.png',
+                      fit: BoxFit.fill,
                     ),
                   ),
-                if (showPhoneFrame)
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: Image.asset(
-                        'assets/phones/iphone_16.png',
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+                ),
+            ],
           );
         },
       ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'models/template.dart';
 import 'package:screen_brightness/screen_brightness.dart';
@@ -54,6 +55,11 @@ class PlayPage extends StatefulWidget {
   final String? backgroundImage;
   final bool enableFrame;
   final String? frameImage;
+  final bool enableFrameGlow;
+  final double frameGlowSize;
+  final double frameGlowBlur;
+  final double frameGlowBorderRadius;
+  final Color frameGlowColor;
   final int? templateIndex;
   final bool fromResultPage;
 
@@ -105,6 +111,11 @@ class PlayPage extends StatefulWidget {
     required this.backgroundImage,
     required this.enableFrame,
     required this.frameImage,
+    required this.enableFrameGlow,
+    required this.frameGlowSize,
+    required this.frameGlowBlur,
+    required this.frameGlowBorderRadius,
+    required this.frameGlowColor,
     this.templateIndex,
     this.fromResultPage = false,
   });
@@ -394,6 +405,30 @@ class _PlayPageState extends State<PlayPage> {
                         child: Image.asset(
                           widget.frameImage!,
                           fit: BoxFit.fill,
+                        ),
+                      ),
+                    ),
+
+                  // Frame Glow
+                  if (widget.enableFrameGlow)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: ImageFiltered(
+                          imageFilter: ImageFilter.blur(
+                            sigmaX: widget.frameGlowBlur,
+                            sigmaY: widget.frameGlowBlur,
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                widget.frameGlowBorderRadius,
+                              ),
+                              border: Border.all(
+                                color: widget.frameGlowColor,
+                                width: widget.frameGlowSize,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),

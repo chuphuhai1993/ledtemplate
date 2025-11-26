@@ -8,6 +8,7 @@ import 'package:ledtemplate/widgets/app_textfield_widget.dart';
 import 'models/template.dart';
 import 'play_page.dart';
 import 'editor_page.dart';
+import 'data/user_data.dart';
 
 import 'widgets/neon_button.dart';
 
@@ -99,6 +100,11 @@ class _PreviewPageState extends State<PreviewPage> {
               backgroundImage: template.backgroundImage,
               enableFrame: template.enableFrame,
               frameImage: template.frameImage,
+              enableFrameGlow: template.enableFrameGlow,
+              frameGlowSize: template.frameGlowSize,
+              frameGlowBlur: template.frameGlowBlur,
+              frameGlowBorderRadius: template.frameGlowBorderRadius,
+              frameGlowColor: template.frameGlowColor,
               templateIndex: widget.showEditButton ? _currentIndex : null,
               textColor: template.textColor,
               enableScroll: template.enableScroll,
@@ -205,10 +211,16 @@ class _PreviewPageState extends State<PreviewPage> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             // Preview Area
-                            PreviewWidget(
-                              template: template,
-                              text: textController.text,
-                              showPhoneFrame: true,
+                            ValueListenableBuilder<String>(
+                              valueListenable: UserData.defaultPhoneAsset,
+                              builder: (context, phoneAsset, child) {
+                                return PreviewWidget(
+                                  template: template,
+                                  text: textController.text,
+                                  showPhoneFrame: true,
+                                  phoneAsset: phoneAsset,
+                                );
+                              },
                             ),
 
                             const SizedBox(height: 24),

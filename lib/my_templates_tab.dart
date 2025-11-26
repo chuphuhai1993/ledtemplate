@@ -231,7 +231,7 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                                 child: PreviewWidget(
                                   template: template,
                                   text: template.text,
-                                  enableTextScroll: false,
+                                  enableEffect: false,
                                 ),
                               ),
                             ),

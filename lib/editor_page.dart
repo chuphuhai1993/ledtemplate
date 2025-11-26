@@ -14,6 +14,8 @@ import 'widgets/text_chip_button_widget.dart';
 import 'widgets/app_textfield_widget.dart';
 import 'models/template.dart';
 import 'saving_page.dart';
+import 'widgets/phone_selection_bottom_sheet.dart';
+import 'data/user_data.dart';
 
 class EditorPage extends StatefulWidget {
   final Template? template;
@@ -77,6 +79,13 @@ class _EditorPageState extends State<EditorPage> {
   // Frame
   late bool _enableFrame;
   late String? _frameImage;
+
+  // Frame Glow
+  late bool _enableFrameGlow;
+  late double _frameGlowSize;
+  late double _frameGlowBlur;
+  late double _frameGlowBorderRadius;
+  late Color _frameGlowColor;
 
   // Effects
   late bool _enableScroll;
@@ -146,6 +155,12 @@ class _EditorPageState extends State<EditorPage> {
 
     _enableFrame = t?.enableFrame ?? false;
     _frameImage = t?.frameImage ?? 'assets/frames/frame_1.png';
+
+    _enableFrameGlow = t?.enableFrameGlow ?? false;
+    _frameGlowSize = t?.frameGlowSize ?? 5.0;
+    _frameGlowBlur = t?.frameGlowBlur ?? 10.0;
+    _frameGlowBorderRadius = t?.frameGlowBorderRadius ?? 20.0;
+    _frameGlowColor = t?.frameGlowColor ?? Colors.blue;
 
     _enableScroll = t?.enableScroll ?? true;
     _enableBounceZoom = t?.enableBounceZoom ?? false;
@@ -276,6 +291,21 @@ class _EditorPageState extends State<EditorPage> {
     );
   }
 
+  void _showPhoneSelectionBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder:
+          (context) => PhoneSelectionBottomSheet(
+            selectedPhoneAsset: UserData.defaultPhoneAsset.value,
+            onPhoneSelected: (asset) {
+              UserData.setPhoneAsset(asset);
+            },
+          ),
+    );
+  }
+
   void _saveTemplate() {
     // Check if we're editing an existing template from My Templates
     if (widget.templateIndex != null) {
@@ -321,6 +351,11 @@ class _EditorPageState extends State<EditorPage> {
       backgroundImage: _backgroundImage,
       enableFrame: _enableFrame,
       frameImage: _frameImage,
+      enableFrameGlow: _enableFrameGlow,
+      frameGlowSize: _frameGlowSize,
+      frameGlowBlur: _frameGlowBlur,
+      frameGlowBorderRadius: _frameGlowBorderRadius,
+      frameGlowColor: _frameGlowColor,
       enableScroll: _enableScroll,
       enableBounceZoom: _enableBounceZoom,
       enableBounce: _enableBounce,
@@ -379,6 +414,11 @@ class _EditorPageState extends State<EditorPage> {
         backgroundImage: _backgroundImage,
         enableFrame: _enableFrame,
         frameImage: _frameImage,
+        enableFrameGlow: _enableFrameGlow,
+        frameGlowSize: _frameGlowSize,
+        frameGlowBlur: _frameGlowBlur,
+        frameGlowBorderRadius: _frameGlowBorderRadius,
+        frameGlowColor: _frameGlowColor,
         enableScroll: _enableScroll,
         enableBounceZoom: _enableBounceZoom,
         enableBounce: _enableBounce,
@@ -429,57 +469,89 @@ class _EditorPageState extends State<EditorPage> {
         body: Column(
           children: [
             // Preview Area
-            PreviewWidget(
-              showPhoneFrame: true,
-              template: Template(
-                text: _text,
-                fontFamily: _fontFamily,
-                fontSize: _fontSize,
-                enableStroke: _enableStroke,
-                strokeWidth: _strokeWidth,
-                strokeColor: _strokeColor,
-                strokeGradientColors: _strokeGradientColors,
-                strokeGradientRotation: _strokeGradientRotation,
-                enableOutline: _enableOutline,
-                outlineWidth: _outlineWidth,
-                outlineBlur: _outlineBlur,
-                outlineColor: _outlineColor,
-                outlineGradientColors: _outlineGradientColors,
-                outlineGradientRotation: _outlineGradientRotation,
-                enableShadow: _enableShadow,
-                shadowOffsetX: _shadowOffsetX,
-                shadowOffsetY: _shadowOffsetY,
-                shadowBlur: _shadowBlur,
-                shadowColor: _shadowColor,
-                shadowGradientColors: _shadowGradientColors,
-                shadowGradientRotation: _shadowGradientRotation,
-                scrollDirection: _scrollDirection,
-                scrollSpeed: _scrollSpeed,
-                enableBlink: _enableBlink,
-                blinkDuration: _blinkDuration,
-                backgroundColor: _backgroundColor,
-                backgroundGradientColors: _backgroundGradientColors,
-                backgroundGradientRotation: _backgroundGradientRotation,
-                backgroundImage: _backgroundImage,
-                enableFrame: _enableFrame,
-                frameImage: _frameImage,
-                textColor: _textColor,
-                textGradientColors: _textGradientColors,
-                textGradientRotation: _textGradientRotation,
-                enableScroll: _enableScroll,
-                enableBounceZoom: _enableBounceZoom,
-                enableBounce: _enableBounce,
-                bounceDirection: _bounceDirection,
-                zoomLevel: _zoomLevel,
-                zoomSpeed: _zoomSpeed,
-                bounceLevel: _bounceLevel,
-                bounceSpeed: _bounceSpeed,
-                enableRotationBounce: _enableRotationBounce,
-                rotationStart: _rotationStart,
-                rotationEnd: _rotationEnd,
-                rotationSpeed: _rotationSpeed,
-              ),
-              text: _text,
+            // Preview Area
+            Stack(
+              children: [
+                ValueListenableBuilder<String>(
+                  valueListenable: UserData.defaultPhoneAsset,
+                  builder: (context, phoneAsset, child) {
+                    return PreviewWidget(
+                      showPhoneFrame: true,
+                      template: Template(
+                        text: _text,
+                        fontFamily: _fontFamily,
+                        fontSize: _fontSize,
+                        enableStroke: _enableStroke,
+                        strokeWidth: _strokeWidth,
+                        strokeColor: _strokeColor,
+                        strokeGradientColors: _strokeGradientColors,
+                        strokeGradientRotation: _strokeGradientRotation,
+                        enableOutline: _enableOutline,
+                        outlineWidth: _outlineWidth,
+                        outlineBlur: _outlineBlur,
+                        outlineColor: _outlineColor,
+                        outlineGradientColors: _outlineGradientColors,
+                        outlineGradientRotation: _outlineGradientRotation,
+                        enableShadow: _enableShadow,
+                        shadowOffsetX: _shadowOffsetX,
+                        shadowOffsetY: _shadowOffsetY,
+                        shadowBlur: _shadowBlur,
+                        shadowColor: _shadowColor,
+                        shadowGradientColors: _shadowGradientColors,
+                        shadowGradientRotation: _shadowGradientRotation,
+                        scrollDirection: _scrollDirection,
+                        scrollSpeed: _scrollSpeed,
+                        enableBlink: _enableBlink,
+                        blinkDuration: _blinkDuration,
+                        backgroundColor: _backgroundColor,
+                        backgroundGradientColors: _backgroundGradientColors,
+                        backgroundGradientRotation: _backgroundGradientRotation,
+                        backgroundImage: _backgroundImage,
+                        enableFrame: _enableFrame,
+                        frameImage: _frameImage,
+                        enableFrameGlow: _enableFrameGlow,
+                        frameGlowSize: _frameGlowSize,
+                        frameGlowBlur: _frameGlowBlur,
+                        frameGlowBorderRadius: _frameGlowBorderRadius,
+                        frameGlowColor: _frameGlowColor,
+                        textColor: _textColor,
+                        textGradientColors: _textGradientColors,
+                        textGradientRotation: _textGradientRotation,
+                        enableScroll: _enableScroll,
+                        enableBounceZoom: _enableBounceZoom,
+                        enableBounce: _enableBounce,
+                        bounceDirection: _bounceDirection,
+                        zoomLevel: _zoomLevel,
+                        zoomSpeed: _zoomSpeed,
+                        bounceLevel: _bounceLevel,
+                        bounceSpeed: _bounceSpeed,
+                        enableRotationBounce: _enableRotationBounce,
+                        rotationStart: _rotationStart,
+                        rotationEnd: _rotationEnd,
+                        rotationSpeed: _rotationSpeed,
+                      ),
+                      text: _text,
+                      phoneAsset: phoneAsset,
+                    );
+                  },
+                ),
+                Positioned(
+                  bottom: 16,
+                  right: 16,
+                  child: SizedBox(
+                    width: 36,
+                    height: 36,
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.ad_units, size: 20),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.black54,
+                      ),
+                      onPressed: _showPhoneSelectionBottomSheet,
+                    ),
+                  ),
+                ),
+              ],
             ),
 
             // Settings Area with Tabs
@@ -665,6 +737,23 @@ class _EditorPageState extends State<EditorPage> {
                               frameImage: _frameImage,
                               onFrameImageChanged:
                                   (v) => setState(() => _frameImage = v),
+                              enableFrameGlow: _enableFrameGlow,
+                              onEnableFrameGlowChanged:
+                                  (v) => setState(() => _enableFrameGlow = v),
+                              frameGlowSize: _frameGlowSize,
+                              onFrameGlowSizeChanged:
+                                  (v) => setState(() => _frameGlowSize = v),
+                              frameGlowBlur: _frameGlowBlur,
+                              onFrameGlowBlurChanged:
+                                  (v) => setState(() => _frameGlowBlur = v),
+                              frameGlowBorderRadius: _frameGlowBorderRadius,
+                              onFrameGlowBorderRadiusChanged:
+                                  (v) => setState(
+                                    () => _frameGlowBorderRadius = v,
+                                  ),
+                              frameGlowColor: _frameGlowColor,
+                              onFrameGlowColorChanged:
+                                  (v) => setState(() => _frameGlowColor = v),
                             ),
                           ],
                         ),
@@ -1683,6 +1772,17 @@ class _BackdropSettingsPanel extends StatefulWidget {
   final String? frameImage;
   final ValueChanged<String?> onFrameImageChanged;
 
+  final bool enableFrameGlow;
+  final ValueChanged<bool> onEnableFrameGlowChanged;
+  final double frameGlowSize;
+  final ValueChanged<double> onFrameGlowSizeChanged;
+  final double frameGlowBlur;
+  final ValueChanged<double> onFrameGlowBlurChanged;
+  final double frameGlowBorderRadius;
+  final ValueChanged<double> onFrameGlowBorderRadiusChanged;
+  final Color frameGlowColor;
+  final ValueChanged<Color> onFrameGlowColorChanged;
+
   const _BackdropSettingsPanel({
     required this.backgroundColor,
     required this.onBackgroundColorChanged,
@@ -1695,6 +1795,16 @@ class _BackdropSettingsPanel extends StatefulWidget {
     required this.onEnableFrameChanged,
     required this.frameImage,
     required this.onFrameImageChanged,
+    required this.enableFrameGlow,
+    required this.onEnableFrameGlowChanged,
+    required this.frameGlowSize,
+    required this.onFrameGlowSizeChanged,
+    required this.frameGlowBlur,
+    required this.onFrameGlowBlurChanged,
+    required this.frameGlowBorderRadius,
+    required this.onFrameGlowBorderRadiusChanged,
+    required this.frameGlowColor,
+    required this.onFrameGlowColorChanged,
   });
 
   @override
@@ -1885,6 +1995,98 @@ class _BackdropSettingsPanelState extends State<_BackdropSettingsPanel> {
                       const SizedBox(width: 16),
                     ],
                   ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        // Frame Glow Card
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _SectionTitle(icon: Icons.blur_on, title: 'Frame Glow'),
+                    AppSwitchWidget(
+                      value: widget.enableFrameGlow,
+                      onChanged: widget.onEnableFrameGlowChanged,
+                    ),
+                  ],
+                ),
+              ),
+              if (widget.enableFrameGlow) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Divider(
+                        height: 24,
+                        thickness: 0.5,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.2),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Size (${widget.frameGlowSize.toStringAsFixed(1)})',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      AppSliderWidget(
+                        value: widget.frameGlowSize,
+                        min: 1,
+                        max: 50,
+                        onChanged: widget.onFrameGlowSizeChanged,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Blur (${widget.frameGlowBlur.toStringAsFixed(1)})',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      AppSliderWidget(
+                        value: widget.frameGlowBlur,
+                        min: 0,
+                        max: 50,
+                        onChanged: widget.onFrameGlowBlurChanged,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Border Radius (${widget.frameGlowBorderRadius.toStringAsFixed(1)})',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      AppSliderWidget(
+                        value: widget.frameGlowBorderRadius,
+                        min: 0,
+                        max: 50,
+                        onChanged: widget.onFrameGlowBorderRadiusChanged,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Color (${_colorToHex(widget.frameGlowColor)})',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ColorPaletteGridWidget(
+                  selectedColor: widget.frameGlowColor,
+                  onColorChanged: widget.onFrameGlowColorChanged,
+                  label: 'Glow Color',
                 ),
               ],
             ],
