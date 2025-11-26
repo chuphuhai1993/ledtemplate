@@ -101,6 +101,8 @@ class _PreviewPageState extends State<PreviewPage> {
               frameImage: template.frameImage,
               templateIndex: widget.showEditButton ? _currentIndex : null,
               textColor: template.textColor,
+              effectType: template.effectType,
+              bounceValue: template.bounceValue,
             ),
       ),
     );

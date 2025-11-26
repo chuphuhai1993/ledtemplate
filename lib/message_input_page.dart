@@ -92,6 +92,8 @@ class _MessageInputPageState extends State<MessageInputPage> {
               backgroundImage: template.backgroundImage,
               enableFrame: template.enableFrame,
               frameImage: template.frameImage,
+              effectType: template.effectType,
+              bounceValue: template.bounceValue,
             ),
       ),
     );

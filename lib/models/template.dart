@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../scrolling_text_renderer.dart';
 
+enum EffectType { scroll, bounceZoom, bounceHorizontal, bounceVertical }
+
 class Template {
   final String text;
   final String fontFamily;
@@ -39,8 +41,10 @@ class Template {
   final double shadowGradientRotation;
 
   // Scroll
+  final EffectType effectType;
   final ScrollDirection scrollDirection;
   final double scrollSpeed;
+  final double bounceValue;
 
   // Blink effect
   final bool enableBlink;
@@ -81,8 +85,10 @@ class Template {
     this.shadowColor = Colors.black,
     this.shadowGradientColors,
     this.shadowGradientRotation = 0,
+    this.effectType = EffectType.scroll,
     this.scrollDirection = ScrollDirection.rightToLeft,
     this.scrollSpeed = 100.0,
+    this.bounceValue = 20.0,
     this.enableBlink = false,
     this.blinkDuration = 500.0,
     this.backgroundColor = Colors.black,
@@ -122,8 +128,10 @@ class Template {
       'shadowGradientColors':
           shadowGradientColors?.map((c) => c.value).toList(),
       'shadowGradientRotation': shadowGradientRotation,
+      'effectType': effectType.index,
       'scrollDirection': scrollDirection.index,
       'scrollSpeed': scrollSpeed,
+      'bounceValue': bounceValue,
       'enableBlink': enableBlink,
       'blinkDuration': blinkDuration,
       'backgroundColor': backgroundColor.value,
@@ -178,8 +186,10 @@ class Template {
       shadowGradientColors: parseGradientColors(json['shadowGradientColors']),
       shadowGradientRotation:
           (json['shadowGradientRotation'] as num?)?.toDouble() ?? 0,
+      effectType: EffectType.values[json['effectType'] ?? 0],
       scrollDirection: ScrollDirection.values[json['scrollDirection'] ?? 0],
       scrollSpeed: (json['scrollSpeed'] as num?)?.toDouble() ?? 100.0,
+      bounceValue: (json['bounceValue'] as num?)?.toDouble() ?? 20.0,
       enableBlink: json['enableBlink'] ?? false,
       blinkDuration: (json['blinkDuration'] as num?)?.toDouble() ?? 500.0,
       backgroundColor: Color(json['backgroundColor'] ?? 0xFF000000),

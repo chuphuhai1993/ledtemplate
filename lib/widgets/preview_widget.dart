@@ -92,6 +92,8 @@ class PreviewWidget extends StatelessWidget {
                   scrollSpeed: template.scrollSpeed,
                   enableBlink: template.enableBlink,
                   blinkDuration: template.blinkDuration,
+                  effectType: template.effectType,
+                  bounceValue: template.bounceValue,
                 ),
                 if (template.enableFrame && template.frameImage != null)
                   Positioned.fill(

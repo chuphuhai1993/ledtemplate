@@ -78,6 +78,10 @@ class _EditorPageState extends State<EditorPage> {
   late bool _enableFrame;
   late String? _frameImage;
 
+  // Effects
+  late EffectType _effectType;
+  late double _bounceValue;
+
   @override
   void initState() {
     super.initState();
@@ -128,6 +132,9 @@ class _EditorPageState extends State<EditorPage> {
 
     _enableFrame = t?.enableFrame ?? false;
     _frameImage = t?.frameImage ?? 'assets/frames/frame_1.png';
+
+    _effectType = t?.effectType ?? EffectType.scroll;
+    _bounceValue = t?.bounceValue ?? 20.0;
   }
 
   void _showConfirmBackBottomSheet() {
@@ -287,6 +294,8 @@ class _EditorPageState extends State<EditorPage> {
       backgroundImage: _backgroundImage,
       enableFrame: _enableFrame,
       frameImage: _frameImage,
+      effectType: _effectType,
+      bounceValue: _bounceValue,
     );
 
     Navigator.of(context).pushReplacement(
@@ -333,6 +342,8 @@ class _EditorPageState extends State<EditorPage> {
         backgroundImage: _backgroundImage,
         enableFrame: _enableFrame,
         frameImage: _frameImage,
+        effectType: _effectType,
+        bounceValue: _bounceValue,
       );
 
       Navigator.of(context).pushReplacement(
@@ -408,6 +419,8 @@ class _EditorPageState extends State<EditorPage> {
                 textColor: _textColor,
                 textGradientColors: _textGradientColors,
                 textGradientRotation: _textGradientRotation,
+                effectType: _effectType,
+                bounceValue: _bounceValue,
               ),
               text: _text,
             ),
@@ -444,6 +457,12 @@ class _EditorPageState extends State<EditorPage> {
                           children: [
                             // Effect Tab
                             _EffectSettingsPanel(
+                              effectType: _effectType,
+                              onEffectTypeChanged:
+                                  (v) => setState(() => _effectType = v),
+                              bounceValue: _bounceValue,
+                              onBounceValueChanged:
+                                  (v) => setState(() => _bounceValue = v),
                               scrollDirection: _scrollDirection,
                               onScrollDirectionChanged:
                                   (v) => setState(() => _scrollDirection = v),
@@ -576,6 +595,10 @@ class _EditorPageState extends State<EditorPage> {
 
 // Effect Settings Panel
 class _EffectSettingsPanel extends StatelessWidget {
+  final EffectType effectType;
+  final ValueChanged<EffectType> onEffectTypeChanged;
+  final double bounceValue;
+  final ValueChanged<double> onBounceValueChanged;
   final ScrollDirection scrollDirection;
   final ValueChanged<ScrollDirection> onScrollDirectionChanged;
   final double scrollSpeed;
@@ -586,6 +609,10 @@ class _EffectSettingsPanel extends StatelessWidget {
   final ValueChanged<double> onBlinkDurationChanged;
 
   const _EffectSettingsPanel({
+    required this.effectType,
+    required this.onEffectTypeChanged,
+    required this.bounceValue,
+    required this.onBounceValueChanged,
     required this.scrollDirection,
     required this.onScrollDirectionChanged,
     required this.scrollSpeed,
@@ -596,12 +623,36 @@ class _EffectSettingsPanel extends StatelessWidget {
     required this.onBlinkDurationChanged,
   });
 
+  String _getEffectTypeName(EffectType type) {
+    switch (type) {
+      case EffectType.scroll:
+        return 'Scroll';
+      case EffectType.bounceZoom:
+        return 'Bounce Zoom';
+      case EffectType.bounceHorizontal:
+        return 'Bounce Horiz';
+      case EffectType.bounceVertical:
+        return 'Bounce Vert';
+    }
+  }
+
+  String _getScrollDirectionName(ScrollDirection direction) {
+    switch (direction) {
+      case ScrollDirection.rightToLeft:
+        return 'Right to Left';
+      case ScrollDirection.leftToRight:
+        return 'Left to Right';
+      case ScrollDirection.none:
+        return 'None';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.all(12.0),
       children: [
-        // Scroll Direction Card
+        // Effect Type Card
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -611,43 +662,125 @@ class _EffectSettingsPanel extends StatelessWidget {
           child: Column(
             children: [
               _SectionTitle(
-                icon: Icons.arrow_circle_right_outlined,
-                title: 'Scroll direction',
-                value: _getScrollDirectionName(scrollDirection),
+                icon: Icons.auto_awesome_outlined,
+                title: 'Effect Type',
+                value: _getEffectTypeName(effectType),
               ),
               const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IconChipButtonWidget(
-                    isActive: scrollDirection == ScrollDirection.rightToLeft,
-                    onPressed:
-                        () => onScrollDirectionChanged(
-                          ScrollDirection.rightToLeft,
-                        ),
-                    icon: Icons.arrow_back,
-                  ),
-                  const SizedBox(width: 8),
-                  IconChipButtonWidget(
-                    isActive: scrollDirection == ScrollDirection.none,
-                    onPressed:
-                        () => onScrollDirectionChanged(ScrollDirection.none),
-                    icon: Icons.block,
-                  ),
-                  const SizedBox(width: 8),
-                  IconChipButtonWidget(
-                    isActive: scrollDirection == ScrollDirection.leftToRight,
-                    onPressed:
-                        () => onScrollDirectionChanged(
-                          ScrollDirection.leftToRight,
-                        ),
-                    icon: Icons.arrow_forward,
-                  ),
-                ],
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    TextChipButtonWidget(
+                      label: 'Scroll',
+                      isSelected: effectType == EffectType.scroll,
+                      onTap: () => onEffectTypeChanged(EffectType.scroll),
+                    ),
+                    const SizedBox(width: 8),
+                    TextChipButtonWidget(
+                      label: 'Zoom',
+                      isSelected: effectType == EffectType.bounceZoom,
+                      onTap: () => onEffectTypeChanged(EffectType.bounceZoom),
+                    ),
+                    const SizedBox(width: 8),
+                    TextChipButtonWidget(
+                      label: 'Horiz',
+                      isSelected: effectType == EffectType.bounceHorizontal,
+                      onTap:
+                          () =>
+                              onEffectTypeChanged(EffectType.bounceHorizontal),
+                    ),
+                    const SizedBox(width: 8),
+                    TextChipButtonWidget(
+                      label: 'Vert',
+                      isSelected: effectType == EffectType.bounceVertical,
+                      onTap:
+                          () => onEffectTypeChanged(EffectType.bounceVertical),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
+        const SizedBox(height: 8),
+        // Scroll Direction Card (Only for Scroll)
+        if (effectType == EffectType.scroll)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                _SectionTitle(
+                  icon: Icons.arrow_circle_right_outlined,
+                  title: 'Scroll direction',
+                  value: _getScrollDirectionName(scrollDirection),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    IconChipButtonWidget(
+                      isActive: scrollDirection == ScrollDirection.rightToLeft,
+                      onPressed:
+                          () => onScrollDirectionChanged(
+                            ScrollDirection.rightToLeft,
+                          ),
+                      icon: Icons.arrow_back,
+                    ),
+                    const SizedBox(width: 8),
+                    IconChipButtonWidget(
+                      isActive: scrollDirection == ScrollDirection.none,
+                      onPressed:
+                          () => onScrollDirectionChanged(ScrollDirection.none),
+                      icon: Icons.block,
+                    ),
+                    const SizedBox(width: 8),
+                    IconChipButtonWidget(
+                      isActive: scrollDirection == ScrollDirection.leftToRight,
+                      onPressed:
+                          () => onScrollDirectionChanged(
+                            ScrollDirection.leftToRight,
+                          ),
+                      icon: Icons.arrow_forward,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+        // Bounce Level Card (Only for Bounce)
+        if (effectType != EffectType.scroll)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SectionTitle(
+                  icon: Icons.height,
+                  title: 'Bounce Level',
+                  value: '${bounceValue.toStringAsFixed(0)}%',
+                ),
+                AppSliderWidget(
+                  value: bounceValue,
+                  min: 0,
+                  max: 100, // Allow up to 100% as requested
+                  onChanged: onBounceValueChanged,
+                ),
+              ],
+            ),
+          ),
+
+        if (effectType == EffectType.scroll || effectType != EffectType.scroll)
+          const SizedBox(height: 8),
         const SizedBox(height: 8),
 
         // Scroll Speed Card

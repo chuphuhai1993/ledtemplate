@@ -106,6 +106,8 @@ class ResultPage extends StatelessWidget {
                                 enableFrame: template.enableFrame,
                                 frameImage: template.frameImage,
                                 fromResultPage: true,
+                                effectType: template.effectType,
+                                bounceValue: template.bounceValue,
                               ),
                         ),
                       );
