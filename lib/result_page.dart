@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ledtemplate/widgets/neon_button.dart';
 import 'models/template.dart';
 import 'play_page.dart';
 import 'editor_page.dart';
@@ -11,128 +12,146 @@ class ResultPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.check_circle_outline,
-                color: Colors.green,
-                size: 100,
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Success!',
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Your template has been saved.',
-                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 48),
+      backgroundColor: Theme.of(context).colorScheme.background,
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Success Icon
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.check, color: Colors.black, size: 48),
+                ),
+                const SizedBox(height: 32),
 
-              // Play Button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder:
-                            (context) => PlayPage(
-                              text: template.text,
-                              fontFamily: template.fontFamily,
-                              fontSize: template.fontSize,
-                              textColor: template.textColor,
-                              textGradientColors: template.textGradientColors,
-                              textGradientRotation:
-                                  template.textGradientRotation,
-                              enableStroke: template.enableStroke,
-                              strokeWidth: template.strokeWidth,
-                              strokeColor: template.strokeColor,
-                              strokeGradientColors:
-                                  template.strokeGradientColors,
-                              strokeGradientRotation:
-                                  template.strokeGradientRotation,
-                              enableOutline: template.enableOutline,
-                              outlineWidth: template.outlineWidth,
-                              outlineBlur: template.outlineBlur,
-                              outlineColor: template.outlineColor,
-                              outlineGradientColors:
-                                  template.outlineGradientColors,
-                              outlineGradientRotation:
-                                  template.outlineGradientRotation,
-                              enableShadow: template.enableShadow,
-                              shadowOffsetX: template.shadowOffsetX,
-                              shadowOffsetY: template.shadowOffsetY,
-                              shadowBlur: template.shadowBlur,
-                              shadowColor: template.shadowColor,
-                              shadowGradientColors:
-                                  template.shadowGradientColors,
-                              shadowGradientRotation:
-                                  template.shadowGradientRotation,
-                              scrollDirection: template.scrollDirection,
-                              scrollSpeed: template.scrollSpeed,
-                              enableBlink: template.enableBlink,
-                              blinkDuration: template.blinkDuration,
-                              backgroundColor: template.backgroundColor,
-                              backgroundGradientColors:
-                                  template.backgroundGradientColors,
-                              backgroundGradientRotation:
-                                  template.backgroundGradientRotation,
-                              backgroundImage: template.backgroundImage,
-                              enableFrame: template.enableFrame,
-                              frameImage: template.frameImage,
-                              fromResultPage: true,
-                            ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Text('Play Now'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    foregroundColor: Colors.white,
+                // Success Text
+                const Text(
+                  'Successfully!',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Your template has been saved.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.6),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 48),
 
-              // Create New Button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                        builder: (context) => const EditorPage(),
-                      ),
-                      (route) =>
-                          route.isFirst, // Keep Home at bottom? Or just push?
-                      // User said "Create New", usually implies starting fresh.
-                      // Let's push a fresh EditorPage.
-                    );
-                  },
-                  icon: const Icon(Icons.add),
-                  label: const Text('Create New'),
+                // Play Now Button (Primary Large)
+                SizedBox(
+                  width: double.infinity,
+                  child: NeonButton(
+                    size: NeonButtonSize.large,
+                    type: NeonButtonType.primary,
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder:
+                              (context) => PlayPage(
+                                text: template.text,
+                                fontFamily: template.fontFamily,
+                                fontSize: template.fontSize,
+                                textColor: template.textColor,
+                                textGradientColors: template.textGradientColors,
+                                textGradientRotation:
+                                    template.textGradientRotation,
+                                enableStroke: template.enableStroke,
+                                strokeWidth: template.strokeWidth,
+                                strokeColor: template.strokeColor,
+                                strokeGradientColors:
+                                    template.strokeGradientColors,
+                                strokeGradientRotation:
+                                    template.strokeGradientRotation,
+                                enableOutline: template.enableOutline,
+                                outlineWidth: template.outlineWidth,
+                                outlineBlur: template.outlineBlur,
+                                outlineColor: template.outlineColor,
+                                outlineGradientColors:
+                                    template.outlineGradientColors,
+                                outlineGradientRotation:
+                                    template.outlineGradientRotation,
+                                enableShadow: template.enableShadow,
+                                shadowOffsetX: template.shadowOffsetX,
+                                shadowOffsetY: template.shadowOffsetY,
+                                shadowBlur: template.shadowBlur,
+                                shadowColor: template.shadowColor,
+                                shadowGradientColors:
+                                    template.shadowGradientColors,
+                                shadowGradientRotation:
+                                    template.shadowGradientRotation,
+                                scrollDirection: template.scrollDirection,
+                                scrollSpeed: template.scrollSpeed,
+                                enableBlink: template.enableBlink,
+                                blinkDuration: template.blinkDuration,
+                                backgroundColor: template.backgroundColor,
+                                backgroundGradientColors:
+                                    template.backgroundGradientColors,
+                                backgroundGradientRotation:
+                                    template.backgroundGradientRotation,
+                                backgroundImage: template.backgroundImage,
+                                enableFrame: template.enableFrame,
+                                frameImage: template.frameImage,
+                                fromResultPage: true,
+                              ),
+                        ),
+                      );
+                    },
+                    child: const Text('Play now'),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // Home Button
-              TextButton.icon(
-                onPressed: () {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                },
-                icon: const Icon(Icons.home),
-                label: const Text('Back to Home'),
-              ),
-            ],
+                // Create New Button (Tonal Large)
+                SizedBox(
+                  width: double.infinity,
+                  child: NeonButton(
+                    size: NeonButtonSize.large,
+                    type: NeonButtonType.secondary,
+                    onPressed: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                          builder: (context) => const EditorPage(),
+                        ),
+                        (route) => route.isFirst,
+                      );
+                    },
+                    child: const Text('Create new'),
+                  ),
+                ),
+                const SizedBox(height: 80),
+
+                // Home Page Button (Tonal Small)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    NeonButton(
+                      size: NeonButtonSize.medium,
+                      type: NeonButtonType.tonal,
+                      onPressed: () {
+                        Navigator.of(
+                          context,
+                        ).popUntil((route) => route.isFirst);
+                      },
+                      child: const Text('Home'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

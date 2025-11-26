@@ -14,11 +14,30 @@ class SavingPage extends StatefulWidget {
   State<SavingPage> createState() => _SavingPageState();
 }
 
-class _SavingPageState extends State<SavingPage> {
+class _SavingPageState extends State<SavingPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 3), () async {
+
+    // Setup animation controller
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller)
+      ..addListener(() {
+        setState(() {});
+      });
+
+    _controller.forward();
+
+    // Save template after 3 seconds
+    Timer(const Duration(seconds: 2), () async {
       if (mounted) {
         if (widget.templateIndex != null) {
           await UserData.updateTemplate(widget.templateIndex!, widget.template);
@@ -37,23 +56,67 @@ class _SavingPageState extends State<SavingPage> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(color: Colors.deepPurple),
-            const SizedBox(height: 24),
-            Text(
-              'Saving...',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[700],
-              ),
+      backgroundColor: Theme.of(context).colorScheme.background,
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Progress Bar
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: SizedBox(
+                    height: 8,
+                    child: Stack(
+                      children: [
+                        // Background
+                        Container(
+                          width: double.infinity,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.1),
+                        ),
+                        // Progress with gradient
+                        FractionallySizedBox(
+                          widthFactor: _animation.value,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Theme.of(context).colorScheme.primary,
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withOpacity(0.6),
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                // Saving Text
+                const Text(
+                  'Saving...',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
