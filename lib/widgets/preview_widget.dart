@@ -100,6 +100,10 @@ class PreviewWidget extends StatelessWidget {
                   zoomSpeed: template.zoomSpeed,
                   bounceLevel: template.bounceLevel,
                   bounceSpeed: template.bounceSpeed,
+                  enableRotationBounce: template.enableRotationBounce,
+                  rotationStart: template.rotationStart,
+                  rotationEnd: template.rotationEnd,
+                  rotationSpeed: template.rotationSpeed,
                 ),
                 if (template.enableFrame && template.frameImage != null)
                   Positioned.fill(

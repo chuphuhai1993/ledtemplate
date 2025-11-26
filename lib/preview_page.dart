@@ -109,6 +109,10 @@ class _PreviewPageState extends State<PreviewPage> {
               zoomSpeed: template.zoomSpeed,
               bounceLevel: template.bounceLevel,
               bounceSpeed: template.bounceSpeed,
+              enableRotationBounce: template.enableRotationBounce,
+              rotationStart: template.rotationStart,
+              rotationEnd: template.rotationEnd,
+              rotationSpeed: template.rotationSpeed,
             ),
       ),
     );

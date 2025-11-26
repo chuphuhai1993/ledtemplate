@@ -65,6 +65,12 @@ class ScrollingTextRenderer extends StatefulWidget {
   final bool enableBlink;
   final double blinkDuration; // Duration in milliseconds
 
+  // Rotation bounce effect
+  final bool enableRotationBounce;
+  final double rotationStart;
+  final double rotationEnd;
+  final double rotationSpeed;
+
   const ScrollingTextRenderer({
     super.key,
     required this.text,
@@ -104,6 +110,10 @@ class ScrollingTextRenderer extends StatefulWidget {
     this.isPaused = false,
     this.enableBlink = false,
     this.blinkDuration = 500.0,
+    this.enableRotationBounce = false,
+    this.rotationStart = -15.0,
+    this.rotationEnd = 15.0,
+    this.rotationSpeed = 50.0,
   });
 
   @override
@@ -116,6 +126,7 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
   late AnimationController _zoomController;
   late AnimationController _bounceController;
   late AnimationController _blinkController;
+  late AnimationController _rotationController;
 
   double _textWidth = 0;
   double _textHeight = 0;
@@ -155,6 +166,14 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
       _blinkController.repeat(reverse: true);
     }
 
+    // Initialize rotation controller
+    _rotationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..addListener(() => setState(() {}));
+
+    _updateDurations();
+
     WidgetsBinding.instance.addPostFrameCallback((_) => _measureText());
   }
 
@@ -183,7 +202,9 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
         oldWidget.enableBounceZoom != widget.enableBounceZoom ||
         oldWidget.enableBounce != widget.enableBounce ||
         oldWidget.zoomSpeed != widget.zoomSpeed ||
-        oldWidget.bounceSpeed != widget.bounceSpeed) {
+        oldWidget.bounceSpeed != widget.bounceSpeed ||
+        oldWidget.rotationSpeed != widget.rotationSpeed ||
+        oldWidget.enableRotationBounce != widget.enableRotationBounce) {
       _updateDurations();
     }
 
@@ -192,6 +213,7 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
         _scrollController.stop();
         _zoomController.stop();
         _bounceController.stop();
+        _rotationController.stop();
       } else {
         _updateDurations(); // Restart enabled animations
       }
@@ -307,6 +329,27 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
       _bounceController.stop();
       _bounceController.reset();
     }
+
+    // --- ROTATION BOUNCE ---
+    if (widget.enableRotationBounce && widget.rotationSpeed > 0) {
+      final durationMs = (2000 * (50 / widget.rotationSpeed)).toInt().clamp(
+        100,
+        10000,
+      );
+      final newDuration = Duration(milliseconds: durationMs);
+
+      // Only restart if duration changed
+      if (_rotationController.duration != newDuration) {
+        _rotationController.stop();
+        _rotationController.duration = newDuration;
+        _rotationController.repeat();
+      } else if (!_rotationController.isAnimating) {
+        _rotationController.repeat();
+      }
+    } else {
+      _rotationController.stop();
+      _rotationController.reset();
+    }
   }
 
   @override
@@ -315,6 +358,7 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
     _zoomController.dispose();
     _bounceController.dispose();
     _blinkController.dispose();
+    _rotationController.dispose();
     super.dispose();
   }
 
@@ -377,6 +421,29 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
                 child: textWidget,
               );
             }
+          }
+
+          // Apply Rotation Bounce
+          if (widget.enableRotationBounce) {
+            final double rotationVal = _rotationController.value;
+            // Sine wave oscillation between -1 and 1
+            final double oscillation = math.sin(rotationVal * 2 * math.pi);
+
+            // Calculate angle based on start and end angles
+            final double angleRange = widget.rotationEnd - widget.rotationStart;
+            final double currentAngle =
+                widget.rotationStart +
+                (angleRange / 2) +
+                (oscillation * angleRange / 2);
+
+            // Convert degrees to radians
+            final double angleInRadians = currentAngle * math.pi / 180;
+
+            textWidget = Transform.rotate(
+              angle: angleInRadians,
+              alignment: Alignment.center,
+              child: textWidget,
+            );
           }
 
           return textWidget;

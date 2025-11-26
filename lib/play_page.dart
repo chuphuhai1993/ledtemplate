@@ -44,6 +44,10 @@ class PlayPage extends StatefulWidget {
   final double bounceSpeed;
   final bool enableBlink;
   final double blinkDuration;
+  final bool enableRotationBounce;
+  final double rotationStart;
+  final double rotationEnd;
+  final double rotationSpeed;
   final Color backgroundColor;
   final List<Color>? backgroundGradientColors;
   final double backgroundGradientRotation;
@@ -89,8 +93,12 @@ class PlayPage extends StatefulWidget {
     required this.zoomSpeed,
     required this.bounceLevel,
     required this.bounceSpeed,
-    this.enableBlink = false,
-    this.blinkDuration = 500.0,
+    required this.enableBlink,
+    required this.blinkDuration,
+    required this.enableRotationBounce,
+    required this.rotationStart,
+    required this.rotationEnd,
+    required this.rotationSpeed,
     required this.backgroundColor,
     this.backgroundGradientColors,
     this.backgroundGradientRotation = 0,
@@ -373,6 +381,10 @@ class _PlayPageState extends State<PlayPage> {
                     isPaused: _isPaused,
                     enableBlink: widget.enableBlink,
                     blinkDuration: widget.blinkDuration,
+                    enableRotationBounce: widget.enableRotationBounce,
+                    rotationStart: widget.rotationStart,
+                    rotationEnd: widget.rotationEnd,
+                    rotationSpeed: widget.rotationSpeed,
                   ),
 
                   // Frame Overlay

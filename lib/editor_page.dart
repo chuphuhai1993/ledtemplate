@@ -90,6 +90,12 @@ class _EditorPageState extends State<EditorPage> {
   late double _bounceLevel;
   late double _bounceSpeed;
 
+  // Rotation bounce
+  late bool _enableRotationBounce;
+  late double _rotationStart;
+  late double _rotationEnd;
+  late double _rotationSpeed;
+
   @override
   void initState() {
     super.initState();
@@ -151,6 +157,11 @@ class _EditorPageState extends State<EditorPage> {
 
     _bounceLevel = t?.bounceLevel ?? 20.0;
     _bounceSpeed = t?.bounceSpeed ?? 50.0;
+
+    _enableRotationBounce = t?.enableRotationBounce ?? false;
+    _rotationStart = t?.rotationStart ?? -15.0;
+    _rotationEnd = t?.rotationEnd ?? 15.0;
+    _rotationSpeed = t?.rotationSpeed ?? 50.0;
   }
 
   void _showConfirmBackBottomSheet() {
@@ -318,6 +329,10 @@ class _EditorPageState extends State<EditorPage> {
       zoomSpeed: _zoomSpeed,
       bounceLevel: _bounceLevel,
       bounceSpeed: _bounceSpeed,
+      enableRotationBounce: _enableRotationBounce,
+      rotationStart: _rotationStart,
+      rotationEnd: _rotationEnd,
+      rotationSpeed: _rotationSpeed,
     );
 
     Navigator.of(context).pushReplacement(
@@ -372,6 +387,10 @@ class _EditorPageState extends State<EditorPage> {
         zoomSpeed: _zoomSpeed,
         bounceLevel: _bounceLevel,
         bounceSpeed: _bounceSpeed,
+        enableRotationBounce: _enableRotationBounce,
+        rotationStart: _rotationStart,
+        rotationEnd: _rotationEnd,
+        rotationSpeed: _rotationSpeed,
       );
 
       Navigator.of(context).pushReplacement(
@@ -455,6 +474,10 @@ class _EditorPageState extends State<EditorPage> {
                 zoomSpeed: _zoomSpeed,
                 bounceLevel: _bounceLevel,
                 bounceSpeed: _bounceSpeed,
+                enableRotationBounce: _enableRotationBounce,
+                rotationStart: _rotationStart,
+                rotationEnd: _rotationEnd,
+                rotationSpeed: _rotationSpeed,
               ),
               text: _text,
             ),
@@ -527,6 +550,19 @@ class _EditorPageState extends State<EditorPage> {
                               blinkDuration: _blinkDuration,
                               onBlinkDurationChanged:
                                   (v) => setState(() => _blinkDuration = v),
+                              enableRotationBounce: _enableRotationBounce,
+                              onEnableRotationBounceChanged:
+                                  (v) =>
+                                      setState(() => _enableRotationBounce = v),
+                              rotationStart: _rotationStart,
+                              onRotationStartChanged:
+                                  (v) => setState(() => _rotationStart = v),
+                              rotationEnd: _rotationEnd,
+                              onRotationEndChanged:
+                                  (v) => setState(() => _rotationEnd = v),
+                              rotationSpeed: _rotationSpeed,
+                              onRotationSpeedChanged:
+                                  (v) => setState(() => _rotationSpeed = v),
                             ),
                             // Text Tab
                             _TextSettingsPanel(
@@ -676,6 +712,15 @@ class _EffectSettingsPanel extends StatelessWidget {
   final double blinkDuration;
   final ValueChanged<double> onBlinkDurationChanged;
 
+  final bool enableRotationBounce;
+  final ValueChanged<bool> onEnableRotationBounceChanged;
+  final double rotationStart;
+  final ValueChanged<double> onRotationStartChanged;
+  final double rotationEnd;
+  final ValueChanged<double> onRotationEndChanged;
+  final double rotationSpeed;
+  final ValueChanged<double> onRotationSpeedChanged;
+
   const _EffectSettingsPanel({
     required this.enableScroll,
     required this.onEnableScrollChanged,
@@ -701,6 +746,14 @@ class _EffectSettingsPanel extends StatelessWidget {
     required this.onEnableBlinkChanged,
     required this.blinkDuration,
     required this.onBlinkDurationChanged,
+    required this.enableRotationBounce,
+    required this.onEnableRotationBounceChanged,
+    required this.rotationStart,
+    required this.onRotationStartChanged,
+    required this.rotationEnd,
+    required this.onRotationEndChanged,
+    required this.rotationSpeed,
+    required this.onRotationSpeedChanged,
   });
 
   @override
@@ -1060,6 +1113,93 @@ class _EffectSettingsPanel extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(height: 8),
+
+        // Rotation Bounce Card
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _SectionTitle(
+                      icon: Icons.rotate_90_degrees_ccw,
+                      title: 'Rotation',
+                    ),
+                    AppSwitchWidget(
+                      value: enableRotationBounce,
+                      onChanged: onEnableRotationBounceChanged,
+                    ),
+                  ],
+                ),
+              ),
+              if (enableRotationBounce) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Divider(
+                        height: 24,
+                        thickness: 0.5,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.2),
+                      ),
+                      const SizedBox(height: 4),
+                      // Start Angle
+                      Text(
+                        'Start (${rotationStart.toStringAsFixed(0)}°)',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      AppSliderWidget(
+                        value: rotationStart,
+                        min: -45,
+                        max: 45,
+                        onChanged: onRotationStartChanged,
+                      ),
+                      const SizedBox(height: 12),
+                      // End Angle
+                      Text(
+                        'End (${rotationEnd.toStringAsFixed(0)}°)',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      AppSliderWidget(
+                        value: rotationEnd,
+                        min: -45,
+                        max: 45,
+                        onChanged: onRotationEndChanged,
+                      ),
+                      const SizedBox(height: 12),
+                      // Speed
+                      Text(
+                        'Speed (${rotationSpeed.toStringAsFixed(0)})',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      AppSliderWidget(
+                        value: rotationSpeed,
+                        min: 0,
+                        max: 100,
+                        onChanged: onRotationSpeedChanged,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
         const SizedBox(height: 40),
       ],
     );
@@ -1098,6 +1238,7 @@ class _TextSettingsPanel extends StatelessWidget {
   final ValueChanged<Color> onOutlineColorChanged;
   final List<Color>? outlineGradientColors;
   final double outlineGradientRotation;
+
   final Function(List<Color>?, double) onOutlineGradientChanged;
   final bool enableShadow;
   final ValueChanged<bool> onEnableShadowChanged;

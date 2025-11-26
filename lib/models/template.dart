@@ -62,6 +62,12 @@ class Template {
   final bool enableBlink;
   final double blinkDuration; // Duration in milliseconds
 
+  // Rotation bounce effect
+  final bool enableRotationBounce;
+  final double rotationStart; // Start angle in degrees (-45 to 45)
+  final double rotationEnd; // End angle in degrees (-45 to 45)
+  final double rotationSpeed; // Speed (0-100)
+
   // Background
   final Color backgroundColor;
   final List<Color>? backgroundGradientColors;
@@ -109,6 +115,10 @@ class Template {
     this.bounceSpeed = 50.0,
     this.enableBlink = false,
     this.blinkDuration = 500.0,
+    this.enableRotationBounce = false,
+    this.rotationStart = -15.0,
+    this.rotationEnd = 15.0,
+    this.rotationSpeed = 50.0,
     this.backgroundColor = Colors.black,
     this.backgroundGradientColors,
     this.backgroundGradientRotation = 0,
@@ -158,6 +168,10 @@ class Template {
       'bounceSpeed': bounceSpeed,
       'enableBlink': enableBlink,
       'blinkDuration': blinkDuration,
+      'enableRotationBounce': enableRotationBounce,
+      'rotationStart': rotationStart,
+      'rotationEnd': rotationEnd,
+      'rotationSpeed': rotationSpeed,
       'backgroundColor': backgroundColor.value,
       'backgroundGradientColors':
           backgroundGradientColors?.map((c) => c.value).toList(),
@@ -263,7 +277,10 @@ class Template {
       enableBounceZoom: enableBounceZoom,
       enableBounce: enableBounce,
       bounceDirection: bounceDirection,
-      scrollDirection: ScrollDirection.values[json['scrollDirection'] ?? 0],
+      scrollDirection:
+          json['scrollDirection'] != null
+              ? ScrollDirection.values[json['scrollDirection']]
+              : ScrollDirection.rightToLeft,
       scrollSpeed: scrollSpeed,
       zoomLevel: zoomLevel,
       zoomSpeed: zoomSpeed,
@@ -271,6 +288,10 @@ class Template {
       bounceSpeed: bounceSpeed,
       enableBlink: json['enableBlink'] ?? false,
       blinkDuration: (json['blinkDuration'] as num?)?.toDouble() ?? 500.0,
+      enableRotationBounce: json['enableRotationBounce'] ?? false,
+      rotationStart: (json['rotationStart'] as num?)?.toDouble() ?? -15.0,
+      rotationEnd: (json['rotationEnd'] as num?)?.toDouble() ?? 15.0,
+      rotationSpeed: (json['rotationSpeed'] as num?)?.toDouble() ?? 50.0,
       backgroundColor: Color(json['backgroundColor'] ?? 0xFF000000),
       backgroundGradientColors: parseGradientColors(
         json['backgroundGradientColors'],
