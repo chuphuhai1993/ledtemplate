@@ -85,6 +85,10 @@ class PreviewWidget extends StatelessWidget {
                   shadowColor: template.shadowColor,
                   shadowGradientColors: template.shadowGradientColors,
                   shadowGradientRotation: template.shadowGradientRotation,
+                  enableScroll: enableTextScroll && template.enableScroll,
+                  enableBounceZoom: template.enableBounceZoom,
+                  enableBounce: template.enableBounce,
+                  bounceDirection: template.bounceDirection,
                   scrollDirection:
                       enableTextScroll
                           ? template.scrollDirection
@@ -92,8 +96,10 @@ class PreviewWidget extends StatelessWidget {
                   scrollSpeed: template.scrollSpeed,
                   enableBlink: template.enableBlink,
                   blinkDuration: template.blinkDuration,
-                  effectType: template.effectType,
-                  bounceValue: template.bounceValue,
+                  zoomLevel: template.zoomLevel,
+                  zoomSpeed: template.zoomSpeed,
+                  bounceLevel: template.bounceLevel,
+                  bounceSpeed: template.bounceSpeed,
                 ),
                 if (template.enableFrame && template.frameImage != null)
                   Positioned.fill(

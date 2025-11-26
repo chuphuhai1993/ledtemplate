@@ -34,8 +34,14 @@ class PlayPage extends StatefulWidget {
   final double shadowGradientRotation;
   final ScrollDirection scrollDirection;
   final double scrollSpeed;
-  final EffectType effectType;
-  final double bounceValue;
+  final bool enableScroll;
+  final bool enableBounceZoom;
+  final bool enableBounce;
+  final BounceDirection bounceDirection;
+  final double zoomLevel;
+  final double zoomSpeed;
+  final double bounceLevel;
+  final double bounceSpeed;
   final bool enableBlink;
   final double blinkDuration;
   final Color backgroundColor;
@@ -75,8 +81,14 @@ class PlayPage extends StatefulWidget {
     this.shadowGradientRotation = 0,
     required this.scrollDirection,
     required this.scrollSpeed,
-    required this.effectType,
-    required this.bounceValue,
+    required this.enableScroll,
+    required this.enableBounceZoom,
+    required this.enableBounce,
+    required this.bounceDirection,
+    required this.zoomLevel,
+    required this.zoomSpeed,
+    required this.bounceLevel,
+    required this.bounceSpeed,
     this.enableBlink = false,
     this.blinkDuration = 500.0,
     required this.backgroundColor,
@@ -350,8 +362,14 @@ class _PlayPageState extends State<PlayPage> {
                     shadowGradientRotation: widget.shadowGradientRotation,
                     scrollDirection: widget.scrollDirection,
                     scrollSpeed: widget.scrollSpeed,
-                    effectType: widget.effectType,
-                    bounceValue: widget.bounceValue,
+                    enableScroll: widget.enableScroll,
+                    enableBounceZoom: widget.enableBounceZoom,
+                    enableBounce: widget.enableBounce,
+                    bounceDirection: widget.bounceDirection,
+                    zoomLevel: widget.zoomLevel,
+                    zoomSpeed: widget.zoomSpeed,
+                    bounceLevel: widget.bounceLevel,
+                    bounceSpeed: widget.bounceSpeed,
                     isPaused: _isPaused,
                     enableBlink: widget.enableBlink,
                     blinkDuration: widget.blinkDuration,

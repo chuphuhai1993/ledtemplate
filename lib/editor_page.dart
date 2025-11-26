@@ -79,8 +79,16 @@ class _EditorPageState extends State<EditorPage> {
   late String? _frameImage;
 
   // Effects
-  late EffectType _effectType;
-  late double _bounceValue;
+  late bool _enableScroll;
+  late bool _enableBounceZoom;
+  late bool _enableBounce;
+  late BounceDirection _bounceDirection;
+
+  late double _zoomLevel;
+  late double _zoomSpeed;
+
+  late double _bounceLevel;
+  late double _bounceSpeed;
 
   @override
   void initState() {
@@ -90,7 +98,7 @@ class _EditorPageState extends State<EditorPage> {
 
   void _initializeState() {
     final t = widget.template;
-    _text = t?.text ?? 'HELLO WORLD';
+    _text = t?.text ?? 'NEON BANNER';
     _fontFamily = t?.fontFamily ?? 'Beon';
     _fontSize = (t?.fontSize ?? 30.0).clamp(15.0, 90.0);
 
@@ -104,7 +112,7 @@ class _EditorPageState extends State<EditorPage> {
     _strokeGradientColors = t?.strokeGradientColors;
     _strokeGradientRotation = t?.strokeGradientRotation ?? 0;
 
-    _enableOutline = t?.enableOutline ?? true;
+    _enableOutline = t?.enableOutline ?? false;
     _outlineWidth = t?.outlineWidth ?? 0.0;
     _outlineBlur = t?.outlineBlur ?? 10.0;
     _outlineColor = t?.outlineColor ?? Colors.blue;
@@ -133,8 +141,16 @@ class _EditorPageState extends State<EditorPage> {
     _enableFrame = t?.enableFrame ?? false;
     _frameImage = t?.frameImage ?? 'assets/frames/frame_1.png';
 
-    _effectType = t?.effectType ?? EffectType.scroll;
-    _bounceValue = t?.bounceValue ?? 20.0;
+    _enableScroll = t?.enableScroll ?? true;
+    _enableBounceZoom = t?.enableBounceZoom ?? false;
+    _enableBounce = t?.enableBounce ?? false;
+    _bounceDirection = t?.bounceDirection ?? BounceDirection.horizontal;
+
+    _zoomLevel = t?.zoomLevel ?? 20.0;
+    _zoomSpeed = t?.zoomSpeed ?? 50.0;
+
+    _bounceLevel = t?.bounceLevel ?? 20.0;
+    _bounceSpeed = t?.bounceSpeed ?? 50.0;
   }
 
   void _showConfirmBackBottomSheet() {
@@ -294,8 +310,14 @@ class _EditorPageState extends State<EditorPage> {
       backgroundImage: _backgroundImage,
       enableFrame: _enableFrame,
       frameImage: _frameImage,
-      effectType: _effectType,
-      bounceValue: _bounceValue,
+      enableScroll: _enableScroll,
+      enableBounceZoom: _enableBounceZoom,
+      enableBounce: _enableBounce,
+      bounceDirection: _bounceDirection,
+      zoomLevel: _zoomLevel,
+      zoomSpeed: _zoomSpeed,
+      bounceLevel: _bounceLevel,
+      bounceSpeed: _bounceSpeed,
     );
 
     Navigator.of(context).pushReplacement(
@@ -342,8 +364,14 @@ class _EditorPageState extends State<EditorPage> {
         backgroundImage: _backgroundImage,
         enableFrame: _enableFrame,
         frameImage: _frameImage,
-        effectType: _effectType,
-        bounceValue: _bounceValue,
+        enableScroll: _enableScroll,
+        enableBounceZoom: _enableBounceZoom,
+        enableBounce: _enableBounce,
+        bounceDirection: _bounceDirection,
+        zoomLevel: _zoomLevel,
+        zoomSpeed: _zoomSpeed,
+        bounceLevel: _bounceLevel,
+        bounceSpeed: _bounceSpeed,
       );
 
       Navigator.of(context).pushReplacement(
@@ -419,8 +447,14 @@ class _EditorPageState extends State<EditorPage> {
                 textColor: _textColor,
                 textGradientColors: _textGradientColors,
                 textGradientRotation: _textGradientRotation,
-                effectType: _effectType,
-                bounceValue: _bounceValue,
+                enableScroll: _enableScroll,
+                enableBounceZoom: _enableBounceZoom,
+                enableBounce: _enableBounce,
+                bounceDirection: _bounceDirection,
+                zoomLevel: _zoomLevel,
+                zoomSpeed: _zoomSpeed,
+                bounceLevel: _bounceLevel,
+                bounceSpeed: _bounceSpeed,
               ),
               text: _text,
             ),
@@ -457,18 +491,36 @@ class _EditorPageState extends State<EditorPage> {
                           children: [
                             // Effect Tab
                             _EffectSettingsPanel(
-                              effectType: _effectType,
-                              onEffectTypeChanged:
-                                  (v) => setState(() => _effectType = v),
-                              bounceValue: _bounceValue,
-                              onBounceValueChanged:
-                                  (v) => setState(() => _bounceValue = v),
+                              enableScroll: _enableScroll,
+                              onEnableScrollChanged:
+                                  (v) => setState(() => _enableScroll = v),
+                              enableBounceZoom: _enableBounceZoom,
+                              onEnableBounceZoomChanged:
+                                  (v) => setState(() => _enableBounceZoom = v),
+                              enableBounce: _enableBounce,
+                              onEnableBounceChanged:
+                                  (v) => setState(() => _enableBounce = v),
+                              bounceDirection: _bounceDirection,
+                              onBounceDirectionChanged:
+                                  (v) => setState(() => _bounceDirection = v),
                               scrollDirection: _scrollDirection,
                               onScrollDirectionChanged:
                                   (v) => setState(() => _scrollDirection = v),
                               scrollSpeed: _scrollSpeed,
                               onScrollSpeedChanged:
                                   (v) => setState(() => _scrollSpeed = v),
+                              zoomLevel: _zoomLevel,
+                              onZoomLevelChanged:
+                                  (v) => setState(() => _zoomLevel = v),
+                              zoomSpeed: _zoomSpeed,
+                              onZoomSpeedChanged:
+                                  (v) => setState(() => _zoomSpeed = v),
+                              bounceLevel: _bounceLevel,
+                              onBounceLevelChanged:
+                                  (v) => setState(() => _bounceLevel = v),
+                              bounceSpeed: _bounceSpeed,
+                              onBounceSpeedChanged:
+                                  (v) => setState(() => _bounceSpeed = v),
                               enableBlink: _enableBlink,
                               onEnableBlinkChanged:
                                   (v) => setState(() => _enableBlink = v),
@@ -595,255 +647,414 @@ class _EditorPageState extends State<EditorPage> {
 
 // Effect Settings Panel
 class _EffectSettingsPanel extends StatelessWidget {
-  final EffectType effectType;
-  final ValueChanged<EffectType> onEffectTypeChanged;
-  final double bounceValue;
-  final ValueChanged<double> onBounceValueChanged;
+  final bool enableScroll;
+  final ValueChanged<bool> onEnableScrollChanged;
+  final bool enableBounceZoom;
+  final ValueChanged<bool> onEnableBounceZoomChanged;
+  final bool enableBounce;
+  final ValueChanged<bool> onEnableBounceChanged;
+  final BounceDirection bounceDirection;
+  final ValueChanged<BounceDirection> onBounceDirectionChanged;
+
   final ScrollDirection scrollDirection;
   final ValueChanged<ScrollDirection> onScrollDirectionChanged;
   final double scrollSpeed;
   final ValueChanged<double> onScrollSpeedChanged;
+
+  final double zoomLevel;
+  final ValueChanged<double> onZoomLevelChanged;
+  final double zoomSpeed;
+  final ValueChanged<double> onZoomSpeedChanged;
+
+  final double bounceLevel;
+  final ValueChanged<double> onBounceLevelChanged;
+  final double bounceSpeed;
+  final ValueChanged<double> onBounceSpeedChanged;
+
   final bool enableBlink;
   final ValueChanged<bool> onEnableBlinkChanged;
   final double blinkDuration;
   final ValueChanged<double> onBlinkDurationChanged;
 
   const _EffectSettingsPanel({
-    required this.effectType,
-    required this.onEffectTypeChanged,
-    required this.bounceValue,
-    required this.onBounceValueChanged,
+    required this.enableScroll,
+    required this.onEnableScrollChanged,
+    required this.enableBounceZoom,
+    required this.onEnableBounceZoomChanged,
+    required this.enableBounce,
+    required this.onEnableBounceChanged,
+    required this.bounceDirection,
+    required this.onBounceDirectionChanged,
     required this.scrollDirection,
     required this.onScrollDirectionChanged,
     required this.scrollSpeed,
     required this.onScrollSpeedChanged,
+    required this.zoomLevel,
+    required this.onZoomLevelChanged,
+    required this.zoomSpeed,
+    required this.onZoomSpeedChanged,
+    required this.bounceLevel,
+    required this.onBounceLevelChanged,
+    required this.bounceSpeed,
+    required this.onBounceSpeedChanged,
     required this.enableBlink,
     required this.onEnableBlinkChanged,
     required this.blinkDuration,
     required this.onBlinkDurationChanged,
   });
 
-  String _getEffectTypeName(EffectType type) {
-    switch (type) {
-      case EffectType.scroll:
-        return 'Scroll';
-      case EffectType.bounceZoom:
-        return 'Bounce Zoom';
-      case EffectType.bounceHorizontal:
-        return 'Bounce Horiz';
-      case EffectType.bounceVertical:
-        return 'Bounce Vert';
-    }
-  }
-
-  String _getScrollDirectionName(ScrollDirection direction) {
-    switch (direction) {
-      case ScrollDirection.rightToLeft:
-        return 'Right to Left';
-      case ScrollDirection.leftToRight:
-        return 'Left to Right';
-      case ScrollDirection.none:
-        return 'None';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.all(12.0),
       children: [
-        // Effect Type Card
+        // Scroll Card
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _SectionTitle(
-                icon: Icons.auto_awesome_outlined,
-                title: 'Effect Type',
-                value: _getEffectTypeName(effectType),
-              ),
-              const SizedBox(height: 12),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TextChipButtonWidget(
-                      label: 'Scroll',
-                      isSelected: effectType == EffectType.scroll,
-                      onTap: () => onEffectTypeChanged(EffectType.scroll),
+                    _SectionTitle(
+                      icon: Icons.arrow_circle_right_outlined,
+                      title: 'Scroll',
                     ),
-                    const SizedBox(width: 8),
-                    TextChipButtonWidget(
-                      label: 'Zoom',
-                      isSelected: effectType == EffectType.bounceZoom,
-                      onTap: () => onEffectTypeChanged(EffectType.bounceZoom),
-                    ),
-                    const SizedBox(width: 8),
-                    TextChipButtonWidget(
-                      label: 'Horiz',
-                      isSelected: effectType == EffectType.bounceHorizontal,
-                      onTap:
-                          () =>
-                              onEffectTypeChanged(EffectType.bounceHorizontal),
-                    ),
-                    const SizedBox(width: 8),
-                    TextChipButtonWidget(
-                      label: 'Vert',
-                      isSelected: effectType == EffectType.bounceVertical,
-                      onTap:
-                          () => onEffectTypeChanged(EffectType.bounceVertical),
+                    AppSwitchWidget(
+                      value: enableScroll,
+                      onChanged: onEnableScrollChanged,
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        // Scroll Direction Card (Only for Scroll)
-        if (effectType == EffectType.scroll)
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                _SectionTitle(
-                  icon: Icons.arrow_circle_right_outlined,
-                  title: 'Scroll direction',
-                  value: _getScrollDirectionName(scrollDirection),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    IconChipButtonWidget(
-                      isActive: scrollDirection == ScrollDirection.rightToLeft,
-                      onPressed:
-                          () => onScrollDirectionChanged(
-                            ScrollDirection.rightToLeft,
+              if (enableScroll) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Divider(
+                        height: 24,
+                        thickness: 0.5,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.2),
+                      ),
+                      // Direction
+                      Row(
+                        children: [
+                          const Text(
+                            'Direction',
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                      icon: Icons.arrow_back,
-                    ),
-                    const SizedBox(width: 8),
-                    IconChipButtonWidget(
-                      isActive: scrollDirection == ScrollDirection.none,
-                      onPressed:
-                          () => onScrollDirectionChanged(ScrollDirection.none),
-                      icon: Icons.block,
-                    ),
-                    const SizedBox(width: 8),
-                    IconChipButtonWidget(
-                      isActive: scrollDirection == ScrollDirection.leftToRight,
-                      onPressed:
-                          () => onScrollDirectionChanged(
-                            ScrollDirection.leftToRight,
+                          const Spacer(),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconChipButtonWidget(
+                                icon: Icons.arrow_back,
+                                isActive:
+                                    scrollDirection ==
+                                    ScrollDirection.rightToLeft,
+                                onPressed:
+                                    () => onScrollDirectionChanged(
+                                      ScrollDirection.rightToLeft,
+                                    ),
+                              ),
+                              const SizedBox(width: 8),
+                              IconChipButtonWidget(
+                                icon: Icons.arrow_upward,
+                                isActive:
+                                    scrollDirection ==
+                                    ScrollDirection.bottomToTop,
+                                onPressed:
+                                    () => onScrollDirectionChanged(
+                                      ScrollDirection.bottomToTop,
+                                    ),
+                              ),
+                              const SizedBox(width: 8),
+                              IconChipButtonWidget(
+                                icon: Icons.arrow_downward,
+                                isActive:
+                                    scrollDirection ==
+                                    ScrollDirection.topToBottom,
+                                onPressed:
+                                    () => onScrollDirectionChanged(
+                                      ScrollDirection.topToBottom,
+                                    ),
+                              ),
+                              const SizedBox(width: 8),
+                              IconChipButtonWidget(
+                                icon: Icons.arrow_forward,
+                                isActive:
+                                    scrollDirection ==
+                                    ScrollDirection.leftToRight,
+                                onPressed:
+                                    () => onScrollDirectionChanged(
+                                      ScrollDirection.leftToRight,
+                                    ),
+                              ),
+                            ],
                           ),
-                      icon: Icons.arrow_forward,
-                    ),
-                  ],
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      // Speed
+                      Text(
+                        'Speed (${scrollSpeed.clamp(0.0, 500.0).toStringAsFixed(0)})',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      AppSliderWidget(
+                        value: scrollSpeed.clamp(0.0, 500.0),
+                        min: 0,
+                        max: 500,
+                        onChanged: onScrollSpeedChanged,
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            ),
-          ),
-
-        // Bounce Level Card (Only for Bounce)
-        if (effectType != EffectType.scroll)
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _SectionTitle(
-                  icon: Icons.height,
-                  title: 'Bounce Level',
-                  value: '${bounceValue.toStringAsFixed(0)}%',
-                ),
-                AppSliderWidget(
-                  value: bounceValue,
-                  min: 0,
-                  max: 100, // Allow up to 100% as requested
-                  onChanged: onBounceValueChanged,
-                ),
-              ],
-            ),
-          ),
-
-        if (effectType == EffectType.scroll || effectType != EffectType.scroll)
-          const SizedBox(height: 8),
-        const SizedBox(height: 8),
-
-        // Scroll Speed Card
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _SectionTitle(
-                icon: Icons.speed_outlined,
-                title: 'Scroll speed',
-                value: scrollSpeed.toStringAsFixed(0),
-              ),
-              AppSliderWidget(
-                value: scrollSpeed,
-                min: 0,
-                max: 500,
-                onChanged: onScrollSpeedChanged,
-              ),
             ],
           ),
         ),
         const SizedBox(height: 8),
 
-        // Blink Effect Card
+        // Zoom Card
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _SectionTitle(
-                    icon: Icons.flash_on_outlined,
-                    title: 'Blink effect',
-                    value: enableBlink ? 'On' : 'Off',
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _SectionTitle(icon: Icons.zoom_in, title: 'Zoom'),
+                    AppSwitchWidget(
+                      value: enableBounceZoom,
+                      onChanged: onEnableBounceZoomChanged,
+                    ),
+                  ],
+                ),
+              ),
+              if (enableBounceZoom) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Divider(
+                        height: 24,
+                        thickness: 0.5,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.2),
+                      ),
+                      const SizedBox(height: 4),
+                      // Level
+                      Text(
+                        'Level (${zoomLevel.toStringAsFixed(0)}%)',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      AppSliderWidget(
+                        value: zoomLevel,
+                        min: 0,
+                        max: 100,
+                        onChanged: onZoomLevelChanged,
+                      ),
+                      const SizedBox(height: 12),
+                      // Speed
+                      Text(
+                        'Speed (${zoomSpeed.toStringAsFixed(0)})',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      AppSliderWidget(
+                        value: zoomSpeed,
+                        min: 0,
+                        max: 100,
+                        onChanged: onZoomSpeedChanged,
+                      ),
+                    ],
                   ),
-                  AppSwitchWidget(
-                    value: enableBlink,
-                    onChanged: onEnableBlinkChanged,
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        // Bounce Card
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _SectionTitle(icon: Icons.animation, title: 'Bounce'),
+                    AppSwitchWidget(
+                      value: enableBounce,
+                      onChanged: onEnableBounceChanged,
+                    ),
+                  ],
+                ),
+              ),
+              if (enableBounce) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Divider(
+                        height: 24,
+                        thickness: 0.5,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.2),
+                      ),
+                      // Direction
+                      Row(
+                        children: [
+                          const Text(
+                            'Direction',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const Spacer(),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconChipButtonWidget(
+                                icon: Icons.swap_vert,
+                                isActive:
+                                    bounceDirection == BounceDirection.vertical,
+                                onPressed:
+                                    () => onBounceDirectionChanged(
+                                      BounceDirection.vertical,
+                                    ),
+                              ),
+                              const SizedBox(width: 8),
+                              IconChipButtonWidget(
+                                icon: Icons.swap_horiz,
+                                isActive:
+                                    bounceDirection ==
+                                    BounceDirection.horizontal,
+                                onPressed:
+                                    () => onBounceDirectionChanged(
+                                      BounceDirection.horizontal,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      // Level
+                      Text(
+                        'Level (${bounceLevel.toStringAsFixed(0)}%)',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      AppSliderWidget(
+                        value: bounceLevel,
+                        min: 0,
+                        max: 100,
+                        onChanged: onBounceLevelChanged,
+                      ),
+                      const SizedBox(height: 12),
+                      // Speed
+                      Text(
+                        'Speed (${bounceSpeed.toStringAsFixed(0)})',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      AppSliderWidget(
+                        value: bounceSpeed,
+                        min: 0,
+                        max: 100,
+                        onChanged: onBounceSpeedChanged,
+                      ),
+                    ],
                   ),
-                ],
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        // Blink Card
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _SectionTitle(icon: Icons.flash_on, title: 'Blink'),
+                    AppSwitchWidget(
+                      value: enableBlink,
+                      onChanged: onEnableBlinkChanged,
+                    ),
+                  ],
+                ),
               ),
               if (enableBlink) ...[
-                const SizedBox(height: 12),
-                Text(
-                  'Duration (${blinkDuration.toStringAsFixed(0)}ms)',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                AppSliderWidget(
-                  value: blinkDuration,
-                  min: 200,
-                  max: 2000,
-                  onChanged: onBlinkDurationChanged,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Divider(
+                        height: 24,
+                        thickness: 0.5,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.2),
+                      ),
+                      const SizedBox(height: 4),
+                      // Duration
+                      Text(
+                        'Duration (${blinkDuration.toStringAsFixed(0)}ms)',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      AppSliderWidget(
+                        value: blinkDuration,
+                        min: 100,
+                        max: 2000,
+                        onChanged: onBlinkDurationChanged,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ],
@@ -964,7 +1175,7 @@ class _TextSettingsPanel extends StatelessWidget {
 
         // Font Card
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
             borderRadius: BorderRadius.circular(16),
@@ -999,7 +1210,7 @@ class _TextSettingsPanel extends StatelessWidget {
 
         // Font Size Card
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
             borderRadius: BorderRadius.circular(16),
@@ -1012,6 +1223,7 @@ class _TextSettingsPanel extends StatelessWidget {
                 title: 'Font size',
                 value: '${fontSize.toStringAsFixed(0)}%',
               ),
+              const SizedBox(height: 4),
               AppSliderWidget(
                 value: fontSize,
                 min: 15,
@@ -1097,10 +1309,12 @@ class _TextSettingsPanel extends StatelessWidget {
                           context,
                         ).colorScheme.onSurface.withOpacity(0.2),
                       ),
+                      const SizedBox(height: 4),
                       Text(
                         'Width (${strokeWidth.toStringAsFixed(1)})',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
+                      const SizedBox(height: 4),
                       AppSliderWidget(
                         value: strokeWidth,
                         min: 0,
@@ -1168,10 +1382,12 @@ class _TextSettingsPanel extends StatelessWidget {
                           context,
                         ).colorScheme.onSurface.withOpacity(0.2),
                       ),
+                      const SizedBox(height: 4),
                       Text(
                         'Size (${outlineWidth.toStringAsFixed(1)})',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
+                      const SizedBox(height: 4),
                       AppSliderWidget(
                         value: outlineWidth,
                         min: 0,
@@ -1183,6 +1399,7 @@ class _TextSettingsPanel extends StatelessWidget {
                         'Blur (${outlineBlur.toStringAsFixed(1)})',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
+                      const SizedBox(height: 4),
                       AppSliderWidget(
                         value: outlineBlur,
                         min: 0,
@@ -1733,6 +1950,10 @@ String _getScrollDirectionName(ScrollDirection direction) {
       return 'Left → Right';
     case ScrollDirection.rightToLeft:
       return 'Right → Left';
+    case ScrollDirection.topToBottom:
+      return 'Top → Bottom';
+    case ScrollDirection.bottomToTop:
+      return 'Bottom → Top';
     case ScrollDirection.none:
       return 'None';
   }

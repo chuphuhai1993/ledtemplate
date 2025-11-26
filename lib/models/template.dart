@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../scrolling_text_renderer.dart';
 
-enum EffectType { scroll, bounceZoom, bounceHorizontal, bounceVertical }
+enum BounceDirection { horizontal, vertical }
 
 class Template {
   final String text;
@@ -40,11 +40,23 @@ class Template {
   final List<Color>? shadowGradientColors;
   final double shadowGradientRotation;
 
-  // Scroll
-  final EffectType effectType;
+  // Effects - can enable multiple simultaneously
+  final bool enableScroll;
+  final bool enableBounceZoom;
+  final bool enableBounce;
+  final BounceDirection bounceDirection;
   final ScrollDirection scrollDirection;
+
+  // Independent controls
   final double scrollSpeed;
-  final double bounceValue;
+
+  final double zoomLevel;
+  final double zoomSpeed;
+
+  final double bounceLevel;
+  final double bounceSpeed;
+
+  // Deprecated but kept for migration if needed internally, though we won't expose it
 
   // Blink effect
   final bool enableBlink;
@@ -85,10 +97,16 @@ class Template {
     this.shadowColor = Colors.black,
     this.shadowGradientColors,
     this.shadowGradientRotation = 0,
-    this.effectType = EffectType.scroll,
+    this.enableScroll = true,
+    this.enableBounceZoom = false,
+    this.enableBounce = false,
+    this.bounceDirection = BounceDirection.horizontal,
     this.scrollDirection = ScrollDirection.rightToLeft,
     this.scrollSpeed = 100.0,
-    this.bounceValue = 20.0,
+    this.zoomLevel = 20.0,
+    this.zoomSpeed = 50.0,
+    this.bounceLevel = 20.0,
+    this.bounceSpeed = 50.0,
     this.enableBlink = false,
     this.blinkDuration = 500.0,
     this.backgroundColor = Colors.black,
@@ -128,10 +146,16 @@ class Template {
       'shadowGradientColors':
           shadowGradientColors?.map((c) => c.value).toList(),
       'shadowGradientRotation': shadowGradientRotation,
-      'effectType': effectType.index,
+      'enableScroll': enableScroll,
+      'enableBounceZoom': enableBounceZoom,
+      'enableBounce': enableBounce,
+      'bounceDirection': bounceDirection.index,
       'scrollDirection': scrollDirection.index,
       'scrollSpeed': scrollSpeed,
-      'bounceValue': bounceValue,
+      'zoomLevel': zoomLevel,
+      'zoomSpeed': zoomSpeed,
+      'bounceLevel': bounceLevel,
+      'bounceSpeed': bounceSpeed,
       'enableBlink': enableBlink,
       'blinkDuration': blinkDuration,
       'backgroundColor': backgroundColor.value,
@@ -153,6 +177,55 @@ class Template {
       }
       return null;
     }
+
+    // Migration logic: convert old effectType to new effect flags
+    bool enableScroll = json['enableScroll'] ?? true;
+    bool enableBounceZoom = json['enableBounceZoom'] ?? false;
+    bool enableBounce = json['enableBounce'] ?? false;
+    BounceDirection bounceDirection =
+        json['bounceDirection'] != null
+            ? BounceDirection.values[json['bounceDirection']]
+            : BounceDirection.horizontal;
+
+    // If old effectType exists, migrate it
+    if (json['effectType'] != null && json['enableScroll'] == null) {
+      // Old format detected, migrate
+      final oldEffectType = json['effectType'] as int;
+      enableScroll = false;
+      enableBounceZoom = false;
+      enableBounce = false;
+
+      switch (oldEffectType) {
+        case 0: // EffectType.scroll
+          enableScroll = true;
+          break;
+        case 1: // EffectType.bounceZoom
+          enableBounceZoom = true;
+          break;
+        case 2: // EffectType.bounceHorizontal
+          enableBounce = true;
+          bounceDirection = BounceDirection.horizontal;
+          break;
+        case 3: // EffectType.bounceVertical
+          enableBounce = true;
+          bounceDirection = BounceDirection.vertical;
+          break;
+      }
+    }
+
+    // Migration for separated speeds/levels
+    // If new fields are missing, try to use old 'bounceValue' or 'scrollSpeed'
+    double bounceValue = (json['bounceValue'] as num?)?.toDouble() ?? 20.0;
+    double scrollSpeed = (json['scrollSpeed'] as num?)?.toDouble() ?? 100.0;
+
+    double zoomLevel = (json['zoomLevel'] as num?)?.toDouble() ?? bounceValue;
+    double zoomSpeed =
+        (json['zoomSpeed'] as num?)?.toDouble() ?? 50.0; // Default
+
+    double bounceLevel =
+        (json['bounceLevel'] as num?)?.toDouble() ?? bounceValue;
+    double bounceSpeed =
+        (json['bounceSpeed'] as num?)?.toDouble() ?? 50.0; // Default
 
     return Template(
       text: json['text'] ?? '',
@@ -186,10 +259,16 @@ class Template {
       shadowGradientColors: parseGradientColors(json['shadowGradientColors']),
       shadowGradientRotation:
           (json['shadowGradientRotation'] as num?)?.toDouble() ?? 0,
-      effectType: EffectType.values[json['effectType'] ?? 0],
+      enableScroll: enableScroll,
+      enableBounceZoom: enableBounceZoom,
+      enableBounce: enableBounce,
+      bounceDirection: bounceDirection,
       scrollDirection: ScrollDirection.values[json['scrollDirection'] ?? 0],
-      scrollSpeed: (json['scrollSpeed'] as num?)?.toDouble() ?? 100.0,
-      bounceValue: (json['bounceValue'] as num?)?.toDouble() ?? 20.0,
+      scrollSpeed: scrollSpeed,
+      zoomLevel: zoomLevel,
+      zoomSpeed: zoomSpeed,
+      bounceLevel: bounceLevel,
+      bounceSpeed: bounceSpeed,
       enableBlink: json['enableBlink'] ?? false,
       blinkDuration: (json['blinkDuration'] as num?)?.toDouble() ?? 500.0,
       backgroundColor: Color(json['backgroundColor'] ?? 0xFF000000),

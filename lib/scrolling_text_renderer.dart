@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'models/template.dart';
 
-enum ScrollDirection { rightToLeft, leftToRight, none }
+enum ScrollDirection {
+  rightToLeft,
+  leftToRight,
+  topToBottom,
+  bottomToTop,
+  none,
+}
 
 class ScrollingTextRenderer extends StatefulWidget {
   final String text;
@@ -38,11 +45,20 @@ class ScrollingTextRenderer extends StatefulWidget {
   final double shadowGradientRotation;
 
   // Scroll & Effects
-  final EffectType effectType;
+  final bool enableScroll;
+  final bool enableBounceZoom;
+  final bool enableBounce;
+  final BounceDirection bounceDirection;
   final ScrollDirection scrollDirection;
-  final double
-  scrollSpeed; // Pixels per second for scroll, frequency/speed for bounce
-  final double bounceValue; // Level for bounce effects
+
+  final double scrollSpeed;
+
+  final double zoomLevel;
+  final double zoomSpeed;
+
+  final double bounceLevel;
+  final double bounceSpeed;
+
   final bool isPaused;
 
   // Blink effect
@@ -75,10 +91,16 @@ class ScrollingTextRenderer extends StatefulWidget {
     required this.shadowColor,
     this.shadowGradientColors,
     this.shadowGradientRotation = 0,
-    required this.effectType,
+    required this.enableScroll,
+    required this.enableBounceZoom,
+    required this.enableBounce,
+    required this.bounceDirection,
     required this.scrollDirection,
     required this.scrollSpeed,
-    required this.bounceValue,
+    required this.zoomLevel,
+    required this.zoomSpeed,
+    required this.bounceLevel,
+    required this.bounceSpeed,
     this.isPaused = false,
     this.enableBlink = false,
     this.blinkDuration = 500.0,
@@ -90,8 +112,11 @@ class ScrollingTextRenderer extends StatefulWidget {
 
 class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
     with TickerProviderStateMixin {
-  late AnimationController _controller;
+  late AnimationController _scrollController;
+  late AnimationController _zoomController;
+  late AnimationController _bounceController;
   late AnimationController _blinkController;
+
   double _textWidth = 0;
   double _textHeight = 0;
   double _containerWidth = 0;
@@ -102,13 +127,24 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+
+    // Scroll Controller
+    _scrollController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 10),
-    )..addListener(() {
-      setState(() {});
-    });
-    _controller.repeat();
+    )..addListener(() => setState(() {}));
+
+    // Zoom Controller
+    _zoomController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..addListener(() => setState(() {}));
+
+    // Bounce Controller
+    _bounceController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..addListener(() => setState(() {}));
 
     // Initialize blink controller
     _blinkController = AnimationController(
@@ -140,19 +176,24 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
         oldWidget.shadowGradientRotation != widget.shadowGradientRotation) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _measureText());
     }
+
     if (oldWidget.scrollSpeed != widget.scrollSpeed ||
-        oldWidget.effectType != widget.effectType ||
-        oldWidget.bounceValue != widget.bounceValue) {
-      _updateDuration();
+        oldWidget.scrollDirection != widget.scrollDirection ||
+        oldWidget.enableScroll != widget.enableScroll ||
+        oldWidget.enableBounceZoom != widget.enableBounceZoom ||
+        oldWidget.enableBounce != widget.enableBounce ||
+        oldWidget.zoomSpeed != widget.zoomSpeed ||
+        oldWidget.bounceSpeed != widget.bounceSpeed) {
+      _updateDurations();
     }
 
     if (oldWidget.isPaused != widget.isPaused) {
       if (widget.isPaused) {
-        _controller.stop();
+        _scrollController.stop();
+        _zoomController.stop();
+        _bounceController.stop();
       } else {
-        if (!_controller.isAnimating && widget.scrollSpeed > 0) {
-          _controller.repeat();
-        }
+        _updateDurations(); // Restart enabled animations
       }
     }
 
@@ -166,7 +207,7 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
         _blinkController.repeat(reverse: true);
       } else {
         _blinkController.stop();
-        _blinkController.value = 1.0; // Ensure full opacity when disabled
+        _blinkController.value = 1.0;
       }
     }
   }
@@ -178,64 +219,101 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
       setState(() {
         _textWidth = renderBox.size.width;
         _textHeight = renderBox.size.height;
-        _updateDuration();
+        _updateDurations();
       });
     }
   }
 
-  void _updateDuration() {
-    // Stop animation if speed is 0
-    if (widget.scrollSpeed <= 0) {
-      _controller.stop();
-      return;
-    }
+  void _updateDurations() {
+    if (widget.isPaused) return;
 
-    if (widget.effectType == EffectType.scroll) {
-      if (widget.scrollDirection == ScrollDirection.none) {
-        _controller.stop();
-        return;
-      }
-
-      // Container width = message width + 200px gap
+    // --- SCROLL ---
+    if (widget.enableScroll &&
+        widget.scrollSpeed > 0 &&
+        widget.scrollDirection != ScrollDirection.none) {
       const double containerGap = 200.0;
-      double totalDistance = 0;
+      double totalDistance;
 
-      if (widget.scrollDirection == ScrollDirection.leftToRight ||
-          widget.scrollDirection == ScrollDirection.rightToLeft) {
-        // Animation cycle = one container width (textWidth + gap)
+      // Calculate distance based on scroll direction
+      if (widget.scrollDirection == ScrollDirection.topToBottom ||
+          widget.scrollDirection == ScrollDirection.bottomToTop) {
+        // Vertical scrolling - use text height
+        totalDistance = _textHeight + containerGap;
+      } else {
+        // Horizontal scrolling - use text width
         totalDistance = _textWidth + containerGap;
       }
 
-      if (totalDistance == 0) return;
+      if (totalDistance > 0) {
+        final durationSeconds = totalDistance / widget.scrollSpeed;
+        final newDuration = Duration(
+          milliseconds: (durationSeconds * 1000).toInt(),
+        );
 
-      final durationSeconds = totalDistance / widget.scrollSpeed;
-      _controller.duration = Duration(
-        milliseconds: (durationSeconds * 1000).toInt(),
-      );
+        // Only restart if duration changed
+        if (_scrollController.duration != newDuration) {
+          _scrollController.stop();
+          _scrollController.duration = newDuration;
+          _scrollController.repeat();
+        } else if (!_scrollController.isAnimating) {
+          _scrollController.repeat();
+        }
+      }
     } else {
-      // Bounce effects
-      // Speed controls frequency. Higher speed = faster bounce.
-      // Let's say speed 100 = 1 second duration for full cycle?
-      // Adjust mapping as needed.
-      // Base duration 2 seconds at speed 50.
-      // Duration = Constant / Speed
-      final durationMilliseconds = (2000 * (50 / widget.scrollSpeed)).toInt();
-      _controller.duration = Duration(
-        milliseconds: durationMilliseconds.clamp(100, 5000),
-      );
+      _scrollController.stop();
+      _scrollController.reset();
     }
 
-    // Restart animation to apply new duration immediately
-    if (!widget.isPaused) {
-      _controller
-        ..reset()
-        ..repeat(reverse: widget.effectType != EffectType.scroll);
+    // --- ZOOM ---
+    if (widget.enableBounceZoom && widget.zoomSpeed > 0) {
+      // Speed 0-100. 50 is normal (~2s). 100 is fast (~0.5s). 1 is slow (~10s).
+      // Formula: duration = 2000 * (50 / speed)
+      final durationMs = (2000 * (50 / widget.zoomSpeed)).toInt().clamp(
+        100,
+        10000,
+      );
+      final newDuration = Duration(milliseconds: durationMs);
+
+      // Only restart if duration changed
+      if (_zoomController.duration != newDuration) {
+        _zoomController.stop();
+        _zoomController.duration = newDuration;
+        _zoomController.repeat();
+      } else if (!_zoomController.isAnimating) {
+        _zoomController.repeat();
+      }
+    } else {
+      _zoomController.stop();
+      _zoomController.reset();
+    }
+
+    // --- BOUNCE ---
+    if (widget.enableBounce && widget.bounceSpeed > 0) {
+      final durationMs = (2000 * (50 / widget.bounceSpeed)).toInt().clamp(
+        100,
+        10000,
+      );
+      final newDuration = Duration(milliseconds: durationMs);
+
+      // Only restart if duration changed
+      if (_bounceController.duration != newDuration) {
+        _bounceController.stop();
+        _bounceController.duration = newDuration;
+        _bounceController.repeat();
+      } else if (!_bounceController.isAnimating) {
+        _bounceController.repeat();
+      }
+    } else {
+      _bounceController.stop();
+      _bounceController.reset();
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _scrollController.dispose();
+    _zoomController.dispose();
+    _bounceController.dispose();
     _blinkController.dispose();
     super.dispose();
   }
@@ -247,62 +325,161 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
         _containerWidth = constraints.maxWidth;
         _containerHeight = constraints.maxHeight;
 
-        // Common variables
-        final double value = _controller.value; // 0.0 to 1.0
         final double offsetY = (_containerHeight - _textHeight) / 2;
 
-        if (widget.effectType == EffectType.scroll) {
-          // --- SCROLL EFFECT ---
-          // Container approach: each container = textWidth + 200
-          // Message is centered in container
-          const double containerGap = 200.0;
-          final double containerWidth = _textWidth + containerGap;
-          final double startX = _containerWidth * 0.75;
-          final double messageOffsetInContainer = containerGap / 2;
+        bool hasScrollEffect =
+            widget.enableScroll &&
+            widget.scrollDirection != ScrollDirection.none;
 
-          List<Widget> visibleWidgets = [];
+        // Build the text widget with bounce transforms applied
+        Widget buildTransformedText() {
+          Widget textWidget = _buildTextWidget();
 
-          // Helper to add widget if visible
-          void addIfVisible(double xPos) {
-            final double msgLeft = xPos + messageOffsetInContainer;
-            final double msgRight = msgLeft + _textWidth;
+          // Apply Zoom
+          if (widget.enableBounceZoom) {
+            final double zoomValue = _zoomController.value;
+            // Sine wave 0->1->0->-1->0
+            final double oscillation = math.sin(zoomValue * 2 * math.pi);
+            final double level = widget.zoomLevel / 100.0;
+            final double scale = 1.0 + (oscillation * level);
 
-            if (msgRight > 0 && msgLeft < _containerWidth) {
-              visibleWidgets.add(
-                Positioned(
-                  left: msgLeft,
-                  top: offsetY,
-                  child: _buildTextWidget(),
-                ),
+            textWidget = Transform.scale(
+              scale: scale,
+              alignment: Alignment.center,
+              child: textWidget,
+            );
+          }
+
+          // Apply Bounce
+          if (widget.enableBounce) {
+            final double bounceVal = _bounceController.value;
+            final double oscillation = math.sin(bounceVal * 2 * math.pi);
+            final double level = widget.bounceLevel / 100.0;
+
+            if (widget.bounceDirection == BounceDirection.horizontal) {
+              final double maxOffset = _textWidth * level;
+              final double dx = oscillation * maxOffset;
+              textWidget = Transform.translate(
+                offset: Offset(dx, 0),
+                child: textWidget,
+              );
+            } else {
+              final double maxOffset =
+                  _textHeight *
+                  level; // Use text height for vertical bounce scale
+              // Or maybe container height? Usually text height is better for relative bounce.
+              // Let's use a fixed reasonable value or text height.
+              // If text is small, bounce might be small.
+              // Let's use 50% of container height as base? No, text height is safer.
+              final double dy = oscillation * maxOffset;
+              textWidget = Transform.translate(
+                offset: Offset(0, dy),
+                child: textWidget,
               );
             }
           }
 
-          if (widget.scrollDirection == ScrollDirection.none) {
-            visibleWidgets.add(
-              Positioned(
-                left: (_containerWidth - _textWidth) / 2,
-                top: offsetY,
-                child: _buildTextWidget(),
-              ),
-            );
-          } else {
+          return textWidget;
+        }
+
+        if (hasScrollEffect) {
+          // --- SCROLL EFFECT ---
+          final double scrollValue = _scrollController.value;
+          const double containerGap = 200.0;
+
+          // Determine if scrolling is horizontal or vertical
+          final bool isHorizontalScroll =
+              widget.scrollDirection == ScrollDirection.rightToLeft ||
+              widget.scrollDirection == ScrollDirection.leftToRight;
+          final bool isVerticalScroll =
+              widget.scrollDirection == ScrollDirection.topToBottom ||
+              widget.scrollDirection == ScrollDirection.bottomToTop;
+
+          List<Widget> visibleWidgets = [];
+
+          if (isHorizontalScroll) {
+            // Horizontal scrolling logic
+            final double containerWidth = _textWidth + containerGap;
+            final double startX = _containerWidth * 0.75;
+            final double messageOffsetInContainer = containerGap / 2;
+
+            void addIfVisible(double xPos) {
+              final double msgLeft = xPos + messageOffsetInContainer;
+              final double msgRight = msgLeft + _textWidth;
+
+              if (msgRight > 0 && msgLeft < _containerWidth) {
+                visibleWidgets.add(
+                  Positioned(
+                    left: msgLeft,
+                    top: offsetY,
+                    child: buildTransformedText(),
+                  ),
+                );
+              }
+            }
+
             for (int k = -10; k <= 10; k++) {
               double containerX = 0;
               if (widget.scrollDirection == ScrollDirection.rightToLeft) {
                 containerX =
-                    startX - (value * containerWidth) + (k * containerWidth);
+                    startX -
+                    (scrollValue * containerWidth) +
+                    (k * containerWidth);
               } else {
                 containerX =
-                    startX + (value * containerWidth) - (k * containerWidth);
+                    startX +
+                    (scrollValue * containerWidth) -
+                    (k * containerWidth);
               }
               addIfVisible(containerX);
+            }
+          } else if (isVerticalScroll) {
+            // Vertical scrolling logic
+            final double containerHeight = _textHeight + containerGap;
+            final double startY = _containerHeight * 0.75;
+            final double messageOffsetInContainer = containerGap / 2;
+            final double centerX = (_containerWidth - _textWidth) / 2;
+
+            void addIfVisible(double yPos) {
+              final double msgTop = yPos + messageOffsetInContainer;
+              final double msgBottom = msgTop + _textHeight;
+
+              if (msgBottom > 0 && msgTop < _containerHeight) {
+                visibleWidgets.add(
+                  Positioned(
+                    left: centerX,
+                    top: msgTop,
+                    child: buildTransformedText(),
+                  ),
+                );
+              }
+            }
+
+            for (int k = -10; k <= 10; k++) {
+              double containerY = 0;
+              if (widget.scrollDirection == ScrollDirection.bottomToTop) {
+                containerY =
+                    startY -
+                    (scrollValue * containerHeight) +
+                    (k * containerHeight);
+              } else {
+                containerY =
+                    startY +
+                    (scrollValue * containerHeight) -
+                    (k * containerHeight);
+              }
+              addIfVisible(containerY);
             }
           }
 
           return ClipRect(
             child: AnimatedBuilder(
-              animation: _blinkController,
+              animation: Listenable.merge([
+                _scrollController,
+                _zoomController,
+                _bounceController,
+                _blinkController,
+              ]),
               builder: (context, child) {
                 return Opacity(
                   opacity: widget.enableBlink ? _blinkController.value : 1.0,
@@ -321,27 +498,17 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
             ),
           );
         } else {
-          // --- BOUNCE EFFECTS ---
-          // Center the text first
+          // --- CENTERED ---
           double centerX = (_containerWidth - _textWidth) / 2;
           double centerY = offsetY;
 
-          Widget content = Positioned(
-            left: centerX,
-            top: centerY,
-            child: _buildTextWidget(),
-          );
-
-          // Apply transformations based on effect type
-          // value goes 0->1->0 because of reverse: true
-          // We want sine wave behavior for smooth bounce?
-          // Controller is linear 0->1.
-          // Let's use a curve or just map 0->1 directly.
-          // Since we use repeat(reverse:true), value goes 0->1 then 1->0.
-
           return ClipRect(
             child: AnimatedBuilder(
-              animation: Listenable.merge([_controller, _blinkController]),
+              animation: Listenable.merge([
+                _zoomController,
+                _bounceController,
+                _blinkController,
+              ]),
               builder: (context, child) {
                 Widget transformedChild = Stack(
                   children: [
@@ -352,86 +519,17 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
                         child: _buildTextWidget(),
                       ),
                     ),
-                    content,
+                    Positioned(
+                      left: centerX,
+                      top: centerY,
+                      child: buildTransformedText(),
+                    ),
                   ],
                 );
 
-                // Apply Blink
                 if (widget.enableBlink) {
                   transformedChild = Opacity(
                     opacity: _blinkController.value,
-                    child: transformedChild,
-                  );
-                }
-
-                // Apply Bounce
-                // Normalize value to -1 to 1 for some effects if needed,
-                // or 0 to 1 is fine.
-                // Current value: 0.0 -> 1.0 -> 0.0
-
-                if (widget.effectType == EffectType.bounceZoom) {
-                  // Zoom: -20%/20% -> -200%/200%
-                  // Level (bounceValue) is percentage (e.g. 20 to 200)
-                  // Let's assume bounceValue is 20.0 to 200.0.
-                  // Scale factor: 1.0 +/- (bounceValue / 100)
-                  // We want to oscillate.
-                  // Let's make it zoom IN and OUT.
-                  // 0.0 -> 1.0 (max zoom) -> 0.0 (normal)
-                  // Wait, user said "-20%/20%". Maybe min/max scale?
-                  // Let's implement: Scale varies from 1.0 to (1.0 + bounceValue/100).
-                  // Or better: 1.0 is center.
-                  // Scale = 1.0 + (value * (bounceValue / 100))
-                  // If value goes 0->1->0, then scale goes 1.0 -> 1.2 -> 1.0.
-                  // If we want zoom OUT too, we might need offset.
-                  // Let's assume simple zoom in for now, or zoom in/out around 1.0?
-                  // "bounce zoom: level(-20%/20% -> -200%/200%)"
-                  // This notation suggests range.
-                  // Let's map 0..1 to -1..1 for sine wave feel?
-                  // But controller is linear.
-                  // Let's use sin(value * 2 * pi)? No, value is 0->1.
-                  // With reverse: true, it's a triangle wave 0->1->0.
-                  // Let's use that.
-                  // Scale = 1.0 + ((value - 0.5) * 2) * (bounceValue / 100)
-                  // If value=0, scale = 1 - level. Value=0.5, scale=1. Value=1, scale=1+level.
-                  // This gives full range -level to +level.
-
-                  final double level = widget.bounceValue / 100.0;
-                  // value is 0->1.
-                  // We want -1 -> 1 range for oscillation.
-                  // (value - 0.5) * 2 gives -1 -> 1.
-                  final double oscillation = (value - 0.5) * 2;
-                  final double scale = 1.0 + (oscillation * level);
-
-                  // Clamp scale to avoid negative or zero if level is high (>100%)
-                  // If level is 200% (2.0), scale goes 1 - 2 = -1 (flipped) to 3.
-                  // Flipped text might be intended? "bounce zoom" usually implies getting bigger/smaller.
-                  // Let's allow it.
-
-                  transformedChild = Transform.scale(
-                    scale: scale,
-                    alignment: Alignment.center,
-                    child: transformedChild,
-                  );
-                } else if (widget.effectType == EffectType.bounceHorizontal) {
-                  // Horizontal: -5%/5% -> -100%/100% of text WIDTH
-                  final double level = widget.bounceValue / 100.0;
-                  final double maxOffset = _textWidth * level;
-                  final double oscillation = (value - 0.5) * 2; // -1 to 1
-                  final double dx = oscillation * maxOffset;
-
-                  transformedChild = Transform.translate(
-                    offset: Offset(dx, 0),
-                    child: transformedChild,
-                  );
-                } else if (widget.effectType == EffectType.bounceVertical) {
-                  // Vertical: -5%/5% -> -100%/100% of text HEIGHT
-                  final double level = widget.bounceValue / 100.0;
-                  final double maxOffset = _textHeight * level;
-                  final double oscillation = (value - 0.5) * 2; // -1 to 1
-                  final double dy = oscillation * maxOffset;
-
-                  transformedChild = Transform.translate(
-                    offset: Offset(0, dy),
                     child: transformedChild,
                   );
                 }

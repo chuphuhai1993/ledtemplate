@@ -26,7 +26,7 @@ class AppSliderWidget extends StatelessWidget {
         thumbColor: colorScheme.onSurface,
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10.0),
         trackHeight: 4.0,
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
       ),
       child: Slider(
         value: value,
