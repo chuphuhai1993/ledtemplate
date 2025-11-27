@@ -121,7 +121,7 @@ class _TemplateTabState extends State<TemplateTab>
             children:
                 categories.map((category) {
                   return GridView.builder(
-                    padding: const EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(8.0),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,

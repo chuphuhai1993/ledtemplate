@@ -11,11 +11,19 @@ class SelectButtonWidget extends StatelessWidget {
   /// Optional text style for the value
   final TextStyle? textStyle;
 
+  /// Optional border color for the button
+  final Color? borderColor;
+
+  /// Optional border width for the button
+  final double? borderWidth;
+
   const SelectButtonWidget({
     super.key,
     required this.value,
     required this.onPressed,
     this.textStyle,
+    this.borderColor,
+    this.borderWidth,
   });
 
   @override
@@ -26,7 +34,10 @@ class SelectButtonWidget extends StatelessWidget {
         backgroundColor: Theme.of(
           context,
         ).colorScheme.onBackground.withOpacity(0.05),
-        side: BorderSide(color: Theme.of(context).colorScheme.onSurface),
+        side: BorderSide(
+          color: borderColor ?? Theme.of(context).colorScheme.onSurface,
+          width: borderWidth ?? 1,
+        ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),

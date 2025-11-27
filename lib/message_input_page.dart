@@ -97,6 +97,8 @@ class _MessageInputPageState extends State<MessageInputPage> {
               frameGlowBlur: template.frameGlowBlur,
               frameGlowBorderRadius: template.frameGlowBorderRadius,
               frameGlowColor: template.frameGlowColor,
+              frameGlowGradientColors: template.frameGlowGradientColors,
+              frameGlowGradientRotation: template.frameGlowGradientRotation,
               enableScroll: template.enableScroll,
               enableBounceZoom: template.enableBounceZoom,
               enableBounce: template.enableBounce,

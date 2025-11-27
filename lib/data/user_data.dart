@@ -8,8 +8,10 @@ class UserData {
   static final ValueNotifier<String> defaultPhoneAsset = ValueNotifier(
     'assets/phones/iphone_16.png',
   );
+  static final ValueNotifier<bool> isFirstTime = ValueNotifier(true);
   static const String _key = 'saved_templates';
   static const String _phoneKey = 'default_phone_asset';
+  static const String _firstTimeKey = 'is_first_time';
 
   static Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -25,6 +27,9 @@ class UserData {
     if (savedPhone != null) {
       defaultPhoneAsset.value = savedPhone;
     }
+
+    // Load first-time status
+    isFirstTime.value = prefs.getBool(_firstTimeKey) ?? true;
   }
 
   static Future<void> addTemplate(Template template) async {
@@ -64,5 +69,11 @@ class UserData {
     defaultPhoneAsset.value = asset;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_phoneKey, asset);
+  }
+
+  static Future<void> completeOnboarding() async {
+    isFirstTime.value = false;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_firstTimeKey, false);
   }
 }

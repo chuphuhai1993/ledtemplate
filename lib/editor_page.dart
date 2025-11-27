@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ledtemplate/widgets/app_appbar_widget.dart';
 import 'package:ledtemplate/widgets/app_slider_widget.dart';
 import 'package:ledtemplate/widgets/icon_chip_button_widget.dart';
+import 'package:ledtemplate/widgets/message_input_bottom_sheet.dart';
 import 'package:ledtemplate/widgets/neon_button.dart';
 import 'package:ledtemplate/widgets/preview_widget.dart';
 import 'scrolling_text_renderer.dart';
@@ -11,7 +12,6 @@ import 'widgets/bottom_sheet_container_widget.dart';
 import 'widgets/select_button_widget.dart';
 import 'widgets/color_palette_grid_widget.dart';
 import 'widgets/text_chip_button_widget.dart';
-import 'widgets/app_textfield_widget.dart';
 import 'models/template.dart';
 import 'saving_page.dart';
 import 'widgets/phone_selection_bottom_sheet.dart';
@@ -86,6 +86,8 @@ class _EditorPageState extends State<EditorPage> {
   late double _frameGlowBlur;
   late double _frameGlowBorderRadius;
   late Color _frameGlowColor;
+  List<Color>? _frameGlowGradientColors;
+  late double _frameGlowGradientRotation;
 
   // Effects
   late bool _enableScroll;
@@ -161,6 +163,8 @@ class _EditorPageState extends State<EditorPage> {
     _frameGlowBlur = t?.frameGlowBlur ?? 10.0;
     _frameGlowBorderRadius = t?.frameGlowBorderRadius ?? 20.0;
     _frameGlowColor = t?.frameGlowColor ?? Colors.blue;
+    _frameGlowGradientColors = t?.frameGlowGradientColors;
+    _frameGlowGradientRotation = t?.frameGlowGradientRotation ?? 0;
 
     _enableScroll = t?.enableScroll ?? true;
     _enableBounceZoom = t?.enableBounceZoom ?? false;
@@ -356,6 +360,8 @@ class _EditorPageState extends State<EditorPage> {
       frameGlowBlur: _frameGlowBlur,
       frameGlowBorderRadius: _frameGlowBorderRadius,
       frameGlowColor: _frameGlowColor,
+      frameGlowGradientColors: _frameGlowGradientColors,
+      frameGlowGradientRotation: _frameGlowGradientRotation,
       enableScroll: _enableScroll,
       enableBounceZoom: _enableBounceZoom,
       enableBounce: _enableBounce,
@@ -419,6 +425,8 @@ class _EditorPageState extends State<EditorPage> {
         frameGlowBlur: _frameGlowBlur,
         frameGlowBorderRadius: _frameGlowBorderRadius,
         frameGlowColor: _frameGlowColor,
+        frameGlowGradientColors: _frameGlowGradientColors,
+        frameGlowGradientRotation: _frameGlowGradientRotation,
         enableScroll: _enableScroll,
         enableBounceZoom: _enableBounceZoom,
         enableBounce: _enableBounce,
@@ -514,6 +522,8 @@ class _EditorPageState extends State<EditorPage> {
                         frameGlowBlur: _frameGlowBlur,
                         frameGlowBorderRadius: _frameGlowBorderRadius,
                         frameGlowColor: _frameGlowColor,
+                        frameGlowGradientColors: _frameGlowGradientColors,
+                        frameGlowGradientRotation: _frameGlowGradientRotation,
                         textColor: _textColor,
                         textGradientColors: _textGradientColors,
                         textGradientRotation: _textGradientRotation,
@@ -754,6 +764,14 @@ class _EditorPageState extends State<EditorPage> {
                               frameGlowColor: _frameGlowColor,
                               onFrameGlowColorChanged:
                                   (v) => setState(() => _frameGlowColor = v),
+                              frameGlowGradientColors: _frameGlowGradientColors,
+                              frameGlowGradientRotation:
+                                  _frameGlowGradientRotation,
+                              onFrameGlowGradientChanged:
+                                  (colors, rotation) => setState(() {
+                                    _frameGlowGradientColors = colors;
+                                    _frameGlowGradientRotation = rotation;
+                                  }),
                             ),
                           ],
                         ),
@@ -1395,11 +1413,45 @@ class _TextSettingsPanel extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(12.0),
       children: [
-        AppTextFieldWidget(
-          controller: TextEditingController(text: text)
-            ..selection = TextSelection.collapsed(offset: text.length),
-          onChanged: onTextChanged,
-          hintText: 'Enter text here',
+        GestureDetector(
+          onTap: () async {
+            final result = await showModalBottomSheet<String>(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder:
+                  (context) => MessageInputBottomSheet(
+                    initialText: text,
+                    buttonLabel: 'Save',
+                  ),
+            );
+            if (result != null) {
+              onTextChanged(result);
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+                width: 1,
+              ),
+            ),
+            child: Text(
+              text.isEmpty ? 'Enter message' : text,
+              style: TextStyle(
+                fontSize: 16,
+                color:
+                    text.isEmpty
+                        ? Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.5)
+                        : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
         ),
         const SizedBox(height: 8),
 
@@ -1416,6 +1468,9 @@ class _TextSettingsPanel extends StatelessWidget {
               _SectionTitle(icon: Icons.font_download_outlined, title: 'Font'),
               SelectButtonWidget(
                 value: _getFontDisplayName(fontFamily),
+                borderColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withOpacity(0.2),
                 onPressed: () async {
                   final result = await showModalBottomSheet<String>(
                     context: context,
@@ -1450,7 +1505,7 @@ class _TextSettingsPanel extends StatelessWidget {
             children: [
               _SectionTitle(
                 icon: Icons.format_size_outlined,
-                title: 'Font size',
+                title: 'Size',
                 value: '${fontSize.toStringAsFixed(0)}%',
               ),
               const SizedBox(height: 4),
@@ -1465,7 +1520,7 @@ class _TextSettingsPanel extends StatelessWidget {
         ),
         const SizedBox(height: 8),
 
-        // Text Color Card
+        // Font Color Card
         Container(
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
@@ -1479,7 +1534,7 @@ class _TextSettingsPanel extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: _SectionTitle(
                   icon: Icons.palette_outlined,
-                  title: 'Text color',
+                  title: 'Color',
                   value:
                       textGradientColors != null
                           ? _gradientToString(textGradientColors)
@@ -1493,7 +1548,7 @@ class _TextSettingsPanel extends StatelessWidget {
                 gradientColors: textGradientColors,
                 gradientRotation: textGradientRotation,
                 onGradientChanged: onTextGradientChanged,
-                label: 'Text Color',
+                label: 'Font Color',
               ),
             ],
           ),
@@ -1782,6 +1837,9 @@ class _BackdropSettingsPanel extends StatefulWidget {
   final ValueChanged<double> onFrameGlowBorderRadiusChanged;
   final Color frameGlowColor;
   final ValueChanged<Color> onFrameGlowColorChanged;
+  final List<Color>? frameGlowGradientColors;
+  final double frameGlowGradientRotation;
+  final Function(List<Color>?, double) onFrameGlowGradientChanged;
 
   const _BackdropSettingsPanel({
     required this.backgroundColor,
@@ -1805,6 +1863,9 @@ class _BackdropSettingsPanel extends StatefulWidget {
     required this.onFrameGlowBorderRadiusChanged,
     required this.frameGlowColor,
     required this.onFrameGlowColorChanged,
+    this.frameGlowGradientColors,
+    this.frameGlowGradientRotation = 0,
+    required this.onFrameGlowGradientChanged,
   });
 
   @override
@@ -2086,6 +2147,9 @@ class _BackdropSettingsPanelState extends State<_BackdropSettingsPanel> {
                 ColorPaletteGridWidget(
                   selectedColor: widget.frameGlowColor,
                   onColorChanged: widget.onFrameGlowColorChanged,
+                  gradientColors: widget.frameGlowGradientColors,
+                  gradientRotation: widget.frameGlowGradientRotation,
+                  onGradientChanged: widget.onFrameGlowGradientChanged,
                   label: 'Glow Color',
                 ),
               ],
@@ -2330,3 +2394,5 @@ class _SectionTitle extends StatelessWidget {
     );
   }
 }
+
+// Text Input Bottom Sheet

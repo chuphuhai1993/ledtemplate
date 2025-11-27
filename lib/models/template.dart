@@ -84,6 +84,8 @@ class Template {
   final double frameGlowBlur;
   final double frameGlowBorderRadius;
   final Color frameGlowColor;
+  final List<Color>? frameGlowGradientColors;
+  final double frameGlowGradientRotation;
 
   const Template({
     required this.text,
@@ -137,6 +139,8 @@ class Template {
     this.frameGlowBlur = 10.0,
     this.frameGlowBorderRadius = 20.0,
     this.frameGlowColor = Colors.blue,
+    this.frameGlowGradientColors,
+    this.frameGlowGradientRotation = 0,
   });
 
   Map<String, dynamic> toJson() {
@@ -196,6 +200,9 @@ class Template {
       'frameGlowBlur': frameGlowBlur,
       'frameGlowBorderRadius': frameGlowBorderRadius,
       'frameGlowColor': frameGlowColor.value,
+      'frameGlowGradientColors':
+          frameGlowGradientColors?.map((c) => c.value).toList(),
+      'frameGlowGradientRotation': frameGlowGradientRotation,
     };
   }
 
@@ -324,6 +331,11 @@ class Template {
       frameGlowBorderRadius:
           (json['frameGlowBorderRadius'] as num?)?.toDouble() ?? 20.0,
       frameGlowColor: Color(json['frameGlowColor'] ?? 0xFF2196F3),
+      frameGlowGradientColors: parseGradientColors(
+        json['frameGlowGradientColors'],
+      ),
+      frameGlowGradientRotation:
+          (json['frameGlowGradientRotation'] as num?)?.toDouble() ?? 0,
     );
   }
 }

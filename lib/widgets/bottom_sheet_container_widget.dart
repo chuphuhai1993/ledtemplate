@@ -42,12 +42,12 @@ class BottomSheetContainerWidget extends StatelessWidget {
               ? Container(
                 margin: const EdgeInsets.only(top: 12, bottom: 8),
                 width: 40,
-                height: 4,
+                height: 5,
                 decoration: BoxDecoration(
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(2),
+                  ).colorScheme.onSurface.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(999),
                 ),
               )
               : const SizedBox(height: 16),
@@ -60,9 +60,10 @@ class BottomSheetContainerWidget extends StatelessWidget {
               ),
               child: Text(
                 title!,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                ),
               ),
             ),
           // Content

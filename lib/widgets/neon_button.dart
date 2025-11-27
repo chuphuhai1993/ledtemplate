@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 enum NeonButtonSize { small, medium, large }
@@ -69,12 +70,12 @@ class NeonButton extends StatelessWidget {
     switch (type) {
       case NeonButtonType.primary:
         borderColor = colorScheme.primary;
-        backgroundColor = colorScheme.primaryContainer;
+        backgroundColor = colorScheme.primary.withOpacity(0.3);
         textColor = colorScheme.primary;
         break;
       case NeonButtonType.secondary:
         borderColor = colorScheme.secondary;
-        backgroundColor = colorScheme.secondaryContainer;
+        backgroundColor = colorScheme.secondary.withOpacity(0.3);
         textColor = colorScheme.secondary;
         break;
       case NeonButtonType.tertiary:
@@ -99,31 +100,23 @@ class NeonButton extends StatelessWidget {
     final effectiveFontSize = fontSize ?? defaultFontSize;
     final effectiveHeight = height ?? defaultHeight;
 
-    return Container(
-      height: effectiveHeight,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(effectiveBorderRadius),
-      ),
-      child: Container(
-        // Gradient Border Container
-        padding: EdgeInsets.all(effectiveBorderSize),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(effectiveBorderRadius),
-          color: borderColor,
-        ),
-        child: Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(
-            effectiveBorderRadius - effectiveBorderSize,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(effectiveBorderRadius),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 56, sigmaY: 56),
+        child: Container(
+          height: effectiveHeight,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            border: Border.all(color: borderColor, width: effectiveBorderSize),
+            borderRadius: BorderRadius.circular(effectiveBorderRadius),
           ),
-          clipBehavior: Clip.antiAlias,
-          child: Ink(
-            decoration: BoxDecoration(color: backgroundColor),
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(effectiveBorderRadius),
             child: InkWell(
               onTap: type == NeonButtonType.disabled ? null : onPressed,
-              borderRadius: BorderRadius.circular(
-                effectiveBorderRadius - effectiveBorderSize,
-              ),
+              borderRadius: BorderRadius.circular(effectiveBorderRadius),
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   vertical: 0,

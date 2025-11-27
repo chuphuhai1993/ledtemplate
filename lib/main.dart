@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
+import 'splash_page.dart';
 import 'data/user_data.dart';
 import 'app_theme.dart';
 
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'LED Scroller',
       theme: AppTheme.darkTheme,
-      home: const HomePage(),
+      home: const SplashPage(),
     );
   }
 }

@@ -111,6 +111,10 @@ class ResultPage extends StatelessWidget {
                                 frameGlowBorderRadius:
                                     template.frameGlowBorderRadius,
                                 frameGlowColor: template.frameGlowColor,
+                                frameGlowGradientColors:
+                                    template.frameGlowGradientColors,
+                                frameGlowGradientRotation:
+                                    template.frameGlowGradientRotation,
                                 fromResultPage: true,
                                 enableScroll: template.enableScroll,
                                 enableBounceZoom: template.enableBounceZoom,

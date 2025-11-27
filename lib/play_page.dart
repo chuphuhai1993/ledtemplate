@@ -60,6 +60,8 @@ class PlayPage extends StatefulWidget {
   final double frameGlowBlur;
   final double frameGlowBorderRadius;
   final Color frameGlowColor;
+  final List<Color>? frameGlowGradientColors;
+  final double frameGlowGradientRotation;
   final int? templateIndex;
   final bool fromResultPage;
 
@@ -116,9 +118,14 @@ class PlayPage extends StatefulWidget {
     required this.frameGlowBlur,
     required this.frameGlowBorderRadius,
     required this.frameGlowColor,
+    this.frameGlowGradientColors,
+    this.frameGlowGradientRotation = 0,
     this.templateIndex,
     this.fromResultPage = false,
+    this.onClose,
   });
+
+  final VoidCallback? onClose;
 
   @override
   State<PlayPage> createState() => _PlayPageState();
@@ -252,7 +259,9 @@ class _PlayPageState extends State<PlayPage> {
                         child: NeonButton(
                           onPressed: () {
                             Navigator.pop(context); // Close bottom sheet
-                            if (widget.fromResultPage) {
+                            if (widget.onClose != null) {
+                              widget.onClose!();
+                            } else if (widget.fromResultPage) {
                               Navigator.of(
                                 context,
                               ).popUntil((route) => route.isFirst);
@@ -418,17 +427,34 @@ class _PlayPageState extends State<PlayPage> {
                             sigmaX: widget.frameGlowBlur,
                             sigmaY: widget.frameGlowBlur,
                           ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(
-                                widget.frameGlowBorderRadius,
-                              ),
-                              border: Border.all(
-                                color: widget.frameGlowColor,
-                                width: widget.frameGlowSize,
-                              ),
-                            ),
-                          ),
+                          child:
+                              widget.frameGlowGradientColors != null
+                                  ? CustomPaint(
+                                    painter: _GradientBorderPainter(
+                                      gradient: LinearGradient(
+                                        colors: widget.frameGlowGradientColors!,
+                                        transform: GradientRotation(
+                                          widget.frameGlowGradientRotation *
+                                              3.14159 /
+                                              180,
+                                        ),
+                                      ),
+                                      borderRadius:
+                                          widget.frameGlowBorderRadius,
+                                      strokeWidth: widget.frameGlowSize,
+                                    ),
+                                  )
+                                  : Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(
+                                        widget.frameGlowBorderRadius,
+                                      ),
+                                      border: Border.all(
+                                        color: widget.frameGlowColor,
+                                        width: widget.frameGlowSize,
+                                      ),
+                                    ),
+                                  ),
                         ),
                       ),
                     ),
@@ -535,5 +561,39 @@ class _PlayPageState extends State<PlayPage> {
         ),
       ),
     );
+  }
+}
+
+/// Custom painter to draw a gradient border
+class _GradientBorderPainter extends CustomPainter {
+  final Gradient gradient;
+  final double borderRadius;
+  final double strokeWidth;
+
+  _GradientBorderPainter({
+    required this.gradient,
+    required this.borderRadius,
+    required this.strokeWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
+
+    final paint =
+        Paint()
+          ..shader = gradient.createShader(rect)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth;
+
+    canvas.drawRRect(rrect, paint);
+  }
+
+  @override
+  bool shouldRepaint(_GradientBorderPainter oldDelegate) {
+    return oldDelegate.gradient != gradient ||
+        oldDelegate.borderRadius != borderRadius ||
+        oldDelegate.strokeWidth != strokeWidth;
   }
 }

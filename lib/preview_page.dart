@@ -2,9 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:ledtemplate/widgets/app_appbar_widget.dart';
-import 'package:ledtemplate/widgets/blur_container_widget.dart';
 import 'package:ledtemplate/widgets/preview_widget.dart';
-import 'package:ledtemplate/widgets/app_textfield_widget.dart';
+import 'package:ledtemplate/widgets/message_input_bottom_sheet.dart';
 import 'models/template.dart';
 import 'play_page.dart';
 import 'editor_page.dart';
@@ -35,27 +34,17 @@ class PreviewPage extends StatefulWidget {
 class _PreviewPageState extends State<PreviewPage> {
   late PageController _pageController;
   late int _currentIndex;
-  late List<TextEditingController> _textControllers;
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
     _pageController = PageController(initialPage: widget.initialIndex);
-
-    // Create a text controller for each template
-    _textControllers =
-        widget.templates
-            .map((template) => TextEditingController(text: template.text))
-            .toList();
   }
 
   @override
   void dispose() {
     _pageController.dispose();
-    for (var controller in _textControllers) {
-      controller.dispose();
-    }
     super.dispose();
   }
 
@@ -65,63 +54,77 @@ class _PreviewPageState extends State<PreviewPage> {
     });
   }
 
-  void _navigateToPlay() {
+  Future<void> _showMessageInputAndPlay() async {
     final template = widget.templates[_currentIndex];
-    final text = _textControllers[_currentIndex].text;
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder:
-            (context) => PlayPage(
-              text: text,
-              fontFamily: template.fontFamily,
-              fontSize: template.fontSize,
-              enableStroke: template.enableStroke,
-              strokeWidth: template.strokeWidth,
-              strokeColor: template.strokeColor,
-              enableOutline: template.enableOutline,
-              outlineWidth: template.outlineWidth,
-              outlineBlur: template.outlineBlur,
-              outlineColor: template.outlineColor,
-              enableShadow: template.enableShadow,
-              shadowOffsetX: template.shadowOffsetX,
-              shadowOffsetY: template.shadowOffsetY,
-              shadowBlur: template.shadowBlur,
-              shadowColor: template.shadowColor,
-              shadowGradientColors: template.shadowGradientColors,
-              shadowGradientRotation: template.shadowGradientRotation,
-              scrollDirection: template.scrollDirection,
-              scrollSpeed: template.scrollSpeed,
-              enableBlink: template.enableBlink,
-              blinkDuration: template.blinkDuration,
-              backgroundColor: template.backgroundColor,
-              backgroundGradientColors: template.backgroundGradientColors,
-              backgroundGradientRotation: template.backgroundGradientRotation,
-              backgroundImage: template.backgroundImage,
-              enableFrame: template.enableFrame,
-              frameImage: template.frameImage,
-              enableFrameGlow: template.enableFrameGlow,
-              frameGlowSize: template.frameGlowSize,
-              frameGlowBlur: template.frameGlowBlur,
-              frameGlowBorderRadius: template.frameGlowBorderRadius,
-              frameGlowColor: template.frameGlowColor,
-              templateIndex: widget.showEditButton ? _currentIndex : null,
-              textColor: template.textColor,
-              enableScroll: template.enableScroll,
-              enableBounceZoom: template.enableBounceZoom,
-              enableBounce: template.enableBounce,
-              bounceDirection: template.bounceDirection,
-              zoomLevel: template.zoomLevel,
-              zoomSpeed: template.zoomSpeed,
-              bounceLevel: template.bounceLevel,
-              bounceSpeed: template.bounceSpeed,
-              enableRotationBounce: template.enableRotationBounce,
-              rotationStart: template.rotationStart,
-              rotationEnd: template.rotationEnd,
-              rotationSpeed: template.rotationSpeed,
-            ),
-      ),
+    // Show message input dialog
+    final text = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (context) => MessageInputBottomSheet(
+            initialText: template.text,
+            buttonLabel: 'Play',
+          ),
     );
+
+    // Navigate to play page if text was entered
+    if (text != null && mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder:
+              (context) => PlayPage(
+                text: text,
+                fontFamily: template.fontFamily,
+                fontSize: template.fontSize,
+                enableStroke: template.enableStroke,
+                strokeWidth: template.strokeWidth,
+                strokeColor: template.strokeColor,
+                enableOutline: template.enableOutline,
+                outlineWidth: template.outlineWidth,
+                outlineBlur: template.outlineBlur,
+                outlineColor: template.outlineColor,
+                enableShadow: template.enableShadow,
+                shadowOffsetX: template.shadowOffsetX,
+                shadowOffsetY: template.shadowOffsetY,
+                shadowBlur: template.shadowBlur,
+                shadowColor: template.shadowColor,
+                shadowGradientColors: template.shadowGradientColors,
+                shadowGradientRotation: template.shadowGradientRotation,
+                scrollDirection: template.scrollDirection,
+                scrollSpeed: template.scrollSpeed,
+                enableBlink: template.enableBlink,
+                blinkDuration: template.blinkDuration,
+                backgroundColor: template.backgroundColor,
+                backgroundGradientColors: template.backgroundGradientColors,
+                backgroundGradientRotation: template.backgroundGradientRotation,
+                backgroundImage: template.backgroundImage,
+                enableFrame: template.enableFrame,
+                frameImage: template.frameImage,
+                enableFrameGlow: template.enableFrameGlow,
+                frameGlowSize: template.frameGlowSize,
+                frameGlowBlur: template.frameGlowBlur,
+                frameGlowBorderRadius: template.frameGlowBorderRadius,
+                frameGlowColor: template.frameGlowColor,
+                templateIndex: widget.showEditButton ? _currentIndex : null,
+                textColor: template.textColor,
+                enableScroll: template.enableScroll,
+                enableBounceZoom: template.enableBounceZoom,
+                enableBounce: template.enableBounce,
+                bounceDirection: template.bounceDirection,
+                zoomLevel: template.zoomLevel,
+                zoomSpeed: template.zoomSpeed,
+                bounceLevel: template.bounceLevel,
+                bounceSpeed: template.bounceSpeed,
+                enableRotationBounce: template.enableRotationBounce,
+                rotationStart: template.rotationStart,
+                rotationEnd: template.rotationEnd,
+                rotationSpeed: template.rotationSpeed,
+              ),
+        ),
+      );
+    }
   }
 
   void _navigateToEdit() {
@@ -205,7 +208,6 @@ class _PreviewPageState extends State<PreviewPage> {
                       itemCount: widget.templates.length,
                       itemBuilder: (context, index) {
                         final template = widget.templates[index];
-                        final textController = _textControllers[index];
                         return Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -214,11 +216,14 @@ class _PreviewPageState extends State<PreviewPage> {
                             ValueListenableBuilder<String>(
                               valueListenable: UserData.defaultPhoneAsset,
                               builder: (context, phoneAsset, child) {
-                                return PreviewWidget(
-                                  template: template,
-                                  text: textController.text,
-                                  showPhoneFrame: true,
-                                  phoneAsset: phoneAsset,
+                                return Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: PreviewWidget(
+                                    template: template,
+                                    text: template.text,
+                                    showPhoneFrame: true,
+                                    phoneAsset: phoneAsset,
+                                  ),
                                 );
                               },
                             ),
@@ -226,28 +231,19 @@ class _PreviewPageState extends State<PreviewPage> {
                             const SizedBox(height: 24),
 
                             Text(
-                              'Enter message to playing or swipe to explore more',
+                              'Swipe to explore more templates',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.white.withOpacity(0.8),
                               ),
                               textAlign: TextAlign.center,
                             ),
-
-                            // Input Area
-                            Container(
-                              padding: const EdgeInsets.all(32.0),
-                              child: AppTextFieldWidget(
-                                controller: textController,
-                                onChanged: (value) => setState(() {}),
-                                hintText: 'Type something...',
-                              ),
-                            ),
                           ],
                         );
                       },
                     ),
                   ),
+                  const SizedBox(height: 40),
                 ],
               ),
 
@@ -261,25 +257,46 @@ class _PreviewPageState extends State<PreviewPage> {
                 right: 0,
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
-                  child: Row(
+                  child: Column(
                     children: [
-                      if (widget.showEditButton)
-                        Expanded(
-                          child: NeonButton(
-                            type: NeonButtonType.tonal,
-                            onPressed: _navigateToEdit,
-                            size: NeonButtonSize.large,
-                            child: Text('Edit'),
-                          ),
-                        ),
-                      if (widget.showEditButton) const SizedBox(width: 16),
-                      Expanded(
-                        child: NeonButton(
-                          onPressed: _navigateToPlay,
-                          size: NeonButtonSize.large,
-                          child: Text('Play'),
-                        ),
+                      NeonButton(
+                        onPressed: _showMessageInputAndPlay,
+                        size: NeonButtonSize.large,
+                        child: Text('Enter message & play'),
                       ),
+                      const SizedBox(height: 16),
+                      if (widget.showEditButton)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: NeonButton(
+                                type: NeonButtonType.tonal,
+                                onPressed: _navigateToEdit,
+                                size: NeonButtonSize.large,
+                                child: Text('Edit'),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: NeonButton(
+                                type: NeonButtonType.tonal,
+                                onPressed: _navigateToEdit,
+                                size: NeonButtonSize.large,
+                                child:
+                                    widget.showEditButton
+                                        ? Text('Duplicate')
+                                        : Text('Duplicate template'),
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        NeonButton(
+                          type: NeonButtonType.tonal,
+                          onPressed: _navigateToEdit,
+                          size: NeonButtonSize.large,
+                          child: Text('Duplicate template'),
+                        ),
                     ],
                   ),
                 ),

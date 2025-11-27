@@ -124,15 +124,6 @@ class PreviewWidget extends StatelessWidget {
                         rotationEnd: template.rotationEnd,
                         rotationSpeed: template.rotationSpeed,
                       ),
-                      if (template.enableFrame && template.frameImage != null)
-                        Positioned.fill(
-                          child: IgnorePointer(
-                            child: Image.asset(
-                              template.frameImage!,
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                        ),
                       if (template.enableFrameGlow)
                         Positioned.fill(
                           child: IgnorePointer(
@@ -141,17 +132,45 @@ class PreviewWidget extends StatelessWidget {
                                 sigmaX: template.frameGlowBlur,
                                 sigmaY: template.frameGlowBlur,
                               ),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                    template.frameGlowBorderRadius,
-                                  ),
-                                  border: Border.all(
-                                    color: template.frameGlowColor,
-                                    width: template.frameGlowSize,
-                                  ),
-                                ),
-                              ),
+                              child:
+                                  template.frameGlowGradientColors != null
+                                      ? CustomPaint(
+                                        painter: _GradientBorderPainter(
+                                          gradient: LinearGradient(
+                                            colors:
+                                                template
+                                                    .frameGlowGradientColors!,
+                                            transform: GradientRotation(
+                                              template.frameGlowGradientRotation *
+                                                  3.14159 /
+                                                  180,
+                                            ),
+                                          ),
+                                          borderRadius:
+                                              template.frameGlowBorderRadius,
+                                          strokeWidth: template.frameGlowSize,
+                                        ),
+                                      )
+                                      : Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            template.frameGlowBorderRadius,
+                                          ),
+                                          border: Border.all(
+                                            color: template.frameGlowColor,
+                                            width: template.frameGlowSize,
+                                          ),
+                                        ),
+                                      ),
+                            ),
+                          ),
+                        ),
+                      if (template.enableFrame && template.frameImage != null)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: Image.asset(
+                              template.frameImage!,
+                              fit: BoxFit.fill,
                             ),
                           ),
                         ),
@@ -174,5 +193,39 @@ class PreviewWidget extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+/// Custom painter to draw a gradient border
+class _GradientBorderPainter extends CustomPainter {
+  final Gradient gradient;
+  final double borderRadius;
+  final double strokeWidth;
+
+  _GradientBorderPainter({
+    required this.gradient,
+    required this.borderRadius,
+    required this.strokeWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
+
+    final paint =
+        Paint()
+          ..shader = gradient.createShader(rect)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth;
+
+    canvas.drawRRect(rrect, paint);
+  }
+
+  @override
+  bool shouldRepaint(_GradientBorderPainter oldDelegate) {
+    return oldDelegate.gradient != gradient ||
+        oldDelegate.borderRadius != borderRadius ||
+        oldDelegate.strokeWidth != strokeWidth;
   }
 }
