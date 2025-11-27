@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:ledtemplate/widgets/neon_button.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'data/user_data.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
@@ -110,6 +115,25 @@ class SettingsTab extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
+                  // Dữ liệu Section
+                  _SectionHeader(title: 'Dữ liệu'),
+                  _SettingItem(
+                    title: 'Export templates',
+                    trailing: Icon(
+                      Icons.file_download_outlined,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.3),
+                    ),
+                    onTap: () => _exportTemplates(context),
+                  ),
+                  Divider(
+                    color: Theme.of(context).colorScheme.surface,
+                    thickness: 8,
+                    height: 8,
+                  ),
+                  const SizedBox(height: 24),
+
                   // Đóng góp Section
                   _SectionHeader(title: 'Đóng góp'),
                   _SettingItem(
@@ -159,6 +183,65 @@ class SettingsTab extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _exportTemplates(BuildContext context) async {
+    try {
+      // Get user templates
+      final templates = UserData.savedTemplates.value;
+
+      if (templates.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('No templates to export'),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Convert to JSON
+      final jsonData = {
+        'templates': templates.map((template) => template.toJson()).toList(),
+        'exportedAt': DateTime.now().toIso8601String(),
+        'version': '1.0',
+      };
+
+      final jsonString = const JsonEncoder.withIndent('  ').convert(jsonData);
+
+      // Save to temporary file
+      final directory = await getTemporaryDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final file = File('${directory.path}/my_templates_$timestamp.json');
+      await file.writeAsString(jsonString);
+
+      // Share the file
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        subject: 'My LED Templates',
+        text: 'Export of ${templates.length} template(s)',
+      );
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Exported ${templates.length} template(s)'),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Export failed: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
   }
 }
 
