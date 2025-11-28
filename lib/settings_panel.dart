@@ -174,7 +174,6 @@ class SettingsPanel extends StatelessWidget {
             DropdownMenuItem(value: 'Glowtone', child: Text('Glowtone')),
             DropdownMenuItem(value: 'Honeyline', child: Text('Honeyline')),
             DropdownMenuItem(value: 'Klaxons', child: Text('Klaxons')),
-            DropdownMenuItem(value: 'Mohaw', child: Text('Mohaw')),
             DropdownMenuItem(value: 'NeonBines', child: Text('Neon Bines')),
             DropdownMenuItem(value: 'NeonBlitz', child: Text('Neon Blitz')),
             DropdownMenuItem(value: 'NeonDerthaw', child: Text('Neon Derthaw')),
@@ -188,6 +187,13 @@ class SettingsPanel extends StatelessWidget {
               value: 'WonderfulAustralia',
               child: Text('Wonderful Australia'),
             ),
+            DropdownMenuItem(value: 'TenPixel', child: Text('10 Pixel')),
+            DropdownMenuItem(value: 'AlbertSans', child: Text('Albert Sans')),
+            DropdownMenuItem(value: 'DynaPuff', child: Text('Dyna Puff')),
+            DropdownMenuItem(value: 'Creepster', child: Text('Creepster')),
+            DropdownMenuItem(value: 'Mali', child: Text('Mali')),
+            DropdownMenuItem(value: 'Pacifico', child: Text('Pacifico')),
+            DropdownMenuItem(value: 'PlaypenSans', child: Text('Playpen Sans')),
           ],
           onChanged: (v) => onFontFamilyChanged(v!),
         ),
@@ -404,14 +410,14 @@ class SettingsPanel extends StatelessWidget {
             spacing: 8,
             children: [
               _ImageOption(
-                assetPath: 'assets/frames/frame_1.png',
-                isSelected: frameImage == 'assets/frames/frame_1.png',
-                onTap: () => onFrameImageChanged('assets/frames/frame_1.png'),
+                assetPath: 'assets/frames/frame_1.json',
+                isSelected: frameImage == 'assets/frames/frame_1.json',
+                onTap: () => onFrameImageChanged('assets/frames/frame_1.json'),
               ),
               _ImageOption(
-                assetPath: 'assets/frames/frame_2.png',
-                isSelected: frameImage == 'assets/frames/frame_2.png',
-                onTap: () => onFrameImageChanged('assets/frames/frame_2.png'),
+                assetPath: 'assets/frames/frame_2.json',
+                isSelected: frameImage == 'assets/frames/frame_2.json',
+                onTap: () => onFrameImageChanged('assets/frames/frame_2.json'),
               ),
             ],
           ),
@@ -533,6 +539,9 @@ class _ImageOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Convert frame path to thumbnail path (frame_1.json -> frame_1.jpg)
+    final thumbnailPath = assetPath.replaceAll('.json', '.jpg');
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -541,10 +550,11 @@ class _ImageOption extends StatelessWidget {
         decoration: BoxDecoration(
           border: isSelected ? Border.all(color: Colors.blue, width: 3) : null,
           borderRadius: BorderRadius.circular(8),
-          image: DecorationImage(
-            image: AssetImage(assetPath),
-            fit: BoxFit.cover,
-          ),
+          color: Colors.black,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.asset(thumbnailPath, fit: BoxFit.cover),
         ),
       ),
     );

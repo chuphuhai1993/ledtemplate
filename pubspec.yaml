@@ -39,6 +39,7 @@ dependencies:
   flutter_svg: ^2.0.10
   share_plus: ^10.1.3
   path_provider: ^2.1.5
+  lottie: ^3.2.0
 
 dev_dependencies:
   flutter_test:
@@ -104,9 +105,6 @@ flutter:
     - family: Klaxons
       fonts:
         - asset: assets/fonts/klaxons.otf
-    - family: Mohaw
-      fonts:
-        - asset: assets/fonts/mohaw.otf
     - family: NeonBines
       fonts:
         - asset: assets/fonts/neonbines.ttf
@@ -137,3 +135,24 @@ flutter:
     - family: WonderfulAustralia
       fonts:
         - asset: assets/fonts/wonderfulaustralia.otf
+    - family: TenPixel
+      fonts:
+        - asset: assets/fonts/10pixel.ttf
+    - family: AlbertSans
+      fonts:
+        - asset: assets/fonts/albertsans.ttf
+    - family: DynaPuff
+      fonts:
+        - asset: assets/fonts/dynapuff.ttf
+    - family: Creepster
+      fonts:
+        - asset: assets/fonts/creepster.ttf
+    - family: Mali
+      fonts:
+        - asset: assets/fonts/mali.ttf
+    - family: Pacifico
+      fonts:
+        - asset: assets/fonts/pacifico.ttf
+    - family: PlaypenSans
+      fonts:
+        - asset: assets/fonts/playpensans.ttf

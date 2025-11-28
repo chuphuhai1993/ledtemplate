@@ -156,7 +156,7 @@ class _EditorPageState extends State<EditorPage> {
     _backgroundImage = t?.backgroundImage;
 
     _enableFrame = t?.enableFrame ?? false;
-    _frameImage = t?.frameImage ?? 'assets/frames/frame_1.png';
+    _frameImage = t?.frameImage ?? 'assets/frames/frame_1.json';
 
     _enableFrameGlow = t?.enableFrameGlow ?? false;
     _frameGlowSize = t?.frameGlowSize ?? 5.0;
@@ -1897,7 +1897,10 @@ class _BackdropSettingsPanelState extends State<_BackdropSettingsPanel> {
 
       final frames =
           manifestMap.keys
-              .where((String key) => key.startsWith('assets/frames/'))
+              .where(
+                (String key) =>
+                    key.startsWith('assets/frames/') && key.endsWith('.json'),
+              )
               .toList();
 
       if (mounted) {
@@ -2176,6 +2179,9 @@ class _ImageOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Convert frame JSON path to thumbnail JPG path
+    final thumbnailPath = assetPath.replaceAll('.json', '.jpg');
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -2196,7 +2202,7 @@ class _ImageOption extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
             image: DecorationImage(
-              image: AssetImage(assetPath),
+              image: AssetImage(thumbnailPath),
               fit: BoxFit.cover,
             ),
           ),
@@ -2225,7 +2231,6 @@ class _FontPickerBottomSheet extends StatelessWidget {
     'Glowtone': 'Glowtone',
     'Honeyline': 'Honeyline',
     'Klaxons': 'Klaxons',
-    'Mohaw': 'Mohaw',
     'NeonBines': 'Neon Bines',
     'NeonBlitz': 'Neon Blitz',
     'NeonDerthaw': 'Neon Derthaw',
@@ -2236,6 +2241,13 @@ class _FontPickerBottomSheet extends StatelessWidget {
     'SunsetClub': 'Sunset Club',
     'Wednesline': 'Wednesline',
     'WonderfulAustralia': 'Wonderful Australia',
+    'TenPixel': '10 Pixel',
+    'AlbertSans': 'Albert Sans',
+    'DynaPuff': 'Dyna Puff',
+    'Creepster': 'Creepster',
+    'Mali': 'Mali',
+    'Pacifico': 'Pacifico',
+    'PlaypenSans': 'Playpen Sans',
   };
 
   @override
@@ -2324,7 +2336,6 @@ String _getFontDisplayName(String fontFamily) {
     'Glowtone': 'Glowtone',
     'Honeyline': 'Honeyline',
     'Klaxons': 'Klaxons',
-    'Mohaw': 'Mohaw',
     'NeonBines': 'Neon Bines',
     'NeonBlitz': 'Neon Blitz',
     'NeonDerthaw': 'Neon Derthaw',
@@ -2335,6 +2346,13 @@ String _getFontDisplayName(String fontFamily) {
     'SunsetClub': 'Sunset Club',
     'Wednesline': 'Wednesline',
     'WonderfulAustralia': 'Wonderful Australia',
+    'TenPixel': '10 Pixel',
+    'AlbertSans': 'Albert Sans',
+    'DynaPuff': 'Dyna Puff',
+    'Creepster': 'Creepster',
+    'Mali': 'Mali',
+    'Pacifico': 'Pacifico',
+    'PlaypenSans': 'Playpen Sans',
   };
   return fontMap[fontFamily] ?? fontFamily;
 }

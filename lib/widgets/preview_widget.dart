@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:lottie/lottie.dart';
 import '../models/template.dart';
 import '../scrolling_text_renderer.dart';
 
@@ -168,10 +169,7 @@ class PreviewWidget extends StatelessWidget {
                       if (template.enableFrame && template.frameImage != null)
                         Positioned.fill(
                           child: IgnorePointer(
-                            child: Image.asset(
-                              template.frameImage!,
-                              fit: BoxFit.fill,
-                            ),
+                            child: _buildFrame(template.frameImage!),
                           ),
                         ),
                     ],
@@ -193,6 +191,11 @@ class PreviewWidget extends StatelessWidget {
         },
       ),
     );
+  }
+
+  /// Helper method to build frame widget (all frames are Lottie now)
+  Widget _buildFrame(String framePath) {
+    return Lottie.asset(framePath, fit: BoxFit.fill, repeat: true);
   }
 }
 

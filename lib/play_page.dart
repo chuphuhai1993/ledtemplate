@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:flutter/services.dart';
+import 'package:lottie/lottie.dart';
 import 'models/template.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'scrolling_text_renderer.dart';
@@ -411,10 +412,7 @@ class _PlayPageState extends State<PlayPage> {
                   if (widget.enableFrame && widget.frameImage != null)
                     Positioned.fill(
                       child: IgnorePointer(
-                        child: Image.asset(
-                          widget.frameImage!,
-                          fit: BoxFit.fill,
-                        ),
+                        child: _buildFrame(widget.frameImage!),
                       ),
                     ),
 
@@ -561,6 +559,11 @@ class _PlayPageState extends State<PlayPage> {
         ),
       ),
     );
+  }
+
+  /// Helper method to build frame widget (all frames are Lottie now)
+  Widget _buildFrame(String framePath) {
+    return Lottie.asset(framePath, fit: BoxFit.fill, repeat: true);
   }
 }
 

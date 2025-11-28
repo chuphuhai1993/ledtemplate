@@ -21,7 +21,7 @@ class TemplateData {
           backgroundColor: Colors.black,
           backgroundImage: 'assets/backgrounds/background_1.jpg',
           enableFrame: true,
-          frameImage: 'assets/frames/frame_1.png',
+          frameImage: 'assets/frames/frame_1.json',
           scrollSpeed: 150,
         ),
         Template(
