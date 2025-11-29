@@ -194,6 +194,7 @@ class SettingsPanel extends StatelessWidget {
             DropdownMenuItem(value: 'Mali', child: Text('Mali')),
             DropdownMenuItem(value: 'Pacifico', child: Text('Pacifico')),
             DropdownMenuItem(value: 'PlaypenSans', child: Text('Playpen Sans')),
+            DropdownMenuItem(value: 'Anton', child: Text('Anton')),
           ],
           onChanged: (v) => onFontFamilyChanged(v!),
         ),

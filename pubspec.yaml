@@ -156,3 +156,6 @@ flutter:
     - family: PlaypenSans
       fonts:
         - asset: assets/fonts/playpensans.ttf
+    - family: Anton
+      fonts:
+        - asset: assets/fonts/anton.ttf

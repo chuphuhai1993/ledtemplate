@@ -1,7 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:ledtemplate/widgets/app_appbar_widget.dart';
+import 'package:ledtemplate/widgets/blur_button.dart';
 import 'package:ledtemplate/widgets/preview_widget.dart';
 import 'package:ledtemplate/widgets/message_input_bottom_sheet.dart';
 import 'models/template.dart';
@@ -66,6 +68,7 @@ class _PreviewPageState extends State<PreviewPage> {
           (context) => MessageInputBottomSheet(
             initialText: template.text,
             buttonLabel: 'Play',
+            showIcon: true,
           ),
     );
 
@@ -78,13 +81,20 @@ class _PreviewPageState extends State<PreviewPage> {
                 text: text,
                 fontFamily: template.fontFamily,
                 fontSize: template.fontSize,
+                textColor: template.textColor,
+                textGradientColors: template.textGradientColors,
+                textGradientRotation: template.textGradientRotation,
                 enableStroke: template.enableStroke,
                 strokeWidth: template.strokeWidth,
                 strokeColor: template.strokeColor,
+                strokeGradientColors: template.strokeGradientColors,
+                strokeGradientRotation: template.strokeGradientRotation,
                 enableOutline: template.enableOutline,
                 outlineWidth: template.outlineWidth,
                 outlineBlur: template.outlineBlur,
                 outlineColor: template.outlineColor,
+                outlineGradientColors: template.outlineGradientColors,
+                outlineGradientRotation: template.outlineGradientRotation,
                 enableShadow: template.enableShadow,
                 shadowOffsetX: template.shadowOffsetX,
                 shadowOffsetY: template.shadowOffsetY,
@@ -107,8 +117,9 @@ class _PreviewPageState extends State<PreviewPage> {
                 frameGlowBlur: template.frameGlowBlur,
                 frameGlowBorderRadius: template.frameGlowBorderRadius,
                 frameGlowColor: template.frameGlowColor,
+                frameGlowGradientColors: template.frameGlowGradientColors,
+                frameGlowGradientRotation: template.frameGlowGradientRotation,
                 templateIndex: widget.showEditButton ? _currentIndex : null,
-                textColor: template.textColor,
                 enableScroll: template.enableScroll,
                 enableBounceZoom: template.enableBounceZoom,
                 enableBounce: template.enableBounce,
@@ -248,7 +259,20 @@ class _PreviewPageState extends State<PreviewPage> {
               ),
 
               // Appbar
-              Positioned(top: 0, left: 0, right: 0, child: AppAppBarWidget()),
+              Positioned(
+                top: 56,
+                left: 16,
+                child: BlurButton(
+                  icon: Icon(
+                    Icons.close_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
 
               // Buttons
               Positioned(
@@ -262,7 +286,19 @@ class _PreviewPageState extends State<PreviewPage> {
                       NeonButton(
                         onPressed: _showMessageInputAndPlay,
                         size: NeonButtonSize.large,
-                        child: Text('Enter message & play'),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset(
+                              'assets/icons/icon_cursor.svg',
+                              width: 20,
+                              height: 20,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Text('Enter message & play'),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 16),
                       if (widget.showEditButton)

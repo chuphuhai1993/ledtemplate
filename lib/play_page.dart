@@ -8,6 +8,7 @@ import 'package:screen_brightness/screen_brightness.dart';
 import 'scrolling_text_renderer.dart';
 import 'widgets/bottom_sheet_container_widget.dart';
 import 'widgets/neon_button.dart';
+import 'widgets/blur_button.dart';
 
 class PlayPage extends StatefulWidget {
   final String text;
@@ -469,17 +470,15 @@ class _PlayPageState extends State<PlayPage> {
                             top: 24,
                             left: 16,
                             child: SafeArea(
-                              child: IconButton(
-                                padding: const EdgeInsets.all(16),
+                              child: BlurButton(
+                                onPressed: _showCloseExploreBottomSheet,
                                 icon: const Icon(
-                                  Icons.close,
+                                  Icons.close_rounded,
                                   color: Colors.white,
                                   size: 24,
                                 ),
-                                onPressed: _showCloseExploreBottomSheet,
-                                style: IconButton.styleFrom(
-                                  backgroundColor: Colors.black54,
-                                ),
+                                size: 48,
+                                blurAmount: 10,
                               ),
                             ),
                           ),
@@ -489,16 +488,12 @@ class _PlayPageState extends State<PlayPage> {
                           top: 24,
                           right: 16,
                           child: SafeArea(
-                            child: IconButton(
-                              padding: const EdgeInsets.all(16),
+                            child: BlurButton(
+                              onPressed: _toggleLock,
                               icon: Icon(
                                 _isLocked ? Icons.lock : Icons.lock_open,
                                 color: Colors.white,
                                 size: 24,
-                              ),
-                              onPressed: _toggleLock,
-                              style: IconButton.styleFrom(
-                                backgroundColor: Colors.black54,
                               ),
                             ),
                           ),

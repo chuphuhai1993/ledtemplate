@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ledtemplate/widgets/app_appbar_widget.dart';
 import 'package:ledtemplate/widgets/app_slider_widget.dart';
 import 'package:ledtemplate/widgets/icon_chip_button_widget.dart';
@@ -884,7 +885,7 @@ class _EffectSettingsPanel extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      icon: Icons.arrow_circle_right_outlined,
+                      iconAsset: 'assets/images/icon_scroll.svg',
                       title: 'Scroll',
                     ),
                     AppSwitchWidget(
@@ -919,7 +920,7 @@ class _EffectSettingsPanel extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconChipButtonWidget(
-                                icon: Icons.arrow_back,
+                                icon: Icons.arrow_back_rounded,
                                 isActive:
                                     scrollDirection ==
                                     ScrollDirection.rightToLeft,
@@ -930,7 +931,7 @@ class _EffectSettingsPanel extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               IconChipButtonWidget(
-                                icon: Icons.arrow_upward,
+                                icon: Icons.arrow_upward_rounded,
                                 isActive:
                                     scrollDirection ==
                                     ScrollDirection.bottomToTop,
@@ -941,7 +942,7 @@ class _EffectSettingsPanel extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               IconChipButtonWidget(
-                                icon: Icons.arrow_downward,
+                                icon: Icons.arrow_downward_rounded,
                                 isActive:
                                     scrollDirection ==
                                     ScrollDirection.topToBottom,
@@ -952,7 +953,7 @@ class _EffectSettingsPanel extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               IconChipButtonWidget(
-                                icon: Icons.arrow_forward,
+                                icon: Icons.arrow_forward_rounded,
                                 isActive:
                                     scrollDirection ==
                                     ScrollDirection.leftToRight,
@@ -1002,7 +1003,10 @@ class _EffectSettingsPanel extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _SectionTitle(icon: Icons.zoom_in, title: 'Zoom'),
+                    _SectionTitle(
+                      iconAsset: 'assets/images/icon_zoom.svg',
+                      title: 'Zoom',
+                    ),
                     AppSwitchWidget(
                       value: enableBounceZoom,
                       onChanged: onEnableBounceZoomChanged,
@@ -1073,7 +1077,10 @@ class _EffectSettingsPanel extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _SectionTitle(icon: Icons.animation, title: 'Bounce'),
+                    _SectionTitle(
+                      iconAsset: 'assets/images/icon_bounce.svg',
+                      title: 'Bounce',
+                    ),
                     AppSwitchWidget(
                       value: enableBounce,
                       onChanged: onEnableBounceChanged,
@@ -1106,7 +1113,7 @@ class _EffectSettingsPanel extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconChipButtonWidget(
-                                icon: Icons.swap_vert,
+                                icon: Icons.swap_vert_rounded,
                                 isActive:
                                     bounceDirection == BounceDirection.vertical,
                                 onPressed:
@@ -1116,7 +1123,7 @@ class _EffectSettingsPanel extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               IconChipButtonWidget(
-                                icon: Icons.swap_horiz,
+                                icon: Icons.swap_horiz_rounded,
                                 isActive:
                                     bounceDirection ==
                                     BounceDirection.horizontal,
@@ -1179,7 +1186,10 @@ class _EffectSettingsPanel extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _SectionTitle(icon: Icons.flash_on, title: 'Blink'),
+                    _SectionTitle(
+                      iconAsset: 'assets/images/icon_blink.svg',
+                      title: 'Blink',
+                    ),
                     AppSwitchWidget(
                       value: enableBlink,
                       onChanged: onEnableBlinkChanged,
@@ -1238,7 +1248,7 @@ class _EffectSettingsPanel extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      icon: Icons.rotate_90_degrees_ccw,
+                      iconAsset: 'assets/images/icon_rotate.svg',
                       title: 'Rotation',
                     ),
                     AppSwitchWidget(
@@ -1465,7 +1475,10 @@ class _TextSettingsPanel extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _SectionTitle(icon: Icons.font_download_outlined, title: 'Font'),
+              _SectionTitle(
+                iconAsset: 'assets/images/icon_font.svg',
+                title: 'Font',
+              ),
               SelectButtonWidget(
                 value: _getFontDisplayName(fontFamily),
                 borderColor: Theme.of(
@@ -1504,7 +1517,7 @@ class _TextSettingsPanel extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _SectionTitle(
-                icon: Icons.format_size_outlined,
+                iconAsset: 'assets/images/icon_font_size.svg',
                 title: 'Size',
                 value: '${fontSize.toStringAsFixed(0)}%',
               ),
@@ -1533,7 +1546,7 @@ class _TextSettingsPanel extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: _SectionTitle(
-                  icon: Icons.palette_outlined,
+                  iconAsset: 'assets/images/icon_color.svg',
                   title: 'Color',
                   value:
                       textGradientColors != null
@@ -1571,7 +1584,7 @@ class _TextSettingsPanel extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      icon: Icons.border_outer_outlined,
+                      iconAsset: 'assets/images/icon_stroke.svg',
                       title: 'Stroke',
                     ),
                     AppSwitchWidget(
@@ -1646,7 +1659,10 @@ class _TextSettingsPanel extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _SectionTitle(icon: Icons.blur_on_outlined, title: 'Glow'),
+                    _SectionTitle(
+                      iconAsset: 'assets/images/icon_glow.svg',
+                      title: 'Glow',
+                    ),
                     AppSwitchWidget(
                       value: enableOutline,
                       onChanged: onEnableOutlineChanged,
@@ -1731,7 +1747,10 @@ class _TextSettingsPanel extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _SectionTitle(icon: Icons.layers_outlined, title: 'Shadow'),
+                    _SectionTitle(
+                      iconAsset: 'assets/images/icon_shadow.svg',
+                      title: 'Shadow',
+                    ),
                     AppSwitchWidget(
                       value: enableShadow,
                       onChanged: onEnableShadowChanged,
@@ -1945,7 +1964,7 @@ class _BackdropSettingsPanelState extends State<_BackdropSettingsPanel> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      icon: Icons.image_outlined,
+                      iconAsset: 'assets/images/icon_background.svg',
                       title: 'Background',
                     ),
                     Row(
@@ -2027,7 +2046,7 @@ class _BackdropSettingsPanelState extends State<_BackdropSettingsPanel> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      icon: Icons.photo_size_select_large_outlined,
+                      iconAsset: 'assets/images/icon_frame.svg',
                       title: 'Frame',
                     ),
                     AppSwitchWidget(
@@ -2081,7 +2100,10 @@ class _BackdropSettingsPanelState extends State<_BackdropSettingsPanel> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _SectionTitle(icon: Icons.blur_on, title: 'Frame Glow'),
+                    _SectionTitle(
+                      iconAsset: 'assets/images/icon_glow.svg',
+                      title: 'Frame Glow',
+                    ),
                     AppSwitchWidget(
                       value: widget.enableFrameGlow,
                       onChanged: widget.onEnableFrameGlowChanged,
@@ -2248,6 +2270,7 @@ class _FontPickerBottomSheet extends StatelessWidget {
     'Mali': 'Mali',
     'Pacifico': 'Pacifico',
     'PlaypenSans': 'Playpen Sans',
+    'Anton': 'Anton',
   };
 
   @override
@@ -2353,6 +2376,7 @@ String _getFontDisplayName(String fontFamily) {
     'Mali': 'Mali',
     'Pacifico': 'Pacifico',
     'PlaypenSans': 'Playpen Sans',
+    'Anton': 'Anton',
   };
   return fontMap[fontFamily] ?? fontFamily;
 }
@@ -2385,17 +2409,29 @@ String _getScrollDirectionName(ScrollDirection direction) {
 }
 
 class _SectionTitle extends StatelessWidget {
-  final IconData icon;
+  final String iconAsset;
   final String title;
   final String? value; // Optional value to display
 
-  const _SectionTitle({required this.icon, required this.title, this.value});
+  const _SectionTitle({
+    required this.iconAsset,
+    required this.title,
+    this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 20),
+        SvgPicture.asset(
+          iconAsset,
+          width: 20,
+          height: 20,
+          colorFilter: ColorFilter.mode(
+            Theme.of(context).colorScheme.onSurface,
+            BlendMode.srcIn,
+          ),
+        ),
         const SizedBox(width: 8),
         Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         if (value != null) ...[

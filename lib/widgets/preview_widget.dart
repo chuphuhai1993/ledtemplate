@@ -13,6 +13,7 @@ class PreviewWidget extends StatelessWidget {
   final String text;
   final bool showPhoneFrame;
   final bool enableEffect;
+  final bool enableFrameAnimation;
   final String? phoneAsset;
 
   const PreviewWidget({
@@ -21,6 +22,7 @@ class PreviewWidget extends StatelessWidget {
     required this.text,
     this.showPhoneFrame = false,
     this.enableEffect = true,
+    this.enableFrameAnimation = true,
     this.phoneAsset,
   });
 
@@ -195,7 +197,12 @@ class PreviewWidget extends StatelessWidget {
 
   /// Helper method to build frame widget (all frames are Lottie now)
   Widget _buildFrame(String framePath) {
-    return Lottie.asset(framePath, fit: BoxFit.fill, repeat: true);
+    return Lottie.asset(
+      framePath,
+      fit: BoxFit.fill,
+      repeat: enableFrameAnimation,
+      animate: enableFrameAnimation,
+    );
   }
 }
 

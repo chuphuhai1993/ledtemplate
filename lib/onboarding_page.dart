@@ -3,7 +3,7 @@ import 'package:ledtemplate/widgets/app_text_field_widget.dart';
 import 'widgets/neon_button.dart';
 import 'data/user_data.dart';
 import 'data/template_data.dart';
-import 'home_page.dart';
+import 'congratulations_page.dart';
 import 'play_page.dart';
 import 'models/template.dart';
 import 'widgets/preview_widget.dart';
@@ -116,7 +116,9 @@ class _OnboardingPageState extends State<OnboardingPage>
               rotationSpeed: template.rotationSpeed,
               onClose: () {
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => const HomePage()),
+                  MaterialPageRoute(
+                    builder: (context) => const CongratulationsPage(),
+                  ),
                 );
               },
             ),
@@ -301,9 +303,11 @@ class _OnboardingPageState extends State<OnboardingPage>
                       children:
                           categories.map((category) {
                             return GridView.builder(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                                vertical: 24,
+                              padding: const EdgeInsets.fromLTRB(
+                                16.0,
+                                24,
+                                16.0,
+                                100,
                               ),
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
@@ -381,7 +385,7 @@ class _OnboardingPageState extends State<OnboardingPage>
                     ),
                   ),
                   Positioned(
-                    bottom: 24,
+                    bottom: 16,
                     left: 24,
                     right: 24,
                     child: NeonButton(

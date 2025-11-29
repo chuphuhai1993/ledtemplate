@@ -116,23 +116,23 @@ class SettingsTab extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Dữ liệu Section
-                  _SectionHeader(title: 'Dữ liệu'),
-                  _SettingItem(
-                    title: 'Export templates',
-                    trailing: Icon(
-                      Icons.file_download_outlined,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withOpacity(0.3),
-                    ),
-                    onTap: () => _exportTemplates(context),
-                  ),
-                  Divider(
-                    color: Theme.of(context).colorScheme.surface,
-                    thickness: 8,
-                    height: 8,
-                  ),
-                  const SizedBox(height: 24),
+                  // _SectionHeader(title: 'Dữ liệu'),
+                  // _SettingItem(
+                  //   title: 'Export templates',
+                  //   trailing: Icon(
+                  //     Icons.file_download_outlined,
+                  //     color: Theme.of(
+                  //       context,
+                  //     ).colorScheme.onSurface.withOpacity(0.3),
+                  //   ),
+                  //   onTap: () => _exportTemplates(context),
+                  // ),
+                  // Divider(
+                  //   color: Theme.of(context).colorScheme.surface,
+                  //   thickness: 8,
+                  //   height: 8,
+                  // ),
+                  // const SizedBox(height: 24),
 
                   // Đóng góp Section
                   _SectionHeader(title: 'Đóng góp'),
@@ -289,7 +289,7 @@ class _SettingItem extends StatelessWidget {
       trailing:
           trailing ??
           Icon(
-            Icons.chevron_right,
+            Icons.chevron_right_rounded,
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
           ),
       onTap: onTap,

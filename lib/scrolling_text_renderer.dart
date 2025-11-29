@@ -618,7 +618,10 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
       Rect bounds,
     ) {
       if (colors == null || colors.isEmpty) return null;
-      if (bounds.isEmpty) return null;
+
+      // Use a default size if bounds are empty
+      final effectiveBounds =
+          bounds.isEmpty ? Rect.fromLTWH(0, 0, 1000, 1000) : bounds;
 
       // Ensure at least 2 colors for LinearGradient
       final effectiveColors =
@@ -629,7 +632,7 @@ class _ScrollingTextRendererState extends State<ScrollingTextRenderer>
         transform: GradientRotation(rotation * 3.14159 / 180),
       );
 
-      return gradient.createShader(bounds);
+      return gradient.createShader(effectiveBounds);
     }
 
     TextStyle baseStyle = TextStyle(

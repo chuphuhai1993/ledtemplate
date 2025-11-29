@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:ledtemplate/widgets/bottom_sheet_container_widget.dart';
 import 'package:ledtemplate/widgets/neon_button.dart';
 
@@ -11,10 +12,13 @@ class MessageInputBottomSheet extends StatefulWidget {
   /// Label for the action button (e.g., "Play", "Save")
   final String buttonLabel;
 
+  final bool showIcon;
+
   const MessageInputBottomSheet({
     super.key,
     required this.initialText,
     required this.buttonLabel,
+    this.showIcon = false,
   });
 
   @override
@@ -91,14 +95,27 @@ class _MessageInputBottomSheetState extends State<MessageInputBottomSheet> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                   child: SizedBox(
-                    width: 160,
+                    width: 200,
                     child: NeonButton(
                       size: NeonButtonSize.large,
                       type: NeonButtonType.primary,
                       onPressed: () {
                         Navigator.pop(context, _controller.text);
                       },
-                      child: Text(widget.buttonLabel),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (widget.showIcon == true)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: Icon(
+                                Icons.play_circle_rounded,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          Text(widget.buttonLabel),
+                        ],
+                      ),
                     ),
                   ),
                 ),

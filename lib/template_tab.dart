@@ -77,7 +77,7 @@ class _TemplateTabState extends State<TemplateTab>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.add_circle,
+                          Icons.add_circle_rounded,
                           size: 20,
                           color: Theme.of(context).colorScheme.primary,
                         ),
@@ -121,12 +121,12 @@ class _TemplateTabState extends State<TemplateTab>
             children:
                 categories.map((category) {
                   return GridView.builder(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(24.0),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
+                          crossAxisCount: 1,
+                          crossAxisSpacing: 24,
+                          mainAxisSpacing: 24,
                           childAspectRatio: 16 / 7.5,
                         ),
                     itemCount: category.templates.length,
@@ -161,6 +161,7 @@ class _TemplateTabState extends State<TemplateTab>
                               template: template,
                               text: template.text,
                               enableEffect: false,
+                              enableFrameAnimation: false,
                             ),
                           ),
                         ),

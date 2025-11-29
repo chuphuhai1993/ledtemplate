@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ledtemplate/widgets/pro_button_widget.dart';
 import 'widgets/preview_widget.dart';
 import 'widgets/neon_button.dart';
@@ -85,12 +86,10 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.folder_open,
-                            size: 64,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withOpacity(0.4),
+                          SvgPicture.asset(
+                            'assets/images/illus_empty.svg',
+                            width: 100,
+                            height: 100,
                           ),
                           const SizedBox(height: 16),
                           Text(
@@ -120,7 +119,7 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(
-                                      Icons.add_circle,
+                                      Icons.add_circle_rounded,
                                       size: 20,
                                       color:
                                           Theme.of(context).colorScheme.primary,
@@ -184,7 +183,7 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.add_circle,
+                              Icons.add_circle_rounded,
                               size: 20,
                               color: Theme.of(context).colorScheme.primary,
                             ),
@@ -198,13 +197,13 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                 ),
                 // Grid of Templates
                 SliverPadding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(16.0),
                   sliver: SliverGrid(
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
                           childAspectRatio: 16 / 7.5,
                         ),
                     delegate: SliverChildBuilderDelegate((context, index) {
@@ -242,6 +241,7 @@ class _MyTemplatesTabState extends State<MyTemplatesTab> {
                                   template: template,
                                   text: template.text,
                                   enableEffect: false,
+                                  enableFrameAnimation: false,
                                 ),
                               ),
                             ),

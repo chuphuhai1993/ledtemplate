@@ -30,7 +30,11 @@ class ResultPage extends StatelessWidget {
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.check, color: Colors.black, size: 48),
+                  child: Icon(
+                    Icons.check_rounded,
+                    color: Colors.black,
+                    size: 48,
+                  ),
                 ),
                 const SizedBox(height: 32),
 
@@ -133,7 +137,17 @@ class ResultPage extends StatelessWidget {
                         ),
                       );
                     },
-                    child: const Text('Play now'),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.play_circle_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(width: 8),
+                        Text('Play now'),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),

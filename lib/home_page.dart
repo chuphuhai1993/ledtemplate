@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'template_tab.dart';
 import 'my_templates_tab.dart';
 import 'settings_tab.dart';
@@ -30,20 +31,50 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
-        iconSize: 20,
+        iconSize: 24,
         backgroundColor: Theme.of(context).colorScheme.background,
         selectedFontSize: 12,
-        items: const <BottomNavigationBarItem>[
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
+            icon: SvgPicture.asset(
+              'assets/icons/icon_template.svg',
+              width: 20,
+              height: 20,
+              colorFilter: ColorFilter.mode(
+                _selectedIndex == 0
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                BlendMode.srcIn,
+              ),
+            ),
             label: 'Templates',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.folder),
+            icon: SvgPicture.asset(
+              'assets/icons/icon_my_template.svg',
+              width: 20,
+              height: 20,
+              colorFilter: ColorFilter.mode(
+                _selectedIndex == 1
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                BlendMode.srcIn,
+              ),
+            ),
             label: 'My Templates',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: SvgPicture.asset(
+              'assets/icons/icon_settings.svg',
+              width: 20,
+              height: 20,
+              colorFilter: ColorFilter.mode(
+                _selectedIndex == 2
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                BlendMode.srcIn,
+              ),
+            ),
             label: 'Settings',
           ),
         ],

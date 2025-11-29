@@ -112,7 +112,7 @@ class Template {
     this.shadowColor = Colors.black,
     this.shadowGradientColors,
     this.shadowGradientRotation = 0,
-    this.enableScroll = true,
+    this.enableScroll = false,
     this.enableBounceZoom = false,
     this.enableBounce = false,
     this.bounceDirection = BounceDirection.horizontal,
