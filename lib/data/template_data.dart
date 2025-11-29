@@ -9,7 +9,7 @@ class TemplateData {
       templates: [
         Template(
           text: 'LIVE CONCERT TONIGHT!',
-          fontFamily: 'NeonClub',
+          fontFamily: 'NeonSans',
           fontSize: 35,
           enableOutline: true,
           outlineWidth: 2.0,
@@ -40,7 +40,7 @@ class TemplateData {
         ),
         Template(
           text: 'ROCK N ROLL',
-          fontFamily: 'Roboto', // Or a custom rock font if available
+          fontFamily: 'NeonBlitz',
           fontSize: 40,
           enableStroke: true,
           strokeWidth: 4.0,
@@ -58,7 +58,7 @@ class TemplateData {
       templates: [
         Template(
           text: 'MERRY CHRISTMAS!',
-          fontFamily: 'NeonClub',
+          fontFamily: 'NeonLight',
           fontSize: 32,
           enableOutline: true,
           outlineWidth: 2.0,
@@ -83,7 +83,7 @@ class TemplateData {
         ),
         Template(
           text: 'LET IT SNOW',
-          fontFamily: 'Roboto',
+          fontFamily: 'Glowtone',
           fontSize: 35,
           enableOutline: true,
           outlineColor: Colors.white,
@@ -98,7 +98,7 @@ class TemplateData {
       templates: [
         Template(
           text: 'I LOVE YOU ❤️',
-          fontFamily: 'NeonClub',
+          fontFamily: 'Pacifico',
           fontSize: 32,
           enableOutline: true,
           outlineColor: Colors.pinkAccent,
@@ -107,7 +107,7 @@ class TemplateData {
         ),
         Template(
           text: 'BE MINE?',
-          fontFamily: 'Beon',
+          fontFamily: 'NeonDerthaw',
           fontSize: 35,
           enableStroke: true,
           strokeColor: Colors.pink,
@@ -118,7 +118,7 @@ class TemplateData {
         ),
         Template(
           text: 'FOREVER & ALWAYS',
-          fontFamily: 'Roboto',
+          fontFamily: 'Mali',
           fontSize: 28,
           enableOutline: true,
           outlineColor: Colors.purpleAccent,
