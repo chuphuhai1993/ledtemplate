@@ -297,7 +297,7 @@ class _OnboardingPageState extends State<OnboardingPage>
               },
               body: Stack(
                 children: [
-                  Expanded(
+                  Positioned.fill(
                     child: TabBarView(
                       controller: _tabController,
                       children:

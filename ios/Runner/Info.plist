@@ -45,5 +45,33 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>10pixel.ttf</string>
+		<string>albertsans.ttf</string>
+		<string>amaline.ttf</string>
+		<string>anton.ttf</string>
+		<string>beon.ttf</string>
+		<string>betteroutline.ttf</string>
+		<string>creepster.ttf</string>
+		<string>crosseline.ttf</string>
+		<string>dynapuff.ttf</string>
+		<string>glowtone.otf</string>
+		<string>honeyline.ttf</string>
+		<string>klaxons.otf</string>
+		<string>mali.ttf</string>
+		<string>neonbines.ttf</string>
+		<string>neonblitz.ttf</string>
+		<string>neonderthaw.ttf</string>
+		<string>neonlight.ttf</string>
+		<string>neonsans.ttf</string>
+		<string>pacifico.ttf</string>
+		<string>playpensans.ttf</string>
+		<string>rookworst.ttf</string>
+		<string>ryga.ttf</string>
+		<string>sunsetclub.ttf</string>
+		<string>wednesline.ttf</string>
+		<string>wonderfulaustralia.otf</string>
+	</array>
 </dict>
 </plist>

@@ -573,8 +573,8 @@ class _EditorPageState extends State<EditorPage> {
                   children: [
                     TabBar(
                       tabs: const [
-                        Tab(text: 'Effect'),
                         Tab(text: 'Text'),
+                        Tab(text: 'Effects'),
                         Tab(text: 'Backdrop'),
                       ],
                       dividerHeight: 0.5,
@@ -595,58 +595,6 @@ class _EditorPageState extends State<EditorPage> {
                         child: TabBarView(
                           physics: const NeverScrollableScrollPhysics(),
                           children: [
-                            // Effect Tab
-                            _EffectSettingsPanel(
-                              enableScroll: _enableScroll,
-                              onEnableScrollChanged:
-                                  (v) => setState(() => _enableScroll = v),
-                              enableBounceZoom: _enableBounceZoom,
-                              onEnableBounceZoomChanged:
-                                  (v) => setState(() => _enableBounceZoom = v),
-                              enableBounce: _enableBounce,
-                              onEnableBounceChanged:
-                                  (v) => setState(() => _enableBounce = v),
-                              bounceDirection: _bounceDirection,
-                              onBounceDirectionChanged:
-                                  (v) => setState(() => _bounceDirection = v),
-                              scrollDirection: _scrollDirection,
-                              onScrollDirectionChanged:
-                                  (v) => setState(() => _scrollDirection = v),
-                              scrollSpeed: _scrollSpeed,
-                              onScrollSpeedChanged:
-                                  (v) => setState(() => _scrollSpeed = v),
-                              zoomLevel: _zoomLevel,
-                              onZoomLevelChanged:
-                                  (v) => setState(() => _zoomLevel = v),
-                              zoomSpeed: _zoomSpeed,
-                              onZoomSpeedChanged:
-                                  (v) => setState(() => _zoomSpeed = v),
-                              bounceLevel: _bounceLevel,
-                              onBounceLevelChanged:
-                                  (v) => setState(() => _bounceLevel = v),
-                              bounceSpeed: _bounceSpeed,
-                              onBounceSpeedChanged:
-                                  (v) => setState(() => _bounceSpeed = v),
-                              enableBlink: _enableBlink,
-                              onEnableBlinkChanged:
-                                  (v) => setState(() => _enableBlink = v),
-                              blinkDuration: _blinkDuration,
-                              onBlinkDurationChanged:
-                                  (v) => setState(() => _blinkDuration = v),
-                              enableRotationBounce: _enableRotationBounce,
-                              onEnableRotationBounceChanged:
-                                  (v) =>
-                                      setState(() => _enableRotationBounce = v),
-                              rotationStart: _rotationStart,
-                              onRotationStartChanged:
-                                  (v) => setState(() => _rotationStart = v),
-                              rotationEnd: _rotationEnd,
-                              onRotationEndChanged:
-                                  (v) => setState(() => _rotationEnd = v),
-                              rotationSpeed: _rotationSpeed,
-                              onRotationSpeedChanged:
-                                  (v) => setState(() => _rotationSpeed = v),
-                            ),
                             // Text Tab
                             _TextSettingsPanel(
                               text: _text,
@@ -724,6 +672,58 @@ class _EditorPageState extends State<EditorPage> {
                                     _shadowGradientColors = colors;
                                     _shadowGradientRotation = rotation;
                                   }),
+                            ),
+                            // Effects Tab
+                            _EffectSettingsPanel(
+                              enableScroll: _enableScroll,
+                              onEnableScrollChanged:
+                                  (v) => setState(() => _enableScroll = v),
+                              enableBounceZoom: _enableBounceZoom,
+                              onEnableBounceZoomChanged:
+                                  (v) => setState(() => _enableBounceZoom = v),
+                              enableBounce: _enableBounce,
+                              onEnableBounceChanged:
+                                  (v) => setState(() => _enableBounce = v),
+                              bounceDirection: _bounceDirection,
+                              onBounceDirectionChanged:
+                                  (v) => setState(() => _bounceDirection = v),
+                              scrollDirection: _scrollDirection,
+                              onScrollDirectionChanged:
+                                  (v) => setState(() => _scrollDirection = v),
+                              scrollSpeed: _scrollSpeed,
+                              onScrollSpeedChanged:
+                                  (v) => setState(() => _scrollSpeed = v),
+                              zoomLevel: _zoomLevel,
+                              onZoomLevelChanged:
+                                  (v) => setState(() => _zoomLevel = v),
+                              zoomSpeed: _zoomSpeed,
+                              onZoomSpeedChanged:
+                                  (v) => setState(() => _zoomSpeed = v),
+                              bounceLevel: _bounceLevel,
+                              onBounceLevelChanged:
+                                  (v) => setState(() => _bounceLevel = v),
+                              bounceSpeed: _bounceSpeed,
+                              onBounceSpeedChanged:
+                                  (v) => setState(() => _bounceSpeed = v),
+                              enableBlink: _enableBlink,
+                              onEnableBlinkChanged:
+                                  (v) => setState(() => _enableBlink = v),
+                              blinkDuration: _blinkDuration,
+                              onBlinkDurationChanged:
+                                  (v) => setState(() => _blinkDuration = v),
+                              enableRotationBounce: _enableRotationBounce,
+                              onEnableRotationBounceChanged:
+                                  (v) =>
+                                      setState(() => _enableRotationBounce = v),
+                              rotationStart: _rotationStart,
+                              onRotationStartChanged:
+                                  (v) => setState(() => _rotationStart = v),
+                              rotationEnd: _rotationEnd,
+                              onRotationEndChanged:
+                                  (v) => setState(() => _rotationEnd = v),
+                              rotationSpeed: _rotationSpeed,
+                              onRotationSpeedChanged:
+                                  (v) => setState(() => _rotationSpeed = v),
                             ),
                             // Backdrop Tab
                             _BackdropSettingsPanel(
@@ -885,7 +885,7 @@ class _EffectSettingsPanel extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      iconAsset: 'assets/images/icon_scroll.svg',
+                      iconAsset: 'assets/icons/icon_scroll.svg',
                       title: 'Scroll',
                     ),
                     AppSwitchWidget(
@@ -1004,7 +1004,7 @@ class _EffectSettingsPanel extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      iconAsset: 'assets/images/icon_zoom.svg',
+                      iconAsset: 'assets/icons/icon_zoom.svg',
                       title: 'Zoom',
                     ),
                     AppSwitchWidget(
@@ -1078,7 +1078,7 @@ class _EffectSettingsPanel extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      iconAsset: 'assets/images/icon_bounce.svg',
+                      iconAsset: 'assets/icons/icon_bounce.svg',
                       title: 'Bounce',
                     ),
                     AppSwitchWidget(
@@ -1187,7 +1187,7 @@ class _EffectSettingsPanel extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      iconAsset: 'assets/images/icon_blink.svg',
+                      iconAsset: 'assets/icons/icon_blink.svg',
                       title: 'Blink',
                     ),
                     AppSwitchWidget(
@@ -1248,7 +1248,7 @@ class _EffectSettingsPanel extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      iconAsset: 'assets/images/icon_rotate.svg',
+                      iconAsset: 'assets/icons/icon_rotate.svg',
                       title: 'Rotation',
                     ),
                     AppSwitchWidget(
@@ -1476,7 +1476,7 @@ class _TextSettingsPanel extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _SectionTitle(
-                iconAsset: 'assets/images/icon_font.svg',
+                iconAsset: 'assets/icons/icon_font.svg',
                 title: 'Font',
               ),
               SelectButtonWidget(
@@ -1517,7 +1517,7 @@ class _TextSettingsPanel extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _SectionTitle(
-                iconAsset: 'assets/images/icon_font_size.svg',
+                iconAsset: 'assets/icons/icon_font_size.svg',
                 title: 'Size',
                 value: '${fontSize.toStringAsFixed(0)}%',
               ),
@@ -1546,7 +1546,7 @@ class _TextSettingsPanel extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: _SectionTitle(
-                  iconAsset: 'assets/images/icon_color.svg',
+                  iconAsset: 'assets/icons/icon_color.svg',
                   title: 'Color',
                   value:
                       textGradientColors != null
@@ -1584,7 +1584,7 @@ class _TextSettingsPanel extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      iconAsset: 'assets/images/icon_stroke.svg',
+                      iconAsset: 'assets/icons/icon_stroke.svg',
                       title: 'Stroke',
                     ),
                     AppSwitchWidget(
@@ -1660,7 +1660,7 @@ class _TextSettingsPanel extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      iconAsset: 'assets/images/icon_glow.svg',
+                      iconAsset: 'assets/icons/icon_glow.svg',
                       title: 'Glow',
                     ),
                     AppSwitchWidget(
@@ -1748,7 +1748,7 @@ class _TextSettingsPanel extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      iconAsset: 'assets/images/icon_shadow.svg',
+                      iconAsset: 'assets/icons/icon_shadow.svg',
                       title: 'Shadow',
                     ),
                     AppSwitchWidget(
@@ -1964,7 +1964,7 @@ class _BackdropSettingsPanelState extends State<_BackdropSettingsPanel> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      iconAsset: 'assets/images/icon_background.svg',
+                      iconAsset: 'assets/icons/icon_background.svg',
                       title: 'Background',
                     ),
                     Row(
@@ -2046,7 +2046,7 @@ class _BackdropSettingsPanelState extends State<_BackdropSettingsPanel> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      iconAsset: 'assets/images/icon_frame.svg',
+                      iconAsset: 'assets/icons/icon_frame.svg',
                       title: 'Frame',
                     ),
                     AppSwitchWidget(
@@ -2101,7 +2101,7 @@ class _BackdropSettingsPanelState extends State<_BackdropSettingsPanel> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _SectionTitle(
-                      iconAsset: 'assets/images/icon_glow.svg',
+                      iconAsset: 'assets/icons/icon_glow.svg',
                       title: 'Frame Glow',
                     ),
                     AppSwitchWidget(
